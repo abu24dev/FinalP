@@ -72,7 +72,7 @@ public class AnimGLEventListener3 extends AnimListener {
         //abdo boda nahya
         // emad
 
-        //a7a b2a
+        //a7a b2a ya3m
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
