@@ -70,6 +70,7 @@ public class AnimGLEventListener3 extends AnimListener {
 //      DrawGraph(gl);
         DrawSprite(gl, x, y, animationIndex, 3.1f);
         //abdo boda nahya
+        // emad
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
