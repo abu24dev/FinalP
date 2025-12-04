@@ -66,9 +66,9 @@ public class AnimGLEventListener3 extends AnimListener {
         handleKeyPress();
         animationIndex = animationIndex % 4;
         
-        
+        // abo
 //      DrawGraph(gl);
-        DrawSprite(gl, x, y, animationIndex, 3.1f);
+       // DrawSprite(gl, x, y, animationIndex, 3.1f);
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
