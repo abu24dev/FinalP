@@ -67,6 +67,7 @@ public class AnimGLEventListener3 extends AnimListener {
 
 
         DrawSprite(gl, x, y, animationIndex, 3.1f);
+        //
 
 
 
