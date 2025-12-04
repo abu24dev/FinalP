@@ -71,11 +71,10 @@ public class AnimGLEventListener3 extends AnimListener {
         DrawSprite(gl, x, y, animationIndex, 3.1f);
         //abdo boda nahya
         // emad
-<<<<<<< HEAD
+
 
         //a7a b2a ya3m
-=======
->>>>>>> d38980bdcee45a310244fb98ffb4552620028f8e
+
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
