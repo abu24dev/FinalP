@@ -68,7 +68,7 @@ public class AnimGLEventListener3 extends AnimListener {
         
         // abo
 //      DrawGraph(gl);
-        DrawSprite(gl, x, y, animationIndex, 3.1f);
+       // DrawSprite(gl, x, y, animationIndex, 3.1f);
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
