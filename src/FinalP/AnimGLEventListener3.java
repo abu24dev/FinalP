@@ -66,7 +66,7 @@ public class AnimGLEventListener3 extends AnimListener {
         handleKeyPress();
         animationIndex = animationIndex % 4;
         
-        
+        // abo
 //      DrawGraph(gl);
         DrawSprite(gl, x, y, animationIndex, 3.1f);
     }
