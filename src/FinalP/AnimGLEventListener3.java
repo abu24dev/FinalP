@@ -1,7 +1,5 @@
 package FinalP;
-
 import FinalP.Texture.TextureReader;
-
 import java.awt.event.*;
 import java.io.IOException;
 import javax.media.opengl.*;
