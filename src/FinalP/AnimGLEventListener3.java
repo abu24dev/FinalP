@@ -146,13 +146,13 @@ public class AnimGLEventListener3 extends AnimListener {
         }
         if (isKeyPressed(KeyEvent.VK_DOWN)) {
             if (y > 0) {
-                y--;
+//                y--;
             }
             animationIndex++;
         }
         if (isKeyPressed(KeyEvent.VK_UP)) {
             if (y < maxHeight-10) {
-                y++;
+//                y++;
             }
             animationIndex++;
         }
