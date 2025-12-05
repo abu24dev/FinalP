@@ -150,6 +150,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        super.initUI(gl);
 
         loadCharacter(gl, 0, shinobiTextures, 0);
         loadCharacter(gl, 1, fighterTextures, 1);
@@ -239,16 +240,18 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
         DrawBackground(gl, bgIDs[charIndex]);
 
-        frameDelay++;
-
-        updateState();
+        if (!isPaused) {
+            frameDelay++;
+            updateState();
+            handleMovement();
+            handleCharacterSwitch();
+        }
 
         int texID = getCurrentFrame();
 
         DrawSprite(gl, x, y, texID, 3f, facingLeft);
 
-        handleMovement();
-        handleCharacterSwitch();
+        super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
     }
 
     // SHAPE
