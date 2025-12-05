@@ -76,7 +76,6 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-        super.initUI(gl);
 
         // 1. Load Textures
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
@@ -149,13 +148,11 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         DrawBackground(gl, bgIDs[0]); // Draw Background
 
         // Update and Draw Players
-        if (!isPaused) {
-            player1.update();
-            player2.update();
-        }
+        player1.update();
         player1.draw(gl);
+
+        player2.update();
         player2.draw(gl);
-        super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
     }
 
     void DrawBackground(GL gl, int tex){

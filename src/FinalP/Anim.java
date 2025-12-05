@@ -1,5 +1,15 @@
 package FinalP;
 
+
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+//package project;
+
+
 import com.sun.opengl.util.*;
 import java.awt.*;
 import javax.media.opengl.*;
@@ -7,30 +17,24 @@ import javax.swing.*;
 
 public class Anim extends JFrame {
 
-    // =================================================================
-    // 1. دالة Main: دي المسؤولة عن القائمة الرئيسية (Menu)
-    // =================================================================
+
     public static void main(String[] args) {
 
-        JFrame frame = new JFrame("Fighting Game Menu");
+        JFrame frame = new JFrame("Anim");
 
-        // إعداد خلفية القائمة
+        // panel الخلفية
         JPanel backgroundPanel = new JPanel() {
-            // تأكد إن الصورة 5.png موجودة جنب ملفات المشروع
             Image bg = new ImageIcon("5.png").getImage();
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // رسم الخلفية لتملأ الشاشة
-                if (bg != null) {
-                    g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-                }
+                g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
             }
         };
 
         backgroundPanel.setLayout(new GridLayout(5, 1, 10, 10));
 
-        // تعريف أزرار القائمة
         JButton singleBtn = new JButton("Single Player");
         JButton multiBtn  = new JButton("Multiplayer");
         JButton highBtn   = new JButton("HIGH SCORES");
@@ -43,18 +47,26 @@ public class Anim extends JFrame {
         singleBtn.setForeground(Color.WHITE);
 
         // تنسيق الأزرار
-        Color btnColor = new Color(0, 0, 0, 180); // أسود شفاف
+        Color btnColor = new Color(0, 0, 0, 180); // اسود شبه شفاف
+        singleBtn.setBackground(btnColor);
+        singleBtn.setForeground(Color.WHITE);
 
+<<<<<<< HEAD
 
         styleMenuButton(singleBtn, btnColor);
         styleMenuButton(multiBtn, btnColor);
         styleMenuButton(highBtn, btnColor);
+=======
+        multiBtn.setBackground(btnColor);
+        multiBtn.setForeground(Color.WHITE);
+
+        highBtn.setBackground(btnColor);
+        highBtn.setForeground(Color.WHITE);
+>>>>>>> parent of 5db3fce (music)
 
         exitBtn.setBackground(Color.RED);
         exitBtn.setForeground(Color.WHITE);
-        exitBtn.setFont(new Font("Arial", Font.BOLD, 18));
 
-        // إضافة العناصر للوحة
         backgroundPanel.add(makeTitle());
         backgroundPanel.add(singleBtn);
         backgroundPanel.add(multiBtn);
@@ -63,6 +75,7 @@ public class Anim extends JFrame {
 
         frame.setContentPane(backgroundPanel);
 
+<<<<<<< HEAD
 
 
         // =============================================================
@@ -71,34 +84,33 @@ public class Anim extends JFrame {
 
         // زرار Single Player
 
+=======
+        // باقي الأكشن
+>>>>>>> parent of 5db3fce (music)
         singleBtn.addActionListener(e -> {
-            frame.dispose(); // نقفل القائمة
-            new Anim();      // نفتح اللعبة (سنجل)
+            frame.dispose();
+            new Anim();
         });
 
-        // زرار Multiplayer
         multiBtn.addActionListener(e -> {
-            frame.dispose(); // نقفل القائمة
-            new Anim("Multiplayer"); // نفتح اللعبة (مالتي)
+            frame.dispose();
+            new Anim("Multiplayer");
         });
 
-        // زرار High Scores (لسه ملوش برمجة)
         highBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "High Scores Coming Soon!");
-            // لو عايز ترجعه للقائمة تاني:
-            // new Anim(); // غلط هنا، المفروض تفتح شاشة سكور
+            frame.dispose();
+            new Anim();
         });
 
-        // زرار Exit
         exitBtn.addActionListener(e -> System.exit(0));
 
-        // إعدادات نافذة القائمة
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(700, 700);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
+<<<<<<< HEAD
 
 
 
@@ -131,69 +143,58 @@ public class Anim extends JFrame {
         btn.setFocusPainted(false);
 
     }
+=======
+>>>>>>> parent of 5db3fce (music)
 
-    private static JLabel makeTitle() {
-        JLabel l = new JLabel("FIGHTING GAME", SwingConstants.CENTER);
-        l.setFont(new Font("Arial", Font.BOLD, 36));
-        l.setForeground(Color.WHITE); // لون الخط أبيض عشان يبان على الخلفية
-        return l;
-    }
 
-    // =================================================================
-    // 2. الجزء الخاص بتشغيل اللعبة نفسها (Constructors)
-    // =================================================================
-
-    // كونسركتور السنجل بلاير
     public Anim() {
-        setupGame(false); // false = single
-    }
+        GLCanvas glcanvas;
+        Animator animator;
 
-    // كونستركتور المالتي بلاير
-    public Anim(String mltp) {
-        setupGame(true); // true = multi
-    }
-
-    // الدالة الموحدة اللي بتشغل اللعبة والصوت والماوس
-    private void setupGame(boolean isMultiplayer) {
-        // 1. تشغيل الصوت (تأكد من وجود game.wav في Assets)
-        AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
-        myMusic.playMusic();
-
-        // 2. اختيار الليسنر المناسب
-        AnimListener listener;
-        if (isMultiplayer) {
-            listener = new AnimGLEventListener2(); // كلاس المالتي
-        } else {
-            listener = new AnimGLEventListener3(); // كلاس السنجل
-        }
-
-        // 3. تسليم "العهدة" (الصوت) لليسنر عشان الزراير تتحكم فيه
-        listener.setAudioPlayer(myMusic);
-
-        // 4. إعداد الـ Canvas
-        GLCanvas glcanvas = new GLCanvas();
+        AnimListener listener = new AnimGLEventListener3();
+        glcanvas = new GLCanvas();
         glcanvas.addGLEventListener(listener);
         glcanvas.addKeyListener(listener);
-
-        // >>> هام جداً: تفعيل الماوس عشان زراير الصوت والـ Pause تشتغل <<<
-        glcanvas.addMouseListener(listener);
-
-        // 5. إعداد الأنيميتور
-        Animator animator = new FPSAnimator(glcanvas, 25);
+        getContentPane().add(glcanvas, BorderLayout.CENTER);
+        animator = new FPSAnimator(25);
+        animator.add(glcanvas);
         animator.start();
 
-        // 6. إعداد نافذة اللعب
-        setTitle("Fighting Game - " + (isMultiplayer ? "Multiplayer" : "Single Player"));
+        setTitle("Anim Test");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(700, 700);
         setLocationRelativeTo(null);
-
-        // إضافة الكانفاس للشاشة
-        getContentPane().add(glcanvas, BorderLayout.CENTER);
-
         setVisible(true);
-
-        // التركيز على اللعبة عشان الكيبورد يشتغل علطول
-        glcanvas.requestFocusInWindow();
+        setFocusable(true);
+        glcanvas.requestFocus();
     }
+    public Anim(String mltp) {
+        GLCanvas glcanvas;
+        Animator animator;
+
+        AnimListener listener = new AnimGLEventListener2();
+        glcanvas = new GLCanvas();
+        glcanvas.addGLEventListener(listener);
+        glcanvas.addKeyListener(listener);
+        getContentPane().add(glcanvas, BorderLayout.CENTER);
+        animator = new FPSAnimator(25);
+        animator.add(glcanvas);
+        animator.start();
+
+        setTitle("Anim Test");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(700, 700);
+        setLocationRelativeTo(null);
+        setVisible(true);
+        setFocusable(true);
+        glcanvas.requestFocus();
+
+
+    }
+    private static JLabel makeTitle() {
+        JLabel l = new JLabel("FIGHTING GAME", SwingConstants.CENTER);
+        l.setFont(new Font("Arial", Font.BOLD, 26));
+        return l;
+    }
+
 }
