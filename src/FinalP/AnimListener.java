@@ -5,7 +5,7 @@ import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
 import java.awt.event.*;
 import java.io.IOException;
-
+//abo
 // الكلاس الأب هينفذ MouseListener عشان يشغل الزراير في أي مود
 public abstract class AnimListener implements GLEventListener, KeyListener, MouseListener {
 
