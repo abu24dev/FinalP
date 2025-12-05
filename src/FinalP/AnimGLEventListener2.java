@@ -8,14 +8,14 @@ import java.util.BitSet;
 
 public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
-    // كائنات اللاعبين
+    // Players
     Player player1;
     Player player2;
 
-    // مصفوفة لتخزين حالة الأزرار (Global)
+
     static BitSet keyBits = new BitSet(256);
 
-    // ================== Texture Arrays (نفس أسماء الصور الأصلية) ==================
+    // ================== Texture Arrays  ==================
     String[] shinobiTextures = {
             "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png","Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
             "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
@@ -292,7 +292,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 default: maxFrames = MAX_IDLE[charIndex]; break;
             }
 
-            if(frameDelay % 3 == 0){ // Speed of animation
+            if(frameDelay % 2 == 0){ // Speed of animation
                 animIndex++;
             }
             if(animIndex >= maxFrames) animIndex = 0;

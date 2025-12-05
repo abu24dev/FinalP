@@ -40,8 +40,8 @@ public class Anim extends JFrame {
         JButton highBtn   = new JButton("HIGH SCORES");
         JButton exitBtn   = new JButton("Exit");
 
-        // تنسيق الأزرار
-        Color btnColor = new Color(0, 0, 0, 180); // اسود شبه شفاف
+        // Buttons Style
+        Color btnColor = new Color(0, 0, 0, 180);
         singleBtn.setBackground(btnColor);
         singleBtn.setForeground(Color.WHITE);
 
@@ -62,7 +62,6 @@ public class Anim extends JFrame {
 
         frame.setContentPane(backgroundPanel);
 
-        // باقي الأكشن
         singleBtn.addActionListener(e -> {
             frame.dispose();
             new Anim();
@@ -97,7 +96,7 @@ public class Anim extends JFrame {
         glcanvas.addGLEventListener(listener);
         glcanvas.addKeyListener(listener);
         getContentPane().add(glcanvas, BorderLayout.CENTER);
-        animator = new FPSAnimator(25);
+        animator = new FPSAnimator(24);
         animator.add(glcanvas);
         animator.start();
 
