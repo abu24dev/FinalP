@@ -36,15 +36,15 @@ public class Anim extends JFrame {
         JButton highBtn   = new JButton("HIGH SCORES");
         JButton exitBtn   = new JButton("Exit");
 
-<<<<<<< HEAD
+
         // Buttons Style
         Color btnColor = new Color(0, 0, 0, 180);
         singleBtn.setBackground(btnColor);
         singleBtn.setForeground(Color.WHITE);
-=======
+
         // تنسيق الأزرار
         Color btnColor = new Color(0, 0, 0, 180); // أسود شفاف
->>>>>>> 5db3fcea3c70eb0e77ac6b9b288f85c6953636a8
+
 
         styleMenuButton(singleBtn, btnColor);
         styleMenuButton(multiBtn, btnColor);
@@ -63,14 +63,14 @@ public class Anim extends JFrame {
 
         frame.setContentPane(backgroundPanel);
 
-<<<<<<< HEAD
-=======
+
+
         // =============================================================
         // الأكشن للأزرار (هنا بننادي على اللعبة الجديدة)
         // =============================================================
 
         // زرار Single Player
->>>>>>> 5db3fcea3c70eb0e77ac6b9b288f85c6953636a8
+
         singleBtn.addActionListener(e -> {
             frame.dispose(); // نقفل القائمة
             new Anim();      // نفتح اللعبة (سنجل)
@@ -99,7 +99,7 @@ public class Anim extends JFrame {
         frame.setVisible(true);
     }
 
-<<<<<<< HEAD
+
 
 
     public Anim() {
@@ -122,14 +122,14 @@ public class Anim extends JFrame {
         setVisible(true);
         setFocusable(true);
         glcanvas.requestFocus();
-=======
+
     // دالة مساعدة لتنسيق زراير القائمة
     private static void styleMenuButton(JButton btn, Color color) {
         btn.setBackground(color);
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Arial", Font.BOLD, 18));
         btn.setFocusPainted(false);
->>>>>>> 5db3fcea3c70eb0e77ac6b9b288f85c6953636a8
+
     }
 
     private static JLabel makeTitle() {
