@@ -12,7 +12,7 @@ public class Anim extends JFrame {
         JFrame frame = new JFrame("Fighting Game Menu");
 
         JPanel backgroundPanel = new JPanel() {
-            Image bg = new ImageIcon("5.png").getImage();
+            Image bg = new ImageIcon("Summer4.png").getImage();
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -22,14 +22,27 @@ public class Anim extends JFrame {
             }
         };
 
-        backgroundPanel.setLayout(new GridLayout(5, 1, 10, 10));
-
         JButton singleBtn = new JButton("Single Player");
         JButton multiBtn  = new JButton("Multiplayer");
         JButton highBtn   = new JButton("HIGH SCORES");
         JButton exitBtn   = new JButton("Exit");
+        backgroundPanel.setLayout(new BoxLayout(backgroundPanel, BoxLayout.Y_AXIS));
 
-        Color btnColor = new Color(0, 0, 0, 180); // أسود شفاف
+        backgroundPanel.add(Box.createVerticalStrut(40));
+        backgroundPanel.add(makeCenteredPanel(makeTitle()));
+        backgroundPanel.add(Box.createVerticalStrut(10));
+        backgroundPanel.add(makeCenteredPanel(singleBtn));
+        backgroundPanel.add(Box.createVerticalStrut(10));
+        backgroundPanel.add(makeCenteredPanel(multiBtn));
+        backgroundPanel.add(Box.createVerticalStrut(10));
+        backgroundPanel.add(makeCenteredPanel(highBtn));
+        backgroundPanel.add(Box.createVerticalStrut(10));
+        backgroundPanel.add(makeCenteredPanel(exitBtn));
+
+
+
+
+        Color btnColor = new Color(126, 122, 122, 255); // أسود شفاف
 
         styleMenuButton(singleBtn, btnColor);
         styleMenuButton(multiBtn, btnColor);
@@ -40,11 +53,11 @@ public class Anim extends JFrame {
         exitBtn.setFont(new Font("Arial", Font.BOLD, 18));
 
 
-        backgroundPanel.add(makeTitle());
-        backgroundPanel.add(singleBtn);
-        backgroundPanel.add(multiBtn);
-        backgroundPanel.add(highBtn);
-        backgroundPanel.add(exitBtn);
+//        backgroundPanel.add(makeTitle());
+//        backgroundPanel.add(singleBtn);
+//        backgroundPanel.add(multiBtn);
+//        backgroundPanel.add(highBtn);
+//        backgroundPanel.add(exitBtn);
 
         frame.setContentPane(backgroundPanel);
 
@@ -70,7 +83,7 @@ public class Anim extends JFrame {
         exitBtn.addActionListener(e -> System.exit(0));
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(700, 700);
+        frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
@@ -80,7 +93,12 @@ public class Anim extends JFrame {
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Arial", Font.BOLD, 18));
         btn.setFocusPainted(false);
+
+        // خليهم True علشان الخلفية تظهر
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
     }
+
 
     private static JLabel makeTitle() {
         JLabel l = new JLabel("FIGHTING GAME", SwingConstants.CENTER);
@@ -88,6 +106,18 @@ public class Anim extends JFrame {
         l.setForeground(Color.WHITE); // لون الخط أبيض عشان يبان على الخلفية
         return l;
     }
+    private static JPanel makeCenteredPanel(JComponent comp) {
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        p.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        comp.setPreferredSize(new Dimension(300, 70)); // حجم أكبر
+
+        p.add(comp);
+        return p;
+    }
+
+
 
     // =================================================================
     // (Constructors)
