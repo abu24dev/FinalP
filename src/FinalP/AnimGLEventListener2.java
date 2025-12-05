@@ -8,14 +8,12 @@ import java.util.BitSet;
 
 public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
-    // Players
     Player player1;
     Player player2;
 
 
     static BitSet keyBits = new BitSet(256);
 
-    // ================== Texture Arrays  ==================
     String[] shinobiTextures = {
             "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png","Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
             "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
@@ -58,13 +56,13 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             "Assets/Samurai/7.png"
     };
 
-    // IDs Storage
+
     int[][] shinobiIDs;
     int[][] fighterIDs;
     int[][] samuraiIDs;
     int[] bgIDs = new int[3];
 
-    // Max Frames Constants
+
     int MAX_WALK[] = {8,8,8}, MAX_IDLE[] = {6,6,6}, MAX_ATTACK1[] = {5,4,6},
             MAX_ATTACK2[] = {3,3,4}, MAX_ATTACK3[] = {4,4,3}, MAX_JUMP[] = {11,10,12},
             MAX_RUN[] = {8,8,8}, MAX_HURT[] = {2,3,2}, MAX_DEAD[] = {4,3,3}, MAX_SHIELD[] = {4,2,2};
@@ -78,21 +76,17 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         super.initUI(gl);
 
-        // 1. Load Textures
+
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
         samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
-        // 2. Initialize Players
-        // Player 1 (Shinobi): Start at X=15 (Left side), Y=20, Facing Right (false)
         player1 = new Player(15, 20, shinobiIDs, 0, false);
-        // Controls: Arrows + Numpad
         player1.setControls(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D,
                 KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C);
 
-        // Player 2 (Samurai): Start at X=35 (Right side), Y=20, Facing Left (true)
         player2 = new Player(35, 20, samuraiIDs, 2, true);
-        // Controls: WASD + Space/Z/X
+
         player2.setControls(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
                 KeyEvent.VK_J, KeyEvent.VK_K, KeyEvent.VK_L);
 
@@ -101,12 +95,10 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
     }
 
-    // دالة تحميل الصور المعدلة لترتيب الـ IDs
     int[][] loadCharacter(GL gl, String[] texFiles, int charIdx) {
         int[][] ids = new int[10][15]; // [State][Frame]
         int offset = 0;
 
-        // الترتيب مهم جداً هنا ومطابق للـ Enum في كلاس Player
         for(int i=0; i<MAX_WALK[charIdx]; i++) ids[0][i] = genTex(gl, texFiles[offset++]);   // Walk
         for(int i=0; i<MAX_IDLE[charIdx]; i++) ids[1][i] = genTex(gl, texFiles[offset++]);   // Idle
         for(int i=0; i<MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]);// Att1
@@ -195,9 +187,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     @Override
     public void keyTyped(KeyEvent e) {}
 
-    // ==========================================
-    // INNER CLASS: PLAYER
-    // ==========================================
+
     class Player {
         int x, y;
         boolean facingLeft;
