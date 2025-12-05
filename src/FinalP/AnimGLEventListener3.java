@@ -115,7 +115,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     int MAX_WALK[] = {8,8,8}, MAX_IDLE[] = {6,6,6}, MAX_ATTACK1[] = {5,4,6},
             MAX_ATTACK2[] = {3,3,4}, MAX_ATTACK3[] = {4,4,3}, MAX_JUMP[] = {11,10,12},
             MAX_RUN[] = {8,8,8}, MAX_HURT[] = {2,3,2}, MAX_DEAD[] = {4,3,3}, MAX_SHIELD[] = {4,2,2};
-
+//sout
+    //sout
     // TEXTURE STORAGE
     TextureReader.Texture[][] walkTex = new TextureReader.Texture[3][12];
     TextureReader.Texture[][] idleTex = new TextureReader.Texture[3][12];
