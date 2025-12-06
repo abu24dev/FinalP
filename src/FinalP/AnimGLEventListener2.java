@@ -136,8 +136,9 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         DrawBackground(gl, bgIDs[0]);
 
         if (!isPaused) {
-            player1.update();
-            player2.update();
+            // --- التعديل هنا: بنبعت مكان الخصم للـ update ---
+            player1.update(player2.x);
+            player2.update(player1.x);
 
             checkAttackInternal(player1, player2);
             checkAttackInternal(player2, player1);
@@ -217,7 +218,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         // --- Physics Vars ---
         float velocityY = 0;
         float gravity = 0.1f;
-        float jumpPower = 1.25f;
+        float jumpPower = 1.4f;
         float groundY = 20;
         boolean isJumping = false;
 
@@ -237,7 +238,8 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             this.kAtt1 = a1; this.kAtt2 = a2; this.kAtt3 = a3;
         }
 
-        public void update(){
+        // --- التعديل هنا: الدالة تستقبل مكان الخصم ---
+        public void update(float enemyX){
             y += velocityY;
             velocityY -= gravity;
 
@@ -285,14 +287,27 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 state = 1;
             }
 
-            if(keyBits.get(kLeft)) {
-                if(x > 0) x -= 0.5f;
-                facingLeft = true;
+            // --- Movement Control ---
+            if (state != 9) {
+                if(keyBits.get(kLeft)) {
+                    if(x > 0) x -= 0.5f;
+                    // !!! مسحنا facingLeft من هنا !!!
+                }
+                if(keyBits.get(kRight)) {
+                    if(x < 50) x += 0.5f;
+                    // !!! مسحنا facingLeft من هنا !!!
+                }
             }
-            if(keyBits.get(kRight)) {
-                if(x < 50) x += 0.5f;
-                facingLeft = false;
+
+            // --- AUTO FACING LOGIC ---
+            // لو أنا على يسار الخصم (x أصغر)، أبص يمين (facingLeft = false)
+            // لو أنا على يمين الخصم (x أكبر)، أبص شمال (facingLeft = true)
+            if (this.x < enemyX) {
+                this.facingLeft = false;
+            } else {
+                this.facingLeft = true;
             }
+            // -------------------------
 
             if(state != lastState){
                 animIndex = 0; frameDelay = 0;
@@ -347,7 +362,6 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 default: maxFrames = MAX_IDLE[charIndex]; break;
             }
 
-            // --- التحكم في سرعة الانيميشن (3 = سرعة طبيعية) ---
             int speed = 3;
 
             if(frameDelay % speed == 0) animIndex++;
