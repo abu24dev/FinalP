@@ -160,10 +160,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         if (!attacker.facingLeft && attacker.x < victim.x) facingVictim = true;
 
         if (closeEnough && facingVictim && attacker.animIndex == 2) {
-            // !!! التعديل هنا !!!
-            // إذا كان الخصم يصد (state 9) أو يقفز (isJumping)، لا يحدث ضرر
             if (victim.state == 9 || victim.isJumping) return;
-
             victim.takeDamage();
         }
     }
@@ -204,7 +201,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     public void keyTyped(KeyEvent e) {}
 
 
-    // --- Player Class with Physics ---
+    // --- Player Class ---
     class Player {
         float x, y;
         boolean facingLeft;
@@ -220,7 +217,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         // --- Physics Vars ---
         float velocityY = 0;
         float gravity = 0.1f;
-        float jumpPower = 1.3f;
+        float jumpPower = 1.25f;
         float groundY = 20;
         boolean isJumping = false;
 
@@ -241,21 +238,6 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         }
 
         public void update(){
-            // --- Dead Logic ---
-            if (state == 8) {
-                if (animIndex < MAX_DEAD[charIndex] - 1) frameDelay++;
-                return;
-            }
-            // --- Hurt Logic ---
-            if (state == 7) {
-                frameDelay++;
-                if (frameDelay >= MAX_HURT[charIndex] * 3) {
-                    state = 1; animIndex = 0; frameDelay = 0;
-                }
-                return;
-            }
-
-            // --- Physics (Gravity) ---
             y += velocityY;
             velocityY -= gravity;
 
@@ -267,18 +249,30 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 isJumping = true;
             }
 
+            if (state == 8) {
+                frameDelay++;
+                return;
+            }
+
+            if (state == 7) {
+                frameDelay++;
+                if (frameDelay >= MAX_HURT[charIndex] * 3) {
+                    state = 1; animIndex = 0; frameDelay = 0;
+                }
+                return;
+            }
+
             lastState = state;
 
-            // --- Controls ---
             if(keyBits.get(kUp) && !isJumping) {
                 velocityY = jumpPower;
                 isJumping = true;
             }
 
             if (isJumping) {
-                state = 5; // Jump
+                state = 5;
             } else if (keyBits.get(kDown)) {
-                state = 9; // Shield
+                state = 9;
             } else if (keyBits.get(kAtt1)) {
                 state = 2;
             } else if (keyBits.get(kAtt2)) {
@@ -286,12 +280,11 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             } else if (keyBits.get(kAtt3)) {
                 state = 4;
             } else if (keyBits.get(kLeft) || keyBits.get(kRight)) {
-                state = 0; // Walk
+                state = 0;
             } else {
-                state = 1; // Idle
+                state = 1;
             }
 
-            // Movement
             if(keyBits.get(kLeft)) {
                 if(x > 0) x -= 0.5f;
                 facingLeft = true;
@@ -315,6 +308,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
             if (health <= 0) {
                 health = 0; state = 8;
+                animIndex = 0; frameDelay = 0;
                 System.out.println("Player Died");
             }
         }
@@ -353,7 +347,10 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 default: maxFrames = MAX_IDLE[charIndex]; break;
             }
 
-            if(frameDelay % 3 == 0) animIndex++;
+            // --- التحكم في سرعة الانيميشن (3 = سرعة طبيعية) ---
+            int speed = 3;
+
+            if(frameDelay % speed == 0) animIndex++;
 
             if ((state == 8 || state == 9) && animIndex >= maxFrames) {
                 animIndex = maxFrames - 1;
