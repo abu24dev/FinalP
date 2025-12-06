@@ -11,9 +11,9 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     Player player1;
     Player player2;
 
-
     static BitSet keyBits = new BitSet(256);
 
+    // --- Texture Arrays ---
     String[] shinobiTextures = {
             "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png","Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
             "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
@@ -56,13 +56,12 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             "Assets/Samurai/7.png"
     };
 
-
     int[][] shinobiIDs;
     int[][] fighterIDs;
     int[][] samuraiIDs;
     int[] bgIDs = new int[3];
 
-
+    // Frame counts
     int MAX_WALK[] = {8,8,8}, MAX_IDLE[] = {6,6,6}, MAX_ATTACK1[] = {5,4,6},
             MAX_ATTACK2[] = {3,3,4}, MAX_ATTACK3[] = {4,4,3}, MAX_JUMP[] = {11,10,12},
             MAX_RUN[] = {8,8,8}, MAX_HURT[] = {2,3,2}, MAX_DEAD[] = {4,3,3}, MAX_SHIELD[] = {4,2,2};
@@ -76,43 +75,39 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         super.initUI(gl);
 
-
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
         samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
+        // Player 1 (Shinobi)
         player1 = new Player(15, 20, shinobiIDs, 0, false);
         player1.setControls(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D,
                 KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C);
 
+        // Player 2 (Samurai)
         player2 = new Player(35, 20, samuraiIDs, 2, true);
-
         player2.setControls(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
                 KeyEvent.VK_J, KeyEvent.VK_K, KeyEvent.VK_L);
 
         System.out.println("Game Initialized!");
-
-
     }
 
     int[][] loadCharacter(GL gl, String[] texFiles, int charIdx) {
         int[][] ids = new int[10][15]; // [State][Frame]
         int offset = 0;
 
-        for(int i=0; i<MAX_WALK[charIdx]; i++) ids[0][i] = genTex(gl, texFiles[offset++]);   // Walk
-        for(int i=0; i<MAX_IDLE[charIdx]; i++) ids[1][i] = genTex(gl, texFiles[offset++]);   // Idle
-        for(int i=0; i<MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]);// Att1
-        for(int i=0; i<MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]);// Att2
-        for(int i=0; i<MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]);// Att3
-        for(int i=0; i<MAX_JUMP[charIdx]; i++) ids[5][i] = genTex(gl, texFiles[offset++]);   // Jump
-        for(int i=0; i<MAX_RUN[charIdx]; i++) ids[6][i] = genTex(gl, texFiles[offset++]);    // Run
-        for(int i=0; i<MAX_HURT[charIdx]; i++) ids[7][i] = genTex(gl, texFiles[offset++]);   // Hurt
-        for(int i=0; i<MAX_DEAD[charIdx]; i++) ids[8][i] = genTex(gl, texFiles[offset++]);   // Dead
-        for(int i=0; i<MAX_SHIELD[charIdx]; i++) ids[9][i] = genTex(gl, texFiles[offset++]); // Shield
+        for(int i=0; i<MAX_WALK[charIdx]; i++) ids[0][i] = genTex(gl, texFiles[offset++]);   // 0
+        for(int i=0; i<MAX_IDLE[charIdx]; i++) ids[1][i] = genTex(gl, texFiles[offset++]);   // 1
+        for(int i=0; i<MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]);// 2
+        for(int i=0; i<MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]);// 3
+        for(int i=0; i<MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]);// 4
+        for(int i=0; i<MAX_JUMP[charIdx]; i++) ids[5][i] = genTex(gl, texFiles[offset++]);   // 5
+        for(int i=0; i<MAX_RUN[charIdx]; i++) ids[6][i] = genTex(gl, texFiles[offset++]);    // 6
+        for(int i=0; i<MAX_HURT[charIdx]; i++) ids[7][i] = genTex(gl, texFiles[offset++]);   // 7
+        for(int i=0; i<MAX_DEAD[charIdx]; i++) ids[8][i] = genTex(gl, texFiles[offset++]);   // 8
+        for(int i=0; i<MAX_SHIELD[charIdx]; i++) ids[9][i] = genTex(gl, texFiles[offset++]); // 9
 
-        // Background loading
         bgIDs[charIdx] = genTex(gl, texFiles[offset]);
-
         return ids;
     }
 
@@ -138,16 +133,39 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
 
-        DrawBackground(gl, bgIDs[0]); // Draw Background
+        DrawBackground(gl, bgIDs[0]);
 
-        // Update and Draw Players
         if (!isPaused) {
             player1.update();
             player2.update();
+
+            checkAttackInternal(player1, player2);
+            checkAttackInternal(player2, player1);
         }
         player1.draw(gl);
         player2.draw(gl);
+
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
+    }
+
+    void checkAttackInternal(Player attacker, Player victim) {
+        boolean isAttacking = (attacker.state >= 2 && attacker.state <= 4);
+        if (!isAttacking) return;
+
+        int distance = Math.abs((int)attacker.x - (int)victim.x);
+        boolean closeEnough = distance < 6;
+
+        boolean facingVictim = false;
+        if (attacker.facingLeft && attacker.x > victim.x) facingVictim = true;
+        if (!attacker.facingLeft && attacker.x < victim.x) facingVictim = true;
+
+        if (closeEnough && facingVictim && attacker.animIndex == 2) {
+            // !!! التعديل هنا !!!
+            // إذا كان الخصم يصد (state 9) أو يقفز (isJumping)، لا يحدث ضرر
+            if (victim.state == 9 || victim.isJumping) return;
+
+            victim.takeDamage();
+        }
     }
 
     void DrawBackground(GL gl, int tex){
@@ -180,34 +198,38 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) { keyBits.set(e.getKeyCode(), true); }
-
     @Override
     public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
-
     @Override
     public void keyTyped(KeyEvent e) {}
 
 
+    // --- Player Class with Physics ---
     class Player {
-        int x, y;
+        float x, y;
         boolean facingLeft;
         int charIndex;
         int[][] textureIDs;
-
-        // Animation Vars
+        int health = 100;
         int animIndex = 0;
         int frameDelay = 0;
 
-        // State Mappings: 0=Walk, 1=Idle, 2=Att1, 3=Att2, 4=Att3, 5=Jump
         int state = 1;
         int lastState = 1;
 
-        // Controls
+        // --- Physics Vars ---
+        float velocityY = 0;
+        float gravity = 0.1f;
+        float jumpPower = 1.3f;
+        float groundY = 20;
+        boolean isJumping = false;
+
         int kUp, kDown, kLeft, kRight, kAtt1, kAtt2, kAtt3;
 
-        public Player(int startX, int startY, int[][] ids, int cIndex, boolean startFaceLeft){
+        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft){
             this.x = startX;
             this.y = startY;
+            this.groundY = startY;
             this.textureIDs = ids;
             this.charIndex = cIndex;
             this.facingLeft = startFaceLeft;
@@ -219,56 +241,99 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         }
 
         public void update(){
+            // --- Dead Logic ---
+            if (state == 8) {
+                if (animIndex < MAX_DEAD[charIndex] - 1) frameDelay++;
+                return;
+            }
+            // --- Hurt Logic ---
+            if (state == 7) {
+                frameDelay++;
+                if (frameDelay >= MAX_HURT[charIndex] * 3) {
+                    state = 1; animIndex = 0; frameDelay = 0;
+                }
+                return;
+            }
+
+            // --- Physics (Gravity) ---
+            y += velocityY;
+            velocityY -= gravity;
+
+            if (y <= groundY) {
+                y = groundY;
+                velocityY = 0;
+                isJumping = false;
+            } else {
+                isJumping = true;
+            }
+
             lastState = state;
 
-            // Check Input
-            if(keyBits.get(kUp)) state = 5; // Jump
-            else if(keyBits.get(kAtt1)) state = 2; // Attack 1
-            else if(keyBits.get(kAtt2)) state = 3; // Attack 2
-            else if(keyBits.get(kAtt3)) state = 4; // Attack 3
-            else if(keyBits.get(kLeft) || keyBits.get(kRight)) state = 0; // Walk
-            else state = 1; // Idle
+            // --- Controls ---
+            if(keyBits.get(kUp) && !isJumping) {
+                velocityY = jumpPower;
+                isJumping = true;
+            }
 
-            // Movement Logic
+            if (isJumping) {
+                state = 5; // Jump
+            } else if (keyBits.get(kDown)) {
+                state = 9; // Shield
+            } else if (keyBits.get(kAtt1)) {
+                state = 2;
+            } else if (keyBits.get(kAtt2)) {
+                state = 3;
+            } else if (keyBits.get(kAtt3)) {
+                state = 4;
+            } else if (keyBits.get(kLeft) || keyBits.get(kRight)) {
+                state = 0; // Walk
+            } else {
+                state = 1; // Idle
+            }
+
+            // Movement
             if(keyBits.get(kLeft)) {
-                x--;
+                if(x > 0) x -= 0.5f;
                 facingLeft = true;
             }
             if(keyBits.get(kRight)) {
-                x++;
+                if(x < 50) x += 0.5f;
                 facingLeft = false;
             }
 
-            // Animation Reset Logic
             if(state != lastState){
-                animIndex = 0;
+                animIndex = 0; frameDelay = 0;
             }
-
             frameDelay++;
+        }
+
+        public void takeDamage() {
+            if(state == 8 || state == 7 || state == 9) return;
+
+            health -= 20;
+            state = 7; animIndex = 0; frameDelay = 0;
+
+            if (health <= 0) {
+                health = 0; state = 8;
+                System.out.println("Player Died");
+            }
         }
 
         public void draw(GL gl){
             int texID = getCurrentFrame();
-
             gl.glEnable(GL.GL_BLEND);
             gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
             gl.glPushMatrix();
 
-            // Coordinate Calculation based on x/25.0 - 1
-            // Range 0 to 50 covers -1 to 1
             gl.glTranslated(x/25.0 - 1, y/25.0 - 1, 0);
 
-            // Scale and Flip
-            // 3f makes it big enough
-            gl.glScaled(facingLeft ? -0.1 * 3f : 0.1 * 3f, 0.1 * 3f, 1);
-
+            gl.glScaled(facingLeft ? -0.3 : 0.3, 0.3, 1);
             gl.glBegin(GL.GL_QUADS);
             gl.glTexCoord2f(0,0); gl.glVertex3f(-1,-1,0);
             gl.glTexCoord2f(1,0); gl.glVertex3f(1,-1,0);
             gl.glTexCoord2f(1,1); gl.glVertex3f(1,1,0);
             gl.glTexCoord2f(0,1); gl.glVertex3f(-1,1,0);
             gl.glEnd();
-
             gl.glPopMatrix();
             gl.glDisable(GL.GL_BLEND);
         }
@@ -282,14 +347,20 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 case 3: maxFrames = MAX_ATTACK2[charIndex]; break;
                 case 4: maxFrames = MAX_ATTACK3[charIndex]; break;
                 case 5: maxFrames = MAX_JUMP[charIndex]; break;
+                case 7: maxFrames = MAX_HURT[charIndex]; break;
+                case 8: maxFrames = MAX_DEAD[charIndex]; break;
+                case 9: maxFrames = MAX_SHIELD[charIndex]; break;
                 default: maxFrames = MAX_IDLE[charIndex]; break;
             }
 
-            if(frameDelay % 2 == 0){ // Speed of animation
-                animIndex++;
-            }
-            if(animIndex >= maxFrames) animIndex = 0;
+            if(frameDelay % 3 == 0) animIndex++;
 
+            if ((state == 8 || state == 9) && animIndex >= maxFrames) {
+                animIndex = maxFrames - 1;
+            }
+            else if(animIndex >= maxFrames) {
+                animIndex = 0;
+            }
             return textureIDs[state][animIndex];
         }
     }
