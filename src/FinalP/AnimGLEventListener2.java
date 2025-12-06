@@ -220,7 +220,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         // --- Physics Vars ---
         float velocityY = 0;
         float gravity = 0.1f;
-        float jumpPower = 1.3f;
+        float jumpPower = 1.4f;
         float groundY = 20;
         boolean isJumping = false;
 
