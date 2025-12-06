@@ -10,13 +10,9 @@ public class MainMenu extends JFrame {
         setSize(1000, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Panel الخلفية الأساسية
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setOpaque(false);
-
-        // إضافة صورة خلفية
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Summer4.png").getImage();
             @Override
@@ -27,7 +23,6 @@ public class MainMenu extends JFrame {
         });
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        // Buttons
         JButton newGameBtn = new JButton("New Game");
         JButton highScoresBtn = new JButton("High Scores");
         JButton exitBtn = new JButton("Exit");
@@ -35,7 +30,6 @@ public class MainMenu extends JFrame {
 
         styleButton(newGameBtn);
         styleButton(highScoresBtn);
-//        styleButton(exitBtn);
         exitBtn.setFont(new Font("Arial", Font.BOLD, 24));
         exitBtn.setPreferredSize(new Dimension(300, 60));
         exitBtn.setBackground(Color.RED);
@@ -48,10 +42,10 @@ public class MainMenu extends JFrame {
         add(Box.createVerticalStrut(20));
         add(center(exitBtn));
 
-        // Actions
+
         newGameBtn.addActionListener(e -> {
             dispose();
-            new GameModeMenu(); // فتح القائمة التالية
+            new GameModeMenu();
         });
 
         highScoresBtn.addActionListener(e -> {
@@ -82,10 +76,4 @@ public class MainMenu extends JFrame {
     public static void main(String[] args) {
         new MainMenu();
     }
-//    private static JLabel makeTitle() {
-//        JLabel l = new JLabel("FIGHTING GAME", SwingConstants.CENTER);
-//        l.setFont(new Font("Arial", Font.BOLD, 36));
-//        l.setForeground(Color.WHITE);
-//        return l;
-//    }
 }

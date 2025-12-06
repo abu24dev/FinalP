@@ -50,12 +50,12 @@ public class GameModeMenu extends JFrame {
         // Actions
         singleBtn.addActionListener(e -> {
             dispose();
-            new Anim(); // ينفّذ الكونستركتور العادي
+            new Anim();
         });
 
         multiBtn.addActionListener(e -> {
             dispose();
-            new Anim("Multiplayer"); // ينفّذ الكونستركتور اللي بياخد String
+            new Anim("Multiplayer");
         });
 
         backBtn.addActionListener(e -> {
