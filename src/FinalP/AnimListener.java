@@ -2,38 +2,35 @@ package FinalP;
 
 import FinalP.Texture.TextureReader;
 import javax.media.opengl.*;
+import javax.swing.*;
 import javax.media.opengl.glu.GLU;
 import java.awt.event.*;
 import java.io.IOException;
-//abo
-// الكلاس الأب هينفذ MouseListener عشان يشغل الزراير في أي مود
+
 public abstract class AnimListener implements GLEventListener, KeyListener, MouseListener {
 
     protected String assetsFolderName = "Assets";
 
-    // =============================================================
-    // متغيرات مشتركة (الصوت، الحالة، صور الزراير)
-    // =============================================================
-    protected AudioPlayer audioPlayer; // الصوت
-    public boolean isPaused = false;   // عشان الكلاسات التانية تشوفها وتوقف اللعب
+    protected AudioPlayer audioPlayer;
+    public boolean isPaused = false;
 
-    // IDs وأبعاد الزراير
     int pauseID, playID, soundOnID, soundOffID;
-    int width, height; // أبعاد الشاشة
-
+    int width, height;
+    JPanel pausePanel;
     // مكان وحجم الزراير
     int btnSize = 60;
     int margin = 30;
     int btn1X, btn1Y, btn2X, btn2Y;
 
-    // دالة لاستقبال كائن الصوت من الـ Main
+
     public void setAudioPlayer(AudioPlayer audio) {
         this.audioPlayer = audio;
     }
 
-    // =============================================================
-    // دالة تحميل صور الزراير (هنناديها جوه init في الكلاسات الابن)
-    // =============================================================
+    public void setPausePanel(JPanel panel) {this.pausePanel = panel;}
+
+    public abstract void resetGame();
+
     public void initUI(GL gl) {
         try {
             pauseID = loadOneTexture(gl, "Assets/pause.png");
@@ -45,9 +42,7 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         }
     }
 
-    // =============================================================
-    // دالة رسم الواجهة (هنناديها جوه display في الكلاسات الابن)
-    // =============================================================
+
     public void drawUI(GL gl, int w, int h) {
         this.width = w;
         this.height = h;
@@ -119,6 +114,11 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
         if (mx >= btn1X && mx <= btn1X + btnSize && my >= btn1Y && my <= btn1Y + btnSize) {
             isPaused = !isPaused; // عكس الحالة
+
+            if (pausePanel != null) {
+                pausePanel.setVisible(isPaused);
+            }
+
         }
         else if (mx >= btn2X && mx <= btn2X + btnSize && my >= btn2Y && my <= btn2Y + btnSize) {
             if(audioPlayer != null) audioPlayer.toggleMute();

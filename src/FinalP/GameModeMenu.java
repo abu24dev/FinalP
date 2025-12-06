@@ -4,12 +4,18 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GameModeMenu extends JFrame {
+    private ImageIcon soundOnIcon;
+    private ImageIcon soundOffIcon;
+    private JButton soundBtn;
 
-    public GameModeMenu() {
+    public GameModeMenu(AudioPlayer menuMusic) {
         setTitle("Select Game Mode");
         setSize(1000, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        soundOnIcon = resizeIcon("Assets/sound_on.png", 50, 50);
+        soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Summer4.png").getImage();
@@ -21,6 +27,30 @@ public class GameModeMenu extends JFrame {
         });
 
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.setOpaque(false);
+
+        if (menuMusic != null && menuMusic.isMuted()) {
+            soundBtn = new JButton(soundOffIcon);
+        } else {
+            soundBtn = new JButton(soundOnIcon);
+        }
+        styleSoundButton(soundBtn);
+
+        soundBtn.addActionListener(e -> {
+            if (menuMusic != null) {
+                menuMusic.toggleMute();
+                // تحديث الأيقونة
+                if (menuMusic.isMuted()) {
+                    soundBtn.setIcon(soundOffIcon);
+                } else {
+                    soundBtn.setIcon(soundOnIcon);
+                }
+            }
+        });
+        topPanel.add(soundBtn);
+        add(topPanel);
 
         JLabel title = new JLabel("SELECT GAME MODE", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 36));
@@ -49,16 +79,19 @@ public class GameModeMenu extends JFrame {
 
         // Actions
         singleBtn.addActionListener(e -> {
+            if (menuMusic != null) menuMusic.stop();
             dispose();
             new Anim();
         });
 
         multiBtn.addActionListener(e -> {
+            if (menuMusic != null) menuMusic.stop();
             dispose();
             new Anim("Multiplayer");
         });
 
         backBtn.addActionListener(e -> {
+            if (menuMusic != null) menuMusic.stop();
             dispose();
             new MainMenu();
         });
@@ -81,4 +114,21 @@ public class GameModeMenu extends JFrame {
         p.add(c);
         return p;
     }
+    private ImageIcon resizeIcon(String path, int width, int height) {
+        ImageIcon icon = new ImageIcon(path);
+        Image img = icon.getImage();
+        Image newImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(newImg);
+    }
+    private void styleSoundButton(JButton b) {
+        b.setPreferredSize(new Dimension(60, 60));
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setOpaque(false);
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
 }
+
+

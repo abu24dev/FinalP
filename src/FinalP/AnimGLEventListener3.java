@@ -159,6 +159,23 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glOrtho(-1,1,-1,1,-1,1);  // same as multiplayer
         gl.glMatrixMode(GL.GL_MODELVIEW);
     }
+    @Override
+    public void resetGame() {
+        // 1. إرجاع اللاعب لنقطة البداية (نفس الأرقام اللي في init)
+        player1.x = 15;
+        player1.y = 20;
+
+        // 2. تصفير الحالة
+        player1.state = 1; // Idle
+        player1.facingLeft = false;
+        player1.velocityY = 0;
+        player1.isJumping = false;
+        player1.health = 100; // لو بتستخدم الـ Health
+
+        // 3. مسح الأزرار المعلقة عشان اللاعب ميفضلش بيتحرك لوحده
+        keyBits.clear();
+    }
+
 
     @Override
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
@@ -170,6 +187,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
     @Override
     public void keyTyped(KeyEvent e)    {}
+
+
 
     // =========================================================
     //  Inner Player class (copied from your multiplayer version)
@@ -327,4 +346,5 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             return textureIDs[state][animIndex];
         }
     }
+
 }

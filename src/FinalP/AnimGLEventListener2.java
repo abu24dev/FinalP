@@ -200,6 +200,24 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
     @Override
     public void keyTyped(KeyEvent e) {}
+    @Override
+    public void resetGame() {
+        // إعادة ضبط اللاعب الأول
+        player1.x = 15;
+        player1.y = 20;
+        player1.state = 1; // Idle
+        player1.facingLeft = false;
+
+        // إعادة ضبط اللاعب الثاني
+        player2.x = 35;
+        player2.y = 20;
+        player2.state = 1; // Idle
+        player2.facingLeft = true;
+
+        // مسح أي أزرار كانت مضغوطة عشان اللاعب ميعلقش
+        keyBits.clear();
+    }
+
 
 
     // --- Player Class ---
