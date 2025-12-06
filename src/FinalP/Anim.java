@@ -9,79 +9,80 @@ public class Anim extends JFrame {
 
     public static void main(String[] args) {
 
-        JFrame frame = new JFrame("Fighting Game Menu");
-
-        JPanel backgroundPanel = new JPanel() {
-            Image bg = new ImageIcon("Summer4.png").getImage();
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (bg != null) {
-                    g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-                }
-            }
-        };
-
-        JButton singleBtn = new JButton("Single Player");
-        JButton multiBtn  = new JButton("Multiplayer");
-        JButton highBtn   = new JButton("HIGH SCORES");
-        JButton exitBtn   = new JButton("Exit");
-        backgroundPanel.setLayout(new BoxLayout(backgroundPanel, BoxLayout.Y_AXIS));
-
-        backgroundPanel.add(Box.createVerticalStrut(40));
-        backgroundPanel.add(makeCenteredPanel(makeTitle()));
-        backgroundPanel.add(Box.createVerticalStrut(10));
-        backgroundPanel.add(makeCenteredPanel(singleBtn));
-        backgroundPanel.add(Box.createVerticalStrut(10));
-        backgroundPanel.add(makeCenteredPanel(multiBtn));
-        backgroundPanel.add(Box.createVerticalStrut(10));
-        backgroundPanel.add(makeCenteredPanel(highBtn));
-        backgroundPanel.add(Box.createVerticalStrut(10));
-        backgroundPanel.add(makeCenteredPanel(exitBtn));
-
-
-
-
-        Color btnColor = new Color(126, 122, 122, 255); // أسود شفاف
-
-        styleMenuButton(singleBtn, btnColor);
-        styleMenuButton(multiBtn, btnColor);
-        styleMenuButton(highBtn, btnColor);
-
-        exitBtn.setBackground(Color.RED);
-        exitBtn.setForeground(Color.WHITE);
-        exitBtn.setFont(new Font("Arial", Font.BOLD, 18));
-
-
-
-
-        frame.setContentPane(backgroundPanel);
-
-
-        //  Single Player
-        singleBtn.addActionListener(e -> {
-            frame.dispose();
-            new Anim();
-        });
-
-        //  Multiplayer
-        multiBtn.addActionListener(e -> {
-            frame.dispose();
-            new Anim("Multiplayer");
-        });
-
-        // زرار High Scores (لسه ملوش برمجة)
-        highBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "High Scores Coming Soon!");
-
-        });
-        //Exit
-        exitBtn.addActionListener(e -> System.exit(0));
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1000, 600);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+//        JFrame frame = new JFrame("Fighting Game Menu");
+//
+//        JPanel backgroundPanel = new JPanel() {
+//            Image bg = new ImageIcon("Summer4.png").getImage();
+//            @Override
+//            protected void paintComponent(Graphics g) {
+//                super.paintComponent(g);
+//                if (bg != null) {
+//                    g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+//                }
+//            }
+//        };
+//
+//        JButton singleBtn = new JButton("Single Player");
+//        JButton multiBtn  = new JButton("Multiplayer");
+//        JButton highBtn   = new JButton("HIGH SCORES");
+//        JButton exitBtn   = new JButton("Exit");
+//        backgroundPanel.setLayout(new BoxLayout(backgroundPanel, BoxLayout.Y_AXIS));
+//
+//        backgroundPanel.add(Box.createVerticalStrut(40));
+//        backgroundPanel.add(makeCenteredPanel(makeTitle()));
+//        backgroundPanel.add(Box.createVerticalStrut(10));
+//        backgroundPanel.add(makeCenteredPanel(singleBtn));
+//        backgroundPanel.add(Box.createVerticalStrut(10));
+//        backgroundPanel.add(makeCenteredPanel(multiBtn));
+//        backgroundPanel.add(Box.createVerticalStrut(10));
+//        backgroundPanel.add(makeCenteredPanel(highBtn));
+//        backgroundPanel.add(Box.createVerticalStrut(10));
+//        backgroundPanel.add(makeCenteredPanel(exitBtn));
+//
+//
+//
+//
+//        Color btnColor = new Color(126, 122, 122, 255); // أسود شفاف
+//
+//        styleMenuButton(singleBtn, btnColor);
+//        styleMenuButton(multiBtn, btnColor);
+//        styleMenuButton(highBtn, btnColor);
+//
+//        exitBtn.setBackground(Color.RED);
+//        exitBtn.setForeground(Color.WHITE);
+//        exitBtn.setFont(new Font("Arial", Font.BOLD, 18));
+//
+//
+//
+//
+//        frame.setContentPane(backgroundPanel);
+//
+//
+//        //  Single Player
+//        singleBtn.addActionListener(e -> {
+//            frame.dispose();
+//            new Anim();
+//        });
+//
+//        //  Multiplayer
+//        multiBtn.addActionListener(e -> {
+//            frame.dispose();
+//            new Anim("Multiplayer");
+//        });
+//
+//        // زرار High Scores (لسه ملوش برمجة)
+//        highBtn.addActionListener(e -> {
+//            JOptionPane.showMessageDialog(frame, "High Scores Coming Soon!");
+//
+//        });
+//        //Exit
+//        exitBtn.addActionListener(e -> System.exit(0));
+//
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.setSize(1000, 600);
+//        frame.setLocationRelativeTo(null);
+//        frame.setVisible(true);
+        new MainMenu();
     }
 
     private static void styleMenuButton(JButton btn, Color color) {
