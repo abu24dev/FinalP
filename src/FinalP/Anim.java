@@ -53,11 +53,7 @@ public class Anim extends JFrame {
         exitBtn.setFont(new Font("Arial", Font.BOLD, 18));
 
 
-//        backgroundPanel.add(makeTitle());
-//        backgroundPanel.add(singleBtn);
-//        backgroundPanel.add(multiBtn);
-//        backgroundPanel.add(highBtn);
-//        backgroundPanel.add(exitBtn);
+
 
         frame.setContentPane(backgroundPanel);
 
@@ -94,7 +90,7 @@ public class Anim extends JFrame {
         btn.setFont(new Font("Arial", Font.BOLD, 18));
         btn.setFocusPainted(false);
 
-        // خليهم True علشان الخلفية تظهر
+
         btn.setContentAreaFilled(true);
         btn.setOpaque(true);
     }
@@ -103,7 +99,7 @@ public class Anim extends JFrame {
     private static JLabel makeTitle() {
         JLabel l = new JLabel("FIGHTING GAME", SwingConstants.CENTER);
         l.setFont(new Font("Arial", Font.BOLD, 36));
-        l.setForeground(Color.WHITE); // لون الخط أبيض عشان يبان على الخلفية
+        l.setForeground(Color.WHITE);
         return l;
     }
     private static JPanel makeCenteredPanel(JComponent comp) {
@@ -111,7 +107,7 @@ public class Anim extends JFrame {
         p.setOpaque(false);
         p.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-        comp.setPreferredSize(new Dimension(300, 70)); // حجم أكبر
+        comp.setPreferredSize(new Dimension(300, 70));
 
         p.add(comp);
         return p;
@@ -124,23 +120,16 @@ public class Anim extends JFrame {
     // =================================================================
 
     public Anim() {
-        setupGame(false); // false = single
-    }
-
-    public Anim(String mltp) {
-        setupGame(true); // true = multi
-    }
-
-    private void setupGame(boolean isMultiplayer) {
         AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
         myMusic.playMusic();
 
-        AnimListener listener;
-        if (isMultiplayer) {
-            listener = new AnimGLEventListener2(); // كلاس المالتي
-        } else {
-            listener = new AnimGLEventListener3(); // كلاس السنجل
-        }
+//        AnimListener listener;
+//        if (isMultiplayer) {
+//            listener = new AnimGLEventListener2(); // كلاس المالتي
+//        } else {
+//            listener = new AnimGLEventListener3(); // كلاس السنجل
+//        }
+        AnimGLEventListener3 listener = new AnimGLEventListener3();
 
         listener.setAudioPlayer(myMusic);
 
@@ -153,7 +142,40 @@ public class Anim extends JFrame {
         Animator animator = new FPSAnimator(glcanvas, 24);
         animator.start();
 
-        setTitle("Fighting Game - " + (isMultiplayer ? "Multiplayer" : "Single Player"));
+        setTitle("Fighting Game - " +  "Single Player");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(700, 700);
+        setLocationRelativeTo(null);
+
+        getContentPane().add(glcanvas, BorderLayout.CENTER);
+
+        setVisible(true);
+
+        glcanvas.requestFocusInWindow(); // false = single
+    }
+
+    public Anim(String mltp) {
+        AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
+        myMusic.playMusic();
+
+//        AnimListener listener;
+//        if (isMultiplayer) {
+//            listener = new AnimGLEventListener2(); // كلاس المالتي
+//        } else {
+//            listener = new AnimGLEventListener3(); // كلاس السنجل
+//        }
+        AnimGLEventListener2 listener = new AnimGLEventListener2();
+        listener.setAudioPlayer(myMusic);
+        GLCanvas glcanvas = new GLCanvas();
+        glcanvas.addGLEventListener(listener);
+        glcanvas.addKeyListener(listener);
+
+        glcanvas.addMouseListener(listener);
+
+        Animator animator = new FPSAnimator(glcanvas, 24);
+        animator.start();
+
+        setTitle("Fighting Game - " +  "Multiplayer" );
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(700, 700);
         setLocationRelativeTo(null);
@@ -163,5 +185,73 @@ public class Anim extends JFrame {
         setVisible(true);
 
         glcanvas.requestFocusInWindow();
-    }
+    } // true = multi
+
+
+//    private void setupGameSingle(boolean isMultiplayer) {
+//        AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
+//        myMusic.playMusic();
+//
+////        AnimListener listener;
+////        if (isMultiplayer) {
+////            listener = new AnimGLEventListener2(); // كلاس المالتي
+////        } else {
+////            listener = new AnimGLEventListener3(); // كلاس السنجل
+////        }
+//        AnimGLEventListener3 listener = new AnimGLEventListener3();
+//
+//        listener.setAudioPlayer(myMusic);
+//
+//        GLCanvas glcanvas = new GLCanvas();
+//        glcanvas.addGLEventListener(listener);
+//        glcanvas.addKeyListener(listener);
+//
+//        glcanvas.addMouseListener(listener);
+//
+//        Animator animator = new FPSAnimator(glcanvas, 24);
+//        animator.start();
+//
+//        setTitle("Fighting Game - " + (isMultiplayer ? "Multiplayer" : "Single Player"));
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(700, 700);
+//        setLocationRelativeTo(null);
+//
+//        getContentPane().add(glcanvas, BorderLayout.CENTER);
+//
+//        setVisible(true);
+//
+//        glcanvas.requestFocusInWindow();
+//    }
+//    private void setupGameMulti(boolean isMultiplayer) {
+//        AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
+//        myMusic.playMusic();
+//
+////        AnimListener listener;
+////        if (isMultiplayer) {
+////            listener = new AnimGLEventListener2(); // كلاس المالتي
+////        } else {
+////            listener = new AnimGLEventListener3(); // كلاس السنجل
+////        }
+//        AnimGLEventListener2 listener = new AnimGLEventListener2();
+//        listener.setAudioPlayer(myMusic);
+//        GLCanvas glcanvas = new GLCanvas();
+//        glcanvas.addGLEventListener(listener);
+//        glcanvas.addKeyListener(listener);
+//
+//        glcanvas.addMouseListener(listener);
+//
+//        Animator animator = new FPSAnimator(glcanvas, 24);
+//        animator.start();
+//
+//        setTitle("Fighting Game - " + (isMultiplayer ? "Multiplayer" : "Single Player"));
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setSize(700, 700);
+//        setLocationRelativeTo(null);
+//
+//        getContentPane().add(glcanvas, BorderLayout.CENTER);
+//
+//        setVisible(true);
+//
+//        glcanvas.requestFocusInWindow();
+//    }
 }
