@@ -436,14 +436,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 checkHit(target);
             }
 
-            // Auto-facing logic (from version 3)
-            if (target != null) {
-                if (this.x < target.x) {
-                    this.facingLeft = false; // Face right when target is to the right
-                } else {
-                    this.facingLeft = true;  // Face left when target is to the left
-                }
-            }
+
 
             // Reset animation if state changed
             if (state != lastState) {

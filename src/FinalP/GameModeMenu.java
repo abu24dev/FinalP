@@ -31,6 +31,7 @@ public class GameModeMenu extends JFrame {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
 
+        // ضبط زر الصوت بناءً على حالة الموسيقى المستلمة
         if (menuMusic != null && menuMusic.isMuted()) {
             soundBtn = new JButton(soundOffIcon);
         } else {
@@ -41,7 +42,6 @@ public class GameModeMenu extends JFrame {
         soundBtn.addActionListener(e -> {
             if (menuMusic != null) {
                 menuMusic.toggleMute();
-                // تحديث الأيقونة
                 if (menuMusic.isMuted()) {
                     soundBtn.setIcon(soundOffIcon);
                 } else {
@@ -56,19 +56,14 @@ public class GameModeMenu extends JFrame {
         title.setFont(new Font("Arial", Font.BOLD, 36));
         title.setForeground(Color.WHITE);
 
-        // ... داخل الكونستركتور ...
-
         JButton singleBtn = new JButton("Single Player");
         JButton multiBtn = new JButton("Multiplayer");
         JButton backBtn = new JButton("Back");
 
-// --- التعديل هنا ---
         styleButtonWithImage(singleBtn, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(multiBtn, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(backBtn, "Assets/btn.png", "Assets/btn2.png");
-// -------------------
 
-// إضافة الأزرار للواجهة
         add(Box.createVerticalStrut(60));
         add(center(title));
         add(Box.createVerticalStrut(40));
@@ -78,30 +73,36 @@ public class GameModeMenu extends JFrame {
         add(Box.createVerticalStrut(20));
         add(center(backBtn));
 
-        // Actions
-        // داخل GameModeMenu
+        // --- Action Listeners ---
 
-        // داخل GameModeMenu
-
-// زر الـ Single Player
         singleBtn.addActionListener(e -> {
-            if (menuMusic != null) menuMusic.stop(); // لو حابب توقف الموسيقى أو تخليها شغالة
+            if (menuMusic != null) menuMusic.stop();
             dispose();
-            // نفتح شاشة الأسماء (false للسينجل)
             new NameInputMenu(false, menuMusic);
         });
 
-// زر الـ Multiplayer
         multiBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            // نفتح شاشة الأسماء (true للمالتي)
             new NameInputMenu(true, menuMusic);
         });
+
+        // --- التعديل هنا (زر الرجوع) ---
+        backBtn.addActionListener(e -> {
+            // 1. نعرف الحالة الحالية للصوت (هل هو ميوت؟)
+            boolean isCurrentlyMuted = (menuMusic != null && menuMusic.isMuted());
+
+            // 2. نوقف الموسيقى الحالية (عشان MainMenu هتعمل واحدة جديدة)
+            if (menuMusic != null) menuMusic.stop();
+
+            dispose();
+
+            // 3. نفتح الـ MainMenu ونبعتلها الحالة (عشان تبدأ بنفس الوضع)
+            new MainMenu(isCurrentlyMuted);
+        });
+
         setVisible(true);
     }
-
-
 
     private JPanel center(JComponent c) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -123,39 +124,23 @@ public class GameModeMenu extends JFrame {
         b.setOpaque(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
-    // ضيف الدالة دي تحت styleButton القديمة
-    // دالة لتنسيق الزرار بالصور (عادي ومضغوط)
     private void styleButtonWithImage(JButton b, String normalPath, String pressedPath) {
-        // 1. إعداد الأبعاد (نفس أبعادك القديمة)
         int width = 350;
         int height = 70;
-
-        // 2. تحميل وتغيير حجم الصورة العادية
         ImageIcon iconNormal = new ImageIcon(normalPath);
         Image imgNormal = iconNormal.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
         b.setIcon(new ImageIcon(imgNormal));
-
-        // 3. تحميل وتغيير حجم صورة الضغط (Pressed)
         ImageIcon iconPressed = new ImageIcon(pressedPath);
         Image imgPressed = iconPressed.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
         b.setPressedIcon(new ImageIcon(imgPressed));
-
-        // 4. تنسيق النص (أبيض وفي المنتصف تماماً)
         b.setFont(new Font("Arial", Font.BOLD, 26));
         b.setForeground(Color.WHITE);
-        b.setHorizontalTextPosition(JButton.CENTER); // النص أفقي في المنتصف
-        b.setVerticalTextPosition(JButton.CENTER);   // النص رأسي في المنتصف
-
-        // 5. إزالة الخلفيات والحدود الافتراضية
+        b.setHorizontalTextPosition(JButton.CENTER);
+        b.setVerticalTextPosition(JButton.CENTER);
         b.setContentAreaFilled(false);
         b.setBorderPainted(false);
         b.setFocusPainted(false);
         b.setOpaque(false);
-
-        // 6. تحديد الحجم
         b.setPreferredSize(new Dimension(width, height));
     }
-
 }
-
-
