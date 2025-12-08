@@ -2,6 +2,7 @@ package FinalP;
 
 import com.sun.opengl.util.*;
 import java.awt.*;
+import java.awt.event.*;
 import javax.media.opengl.*;
 import javax.swing.*;
 
@@ -43,7 +44,7 @@ public class Anim extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(700, 700);
         setLocationRelativeTo(null);
-
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         // =======================================================
         // 2. بنبعت الـ glcanvas للدالة عشان نعرف نرجعله الـ Focus
         // =======================================================
@@ -60,6 +61,24 @@ public class Anim extends JFrame {
 
         setContentPane(layeredPane);
 
+        setVisible(true);
+        glcanvas.requestFocusInWindow();
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // هات عرض وطول الشاشة الحاليين (سواء كبرت أو صغرت)
+                int width = getContentPane().getWidth();
+                int height = getContentPane().getHeight();
+
+                // ظبط اللعبة تملأ المساحة كلها
+                glcanvas.setBounds(0, 0, width, height);
+
+                // ظبط القائمة تفضل دايماً في النص
+                int menuW = 300;
+                int menuH = 250;
+                pauseMenuPanel.setBounds((width - menuW) / 2, (height - menuH) / 2, menuW, menuH);
+            }
+        });
         setVisible(true);
         glcanvas.requestFocusInWindow();
     }
