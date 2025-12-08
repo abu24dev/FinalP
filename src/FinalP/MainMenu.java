@@ -22,7 +22,7 @@ public class MainMenu extends JFrame {
         soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
         setContentPane(new JPanel() {
-            Image bg = new ImageIcon("Summer4.png").getImage();
+            Image bg = new ImageIcon("Background.png").getImage();
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -32,7 +32,7 @@ public class MainMenu extends JFrame {
 
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // محاذاة لليمين
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
 
         soundBtn = new JButton(soundOnIcon);
@@ -40,7 +40,6 @@ public class MainMenu extends JFrame {
 
         soundBtn.addActionListener(e -> {
             menuMusic.toggleMute();
-            // تبديل الأيقونة حسب الحالة
             if (menuMusic.isMuted()) {
                 soundBtn.setIcon(soundOffIcon);
             } else {
@@ -56,18 +55,19 @@ public class MainMenu extends JFrame {
         panel.setOpaque(false);
 
 
-
         JButton newGameBtn = new JButton("New Game");
         JButton highScoresBtn = new JButton("High Scores");
-        JButton exitBtn = new JButton("Exit");
+        JButton exitBtn = new JButton("Exit"); // يفضل توحيد شكل زر الخروج أيضاً
 
 
-        styleButton(newGameBtn);
-        styleButton(highScoresBtn);
-        exitBtn.setFont(new Font("Arial", Font.BOLD, 24));
-        exitBtn.setPreferredSize(new Dimension(300, 60));
-        exitBtn.setBackground(Color.RED);
-        exitBtn.setForeground(Color.WHITE);
+        styleButtonWithImage(newGameBtn, "Assets/btn.png", "Assets/btn2.png");
+        styleButtonWithImage(highScoresBtn, "Assets/btn.png", "Assets/btn2.png");
+
+// إذا أردت زر الخروج بنفس الشكل (بدل الأحمر):
+        styleButtonWithImage(exitBtn, "Assets/btn.png", "Assets/btn2.png");
+// -------------------
+
+// ... باقي الكود وإضافة الأزرار للبانل ...
 
         add(Box.createVerticalStrut(80));
         add(center(newGameBtn));
@@ -119,6 +119,37 @@ public class MainMenu extends JFrame {
         b.setFocusPainted(false);
         b.setOpaque(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+    // دالة لتنسيق الزرار بالصور (عادي ومضغوط)
+    private void styleButtonWithImage(JButton b, String normalPath, String pressedPath) {
+        // 1. إعداد الأبعاد (نفس أبعادك القديمة)
+        int width = 350;
+        int height = 70;
+
+        // 2. تحميل وتغيير حجم الصورة العادية
+        ImageIcon iconNormal = new ImageIcon(normalPath);
+        Image imgNormal = iconNormal.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        b.setIcon(new ImageIcon(imgNormal));
+
+        // 3. تحميل وتغيير حجم صورة الضغط (Pressed)
+        ImageIcon iconPressed = new ImageIcon(pressedPath);
+        Image imgPressed = iconPressed.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        b.setPressedIcon(new ImageIcon(imgPressed));
+
+        // 4. تنسيق النص (أبيض وفي المنتصف تماماً)
+        b.setFont(new Font("Arial", Font.BOLD, 26));
+        b.setForeground(Color.WHITE);
+        b.setHorizontalTextPosition(JButton.CENTER); // النص أفقي في المنتصف
+        b.setVerticalTextPosition(JButton.CENTER);   // النص رأسي في المنتصف
+
+        // 5. إزالة الخلفيات والحدود الافتراضية
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setOpaque(false);
+
+        // 6. تحديد الحجم
+        b.setPreferredSize(new Dimension(width, height));
     }
 
     public static void main(String[] args) {

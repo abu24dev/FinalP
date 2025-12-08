@@ -18,7 +18,7 @@ public class GameModeMenu extends JFrame {
         soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
         setContentPane(new JPanel() {
-            Image bg = new ImageIcon("Summer4.png").getImage();
+            Image bg = new ImageIcon("Background.png").getImage();
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
