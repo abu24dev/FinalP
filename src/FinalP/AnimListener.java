@@ -15,11 +15,13 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
     public boolean isPaused = false;
 
     int pauseID, playID, soundOnID, soundOffID;
+    int[] healthTexIDs = new int[11];
     int width, height;
     JPanel pausePanel;
     // مكان وحجم الزراير
     int btnSize = 60;
     int margin = 30;
+    int topMargin = 90;
     int btn1X, btn1Y, btn2X, btn2Y;
 
 
@@ -37,11 +39,58 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
             playID = loadOneTexture(gl, "Assets/play.png");
             soundOnID = loadOneTexture(gl, "Assets/sound_on.png");
             soundOffID = loadOneTexture(gl, "Assets/sound_off.png");
+            for (int hp = 0; hp <= 100; hp += 10) {
+
+                String imgName = "Assets/health" + hp + ".png";
+
+                // بنقسم على 10 عشان نجيب مكان التخزين في المصفوفة (0, 1, 2...10)
+                int index = hp / 10;
+
+                healthTexIDs[index] = loadOneTexture(gl, imgName);
+            }
+            System.out.println("Health bars loaded successfully (0 to 100).");
+
         } catch (Exception e) {
-            System.out.println("Error loading UI buttons: " + e.getMessage());
+            System.out.println("Error loading UI textures: " + e.getMessage());
         }
     }
 
+    // دالة رسم البار (تم تعديلها لحل مشكلة الـ Shield)
+    public void drawHealthBar(GL gl, int hp, int x, int y) {
+        // حماية الحدود
+        if (hp < 0) hp = 0;
+        if (hp > 100) hp = 100;
+
+        // الحساب العادي
+        int index = hp / 10;
+
+        // --- الحل السحري هنا ---
+        // لو الصحة فيها رقم (أكبر من 0) بس القسمة طلعت 0 (يعني الصحة بين 1 و 9)
+        // لازم نجبره يعرض الصورة رقم 1 (health10) عشان اللاعب يعرف إنه لسه عايش
+        if (index == 0 && hp > 0) {
+            index = 1;
+        }
+        // -----------------------
+
+        gl.glEnable(GL.GL_BLEND);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, healthTexIDs[index]);
+
+        gl.glPushMatrix();
+        gl.glTranslated(x, y, 0);
+
+        // تصغير الحجم للنص
+        gl.glScaled(0.5, 0.5, 1);
+
+        gl.glBegin(GL.GL_QUADS);
+        gl.glTexCoord2f(0, 0); gl.glVertex2f(0, 0);
+        gl.glTexCoord2f(1, 0); gl.glVertex2f(400, 0);
+        gl.glTexCoord2f(1, 1); gl.glVertex2f(400, 80);
+        gl.glTexCoord2f(0, 1); gl.glVertex2f(0, 80);
+        gl.glEnd();
+
+        gl.glPopMatrix();
+        gl.glDisable(GL.GL_BLEND);
+    }
 
     public void drawUI(GL gl, int w, int h) {
         this.width = w;
@@ -79,9 +128,16 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
     // دوال مساعدة
     private void updateBtnPositions() {
+        // حساب الإحداثي السيني (X) للمكان الأيمن باستخدام الهامش الجانبي العادي
         btn1X = width - margin - btnSize;
-        btn1Y = height - margin - btnSize;
+
+        // حساب الإحداثي الصادي (Y) باستخدام الهامش العلوي الجديد (topMargin)
+        // ده هينزل الزراير لتحت أكتر
+        btn1Y = height - topMargin - btnSize;
+
+        // الزر التاني جنبه على الشمال
         btn2X = btn1X - margin - btnSize;
+        // الزر التاني في نفس المستوى الرأسي
         btn2Y = btn1Y;
     }
 

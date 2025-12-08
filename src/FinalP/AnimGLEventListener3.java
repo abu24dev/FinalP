@@ -192,6 +192,27 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         enemy.draw(gl);
 
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
+        // ==========================================
+        // 3. رسم شريط الصحة (Health Bars)
+        // ==========================================
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        new GLU().gluOrtho2D(0, drawable.getWidth(), 0, drawable.getHeight());
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+
+        // اللاعب (Human) - يسار
+        drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
+
+        // العدو (AI) - يمين
+        drawHealthBar(gl, enemy.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
+
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glPopMatrix();
     }
 
     void DrawBackground(GL gl, int tex) {
@@ -591,9 +612,9 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
         // -------------------- COLLISION & DAMAGE --------------------
         public void checkHit(Player target) {
-            if (target == null || target.state == 8) return; // target dead already
+            if (target == null || target.state == 8) return; // لو ميت أصلاً ميعملش حاجة
 
-            // Only apply damage during attack animations, once per attack
+            // التأكد إن الضربة في الفريم الصح
             boolean inAttackFrame =
                     (state == 2 && animIndex >= 1) ||
                             (state == 3 && animIndex >= 1) ||
@@ -603,55 +624,53 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
             float dx = target.x - this.x;
             float dist = Math.abs(dx);
-
-            // Must be in front
-            boolean facingCorrect =
-                    (facingLeft && dx < 0) ||
-                            (!facingLeft && dx > 0);
+            boolean facingCorrect = (facingLeft && dx < 0) || (!facingLeft && dx > 0);
 
             if (dist <= hitRange && facingCorrect) {
                 hasHitThisAttack = true;
 
-                // SHIELD CHECK
+                // --- التعامل مع الـ Shield ---
                 if (target.state == 9) {
-                    // shield reduces damage
-                    target.health -= 5;
+                    target.health -= 5; // ضرر مخفف
                     if (target.health < 0) target.health = 0;
                     target.wasHit = true;
 
-                    if (target == enemy) {
-                        System.out.println("Enemy blocked! HP now = " + target.health);
+                    if (target == enemy) System.out.println("Enemy Blocked! HP: " + target.health);
+
+                    // +++ التعديل الجديد هنا +++
+                    // لازم نشيك لو مات وهو عامل Shield
+                    if (target.health <= 0) {
+                        target.state = 8; // تحويل لحالة الموت
+                        target.animIndex = 0;
+                        target.frameDelay = 0;
+                        if (target == enemy) System.out.println(">>> Enemy Died while shielding!");
+                        else System.out.println(">>> Player Died while shielding!");
                     }
-                    return;
+                    // ++++++++++++++++++++++++++
+
+                    return; // نخرج عشان مننقصش الـ 20 بتوع الضربة العادية
                 }
 
-                // Apply full damage
+                // --- التعامل مع الضربة العادية (بدون Shield) ---
                 target.health -= damage;
                 if (target.health < 0) target.health = 0;
                 target.wasHit = true;
 
-                if (target == enemy) {
-                    System.out.println(">> Enemy HIT! HP now = " + target.health);
-                }
+                if (target == enemy) System.out.println("Enemy Hit! HP: " + target.health);
 
+                // الموت العادي
                 if (target.health <= 0) {
-                    target.health = 0;
-                    target.state = 8;   // DEAD
+                    target.state = 8;
                     target.animIndex = 0;
                     target.frameDelay = 0;
-
-                    if (target == enemy) {
-                        System.out.println(">>> Enemy DIED!");
-                    } else if (target == player1) {
-                        System.out.println(">>> Player DIED!");
-                    }
-                    return;
+                    if (target == enemy) System.out.println(">>> Enemy DIED!");
+                    else System.out.println(">>> Player DIED!");
+                } else {
+                    // لو لسه عايش يتوجع (Hurt)
+                    target.state = 7;
+                    target.animIndex = 0;
+                    target.frameDelay = 0;
                 }
-
-                // Hurt animation
-                target.state = 7;
-                target.animIndex = 0;
-                target.frameDelay = 0;
             }
         }
 

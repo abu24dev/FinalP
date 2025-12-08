@@ -202,7 +202,30 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
         // Draw UI (health bars, etc.)
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
+        // ==========================================
+        // 3. رسم شريط الصحة (Health Bars)
+        // ==========================================
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        new GLU().gluOrtho2D(0, drawable.getWidth(), 0, drawable.getHeight());
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+
+        // رسم شريط اللاعب الأول (يسار)
+        drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
+
+        // رسم شريط اللاعب الثاني (يمين)
+        drawHealthBar(gl, player2.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
+
+        // إرجاع المصفوفات
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glPopMatrix();
     }
+
 
     // Draw background image
     void DrawBackground(GL gl, int tex) {
@@ -510,7 +533,6 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         public void checkHit(Player target) {
             if (target == null || target.state == 8) return;
 
-            // Only check during active attack frames
             boolean inAttackFrame =
                     (state == 2 && animIndex >= 1) ||
                             (state == 3 && animIndex >= 1) ||
@@ -520,46 +542,46 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
             float dx = target.x - this.x;
             float dist = Math.abs(dx);
+            boolean facingCorrect = (facingLeft && dx < 0) || (!facingLeft && dx > 0);
 
-            // Check if facing the target
-            boolean facingCorrect =
-                    (facingLeft && dx < 0) ||
-                            (!facingLeft && dx > 0);
-
-            // Check if within hit range and facing correctly
             if (dist <= hitRange && facingCorrect) {
                 hasHitThisAttack = true;
 
-                // Check if target is shielding
+                // --- التعامل مع الـ Shield ---
                 if (target.state == 9) {
-                    // Shield reduces damage
                     target.health -= 5;
                     if (target.health < 0) target.health = 0;
                     target.wasHit = true;
+
+                    // +++ التعديل الجديد هنا +++
+                    // لو مات وهو عامل Shield
+                    if (target.health <= 0) {
+                        target.state = 8; // Dead
+                        target.animIndex = 0;
+                        target.frameDelay = 0;
+                    }
+                    // ++++++++++++++++++++++++++
+
                     return;
                 }
 
-                // Apply full damage
+                // --- الضربة العادية ---
                 target.health -= damage;
                 if (target.health < 0) target.health = 0;
                 target.wasHit = true;
 
-                // Check for death
                 if (target.health <= 0) {
-                    target.health = 0;
                     target.state = 8; // Dead
                     target.animIndex = 0;
                     target.frameDelay = 0;
                     return;
                 }
 
-                // Set hurt state
                 target.state = 7; // Hurt
                 target.animIndex = 0;
                 target.frameDelay = 0;
             }
         }
-
         // Draw player on screen
         public void draw(GL gl) {
             int texID = getCurrentFrame();
