@@ -15,17 +15,24 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     Player player1;
     Player enemy;
 
-    // keyboard state (for human movement / jump / shield)
+    // keyboard state
     static BitSet keyBits = new BitSet(256);
 
     // Difficulty
     enum Difficulty {EASY, MEDIUM, HARD}
-
     Difficulty currentDifficulty = Difficulty.MEDIUM; // default
 
     Random globalRand = new Random();
 
-    // --- Texture Arrays: Shinobi / Fighter / Samurai (same filenames) ---
+    // --- متغيرات جديدة لحفظ اختيارات اللاعبين ---
+    int myCharIndex = 0;    // الافتراضي
+    int enemyCharIndex = 1; // الافتراضي
+
+    // --- دالة لاستقبال الاختيارات من القائمة ---
+    public void setCharacters(int p1, int p2) {
+        this.myCharIndex = p1;
+        this.enemyCharIndex = p2;
+    }
 
     // --- Texture Arrays ---
     String[] shinobiTextures = {
@@ -70,36 +77,20 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             "Assets/Samurai/7.png"
     };
 
-    // Frame counts (0=Shinobi,1=Fighter,2=Samurai) – all same counts now
+    // Frame counts
     int[] MAX_WALK = {8, 8, 8};
     int[] MAX_IDLE = {6, 6, 6};
-
-    // Attack1
     int[] MAX_ATTACK1 = {5, 4, 6};
-
-    // Attack2
     int[] MAX_ATTACK2 = {3, 3, 4};
-
-    // Attack3
     int[] MAX_ATTACK3 = {4, 4, 3};
-
-    // Jump
     int[] MAX_JUMP = {11, 10, 12};
-
-    // Run
     int[] MAX_RUN = {8, 8, 8};
-
-    // Hurt
     int[] MAX_HURT = {2, 3, 2};
-
-    // Dead
     int[] MAX_DEAD = {4, 3, 3};
-
-    // Shield
     int[] MAX_SHIELD = {4, 2, 2};
 
 
-    int[][] shinobiIDs;   // [state][frame]
+    int[][] shinobiIDs;
     int[][] fighterIDs;
     int[][] samuraiIDs;
     int[] bgIDs = new int[3];
@@ -119,8 +110,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
         samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
-        // Human player – always Shinobi
-        player1 = new Player(15, 20, shinobiIDs, 0, false, false);
+        // --- تعديل: استخدام myCharIndex بدلاً من التثبيت ---
+        int[][] p1Textures = getTextureByIndex(myCharIndex);
+        player1 = new Player(15, 20, p1Textures, myCharIndex, false, false);
+
         player1.setControls(
                 KeyEvent.VK_W,  // jump
                 KeyEvent.VK_S,  // shield
@@ -131,16 +124,19 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 KeyEvent.VK_C   // attack3
         );
 
-        // Enemy – random character each match
-        int enemyCharIndex = globalRand.nextInt(3); // 0=Shinobi,1=Fighter,2=Samurai
-        int[][] enemyIDs;
-        if (enemyCharIndex == 0) enemyIDs = shinobiIDs;
-        else if (enemyCharIndex == 1) enemyIDs = fighterIDs;
-        else enemyIDs = samuraiIDs;
+        // --- تعديل: استخدام enemyCharIndex بدلاً من الـ Random ---
+        int[][] enemyTextures = getTextureByIndex(enemyCharIndex);
+        enemy = new Player(40, 20, enemyTextures, enemyCharIndex, true, true);
 
-        enemy = new Player(40, 20, enemyIDs, enemyCharIndex, true, true);
+        System.out.println("Single Player Initialized: Me=" + myCharIndex + " vs AI=" + enemyCharIndex);
+        System.out.println("Default Difficulty: MEDIUM");
+    }
 
-        System.out.println("Single Player with AI Initialized (difficulty = MEDIUM, enemyCharIndex=" + enemyCharIndex + ").");
+    // دالة مساعدة لاختيار المصفوفة
+    private int[][] getTextureByIndex(int index) {
+        if (index == 0) return shinobiIDs;
+        if (index == 1) return fighterIDs;
+        return samuraiIDs;
     }
 
     // Load all state frames + background
@@ -185,7 +181,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
 
-        DrawBackground(gl, bgIDs[0]); // you can change to bgIDs[player1.charIndex] if you want dynamic BG
+        DrawBackground(gl, bgIDs[0]);
 
         if (!isPaused) {
             player1.update(enemy);   // human, target = enemy
@@ -204,14 +200,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glPushMatrix();
         gl.glLoadIdentity();
         gl.glBegin(GL.GL_QUADS);
-        gl.glTexCoord2f(0, 0);
-        gl.glVertex2f(-1, -1);
-        gl.glTexCoord2f(1, 0);
-        gl.glVertex2f(1, -1);
-        gl.glTexCoord2f(1, 1);
-        gl.glVertex2f(1, 1);
-        gl.glTexCoord2f(0, 1);
-        gl.glVertex2f(-1, 1);
+        gl.glTexCoord2f(0, 0); gl.glVertex2f(-1, -1);
+        gl.glTexCoord2f(1, 0); gl.glVertex2f(1, -1);
+        gl.glTexCoord2f(1, 1); gl.glVertex2f(1, 1);
+        gl.glTexCoord2f(0, 1); gl.glVertex2f(-1, 1);
         gl.glEnd();
         gl.glPopMatrix();
         gl.glDisable(GL.GL_BLEND);
@@ -229,21 +221,16 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
     @Override
     public void resetGame() {
+        // إعادة تعيين اللاعب بالشخصية المختارة
         player1.reset(15, 20, false);
 
-        // new random enemy each rematch
-        int enemyCharIndex = globalRand.nextInt(3);
-        int[][] enemyIDs;
-        if (enemyCharIndex == 0) enemyIDs = shinobiIDs;
-        else if (enemyCharIndex == 1) enemyIDs = fighterIDs;
-        else enemyIDs = samuraiIDs;
-
-        enemy.textureIDs = enemyIDs;
+        // إعادة تعيين العدو بالشخصية المختارة (بدون تغيير عشوائي)
+        enemy.textureIDs = getTextureByIndex(enemyCharIndex);
         enemy.charIndex = enemyCharIndex;
         enemy.reset(40, 20, true);
 
         keyBits.clear();
-        System.out.println("Rematch! New enemy charIndex = " + enemyCharIndex);
+        System.out.println("Game Reset. Same Characters.");
     }
 
     @Override
@@ -251,7 +238,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     }
 
     // ============================
-    //   Key Handling
+    //    Key Handling
     // ============================
     @Override
     public void keyPressed(KeyEvent e) {
@@ -738,4 +725,3 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
     }
 }
-

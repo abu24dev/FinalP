@@ -19,61 +19,74 @@ public class Anim extends JFrame {
         new MainMenu();
     }
 
-    public Anim() {
-        setupGame(new AnimGLEventListener3(), "Single Player");
+    // =============================================================
+    // ده الكونستركتور الوحيد اللي محتاجينه دلوقتي
+    // بيستقبل نوع اللعبة + ارقام الشخصيات المختارة
+    // =============================================================
+    public Anim(boolean isMultiplayer, int p1, int p2) {
+        if (isMultiplayer) {
+            // --- وضع Multiplayer ---
+            AnimGLEventListener2 listener = new AnimGLEventListener2();
+            listener.setPlayerChoices(p1, p2); // بنبعت الشخصيات لليسنر
+
+            setupGame(listener, "Multiplayer");
+        } else {
+            // --- وضع Single Player ---
+            AnimGLEventListener3 listener = new AnimGLEventListener3();
+            listener.setCharacters(p1, p2); // بنبعت الشخصيات لليسنر
+
+            setupGame(listener, "Single Player");
+        }
     }
 
-    public Anim(String mltp) {
-        setupGame(new AnimGLEventListener2(), "Multiplayer");
-    }
-
+    // دالة تجهيز اللعبة (مشتركة للنوعين)
     private void setupGame(AnimListener gameListener, String title) {
         this.listener = gameListener;
 
+        // تشغيل الموسيقى
         myMusic = new AudioPlayer("Assets/game.wav");
         myMusic.playMusic();
         listener.setAudioPlayer(myMusic);
 
-        // 1. تعريف الكانفاس هنا عشان نستخدمه
+        // إعداد الكانفاس
         GLCanvas glcanvas = new GLCanvas();
         glcanvas.addGLEventListener(listener);
         glcanvas.addKeyListener(listener);
         glcanvas.addMouseListener(listener);
 
-        Animator animator = new FPSAnimator(glcanvas, 20);
+        // إعداد الأنيميتور
+        Animator animator = new FPSAnimator(glcanvas, 24); // 24 FPS
         animator.start();
 
+        // إعداد النافذة
         setTitle("Fighting Game - " + title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(700, 700);
         setLocationRelativeTo(null);
 
-        // =======================================================
-        // 2. بنبعت الـ glcanvas للدالة عشان نعرف نرجعله الـ Focus
-        // =======================================================
+        // إعداد قائمة التوقف
         pauseMenuPanel = createPauseMenu(glcanvas);
-
         listener.setPausePanel(pauseMenuPanel);
 
+        // استخدام LayeredPane عشان نحط القائمة فوق اللعبة
         JLayeredPane layeredPane = new JLayeredPane();
         glcanvas.setBounds(0, 0, 700, 700);
         pauseMenuPanel.setBounds(200, 200, 300, 250);
 
-        layeredPane.add(glcanvas, Integer.valueOf(0));
-        layeredPane.add(pauseMenuPanel, Integer.valueOf(1));
+        layeredPane.add(glcanvas, Integer.valueOf(0)); // الطبقة 0 (تحت)
+        layeredPane.add(pauseMenuPanel, Integer.valueOf(1)); // الطبقة 1 (فوق)
 
         setContentPane(layeredPane);
+
+        // Listener عشان لو حجم الشاشة اتغير، نعدل حجم الكانفاس ومكان القائمة
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                // هات العرض والطول الجداد بتوع الشاشة
                 int width = getContentPane().getWidth();
                 int height = getContentPane().getHeight();
 
-                // 1. خلي اللعبة تاخد المساحة الجديدة كلها
                 glcanvas.setBounds(0, 0, width, height);
 
-                // 2. احسب نص الشاشة الجديد عشان تحط القائمة فيه
                 int menuX = (width - MENU_WIDTH) / 2;
                 int menuY = (height - MENU_HEIGHT) / 2;
 
@@ -85,7 +98,6 @@ public class Anim extends JFrame {
         glcanvas.requestFocusInWindow();
     }
 
-    // غيرنا الدالة عشان تستقبل GLCanvas
     private JPanel createPauseMenu(GLCanvas canvas) {
         JPanel p = new JPanel();
         p.setLayout(new GridLayout(3, 1, 10, 20));
@@ -100,26 +112,22 @@ public class Anim extends JFrame {
         styleButton(btnRematch);
         styleButton(btnMenu);
 
-        // --- التعديل هنا ---
-
-        // 1. Resume
+        // Resume Action
         btnResume.addActionListener(e -> {
             p.setVisible(false);
             listener.isPaused = false;
-            // السطر السحري: رجع التركيز للعبة فوراً
             canvas.requestFocusInWindow();
         });
 
-        // 2. Rematch
+        // Rematch Action
         btnRematch.addActionListener(e -> {
             listener.resetGame();
             p.setVisible(false);
             listener.isPaused = false;
-            // السطر السحري: رجع التركيز للعبة فوراً
             canvas.requestFocusInWindow();
         });
 
-        // 3. Main Menu
+        // Main Menu Action
         btnMenu.addActionListener(e -> {
             myMusic.stop();
             dispose();
@@ -143,69 +151,3 @@ public class Anim extends JFrame {
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 }
-//    private void setupGameSingle(boolean isMultiplayer) {
-//        AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
-//        myMusic.playMusic();
-//
-////        AnimListener listener;
-////        if (isMultiplayer) {
-////            listener = new AnimGLEventListener2(); // كلاس المالتي
-////        } else {
-////            listener = new AnimGLEventListener3(); // كلاس السنجل
-////        }
-//        AnimGLEventListener3 listener = new AnimGLEventListener3();
-//
-//        listener.setAudioPlayer(myMusic);
-//
-//        GLCanvas glcanvas = new GLCanvas();
-//        glcanvas.addGLEventListener(listener);
-//        glcanvas.addKeyListener(listener);
-//
-//        glcanvas.addMouseListener(listener);
-//
-//        Animator animator = new FPSAnimator(glcanvas, 24);
-//        animator.start();
-//
-//        setTitle("Fighting Game - " + (isMultiplayer ? "Multiplayer" : "Single Player"));
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        setSize(700, 700);
-//        setLocationRelativeTo(null);
-//
-//        getContentPane().add(glcanvas, BorderLayout.CENTER);
-//
-//        setVisible(true);
-//
-//        glcanvas.requestFocusInWindow();
-//    }
-//    private void setupGameMulti(boolean isMultiplayer) {
-//        AudioPlayer myMusic = new AudioPlayer("Assets/game.wav");
-//        myMusic.playMusic();
-//
-////        AnimListener listener;
-////        if (isMultiplayer) {
-////            listener = new AnimGLEventListener2(); // كلاس المالتي
-////        } else {
-////            listener = new AnimGLEventListener3(); // كلاس السنجل
-////        }
-//        AnimGLEventListener2 listener = new AnimGLEventListener2();
-//        listener.setAudioPlayer(myMusic);
-//        GLCanvas glcanvas = new GLCanvas();
-//        glcanvas.addGLEventListener(listener);
-//        glcanvas.addKeyListener(listener);
-//
-//        glcanvas.addMouseListener(listener);
-//
-//        Animator animator = new FPSAnimator(glcanvas, 24);
-//        animator.start();
-//
-//        setTitle("Fighting Game - " + (isMultiplayer ? "Multiplayer" : "Single Player"));
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        setSize(700, 700);
-//        setLocationRelativeTo(null);
-//
-//        getContentPane().add(glcanvas, BorderLayout.CENTER);
-//
-//        setVisible(true);
-//
-//        glcanvas.requestFocusInWindow();
-//    }

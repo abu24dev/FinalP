@@ -79,35 +79,29 @@ public class GameModeMenu extends JFrame {
         add(center(backBtn));
 
         // Actions
+        // داخل GameModeMenu
+
+        // داخل GameModeMenu
+
+// زر الـ Single Player
         singleBtn.addActionListener(e -> {
-            if (menuMusic != null) menuMusic.stop();
+            if (menuMusic != null) menuMusic.stop(); // لو حابب توقف الموسيقى أو تخليها شغالة
             dispose();
-            new Anim();
+            // نفتح شاشة الأسماء (false للسينجل)
+            new NameInputMenu(false, menuMusic);
         });
 
+// زر الـ Multiplayer
         multiBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            new Anim("Multiplayer");
+            // نفتح شاشة الأسماء (true للمالتي)
+            new NameInputMenu(true, menuMusic);
         });
-
-        backBtn.addActionListener(e -> {
-            if (menuMusic != null) menuMusic.stop();
-            dispose();
-            new MainMenu();
-        });
-
         setVisible(true);
     }
 
-    private void styleButton(JButton b) {
-        b.setFont(new Font("Arial", Font.BOLD, 26));
-        b.setPreferredSize(new Dimension(350, 70));
-        b.setFocusPainted(false);
-        b.setBackground(new Color(126, 122, 122, 255));
-        b.setForeground(Color.WHITE);
-        b.setOpaque(true);
-    }
+
 
     private JPanel center(JComponent c) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));

@@ -13,6 +13,17 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
     static BitSet keyBits = new BitSet(256);
 
+    // --- 1. متغيرات لحفظ اختيارات اللاعبين ---
+    // (قيم افتراضية)
+    int p1Type = 0;
+    int p2Type = 2;
+
+    // --- 2. دالة لاستقبال الاختيارات من Anim ---
+    public void setPlayerChoices(int p1, int p2) {
+        this.p1Type = p1;
+        this.p2Type = p2;
+    }
+
     // --- Texture Arrays ---
     String[] shinobiTextures = {
             "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png",
@@ -93,45 +104,42 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     int[] MAX_DEAD = {4, 3, 3};
     int[] MAX_SHIELD = {4, 2, 2};
 
+
     @Override
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
-        gl.glClearColor(1, 1, 1, 1);
+        gl.glClearColor(1,1,1,1);
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         super.initUI(gl);
 
-        // Load characters
+        // تحميل كل الشخصيات
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
         samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
-        // Player 1 (Shinobi) - same settings as version 3
-        player1 = new Player(15, 20, shinobiIDs, 0, false);
-        player1.setControls(
-                KeyEvent.VK_W,  // jump
-                KeyEvent.VK_S,  // shield
-                KeyEvent.VK_A,  // left
-                KeyEvent.VK_D,  // right
-                KeyEvent.VK_Z,  // attack1
-                KeyEvent.VK_X,  // attack2
-                KeyEvent.VK_C   // attack3
-        );
+        // --- 3. إنشاء اللاعب الأول بناءً على الاختيار ---
+        int[][] p1Tex = getTextureByIndex(p1Type);
+        player1 = new Player(15, 20, p1Tex, p1Type, false);
 
-        // Player 2 (Samurai) - same settings as version 3
-        player2 = new Player(35, 20, samuraiIDs, 2, true);
-        player2.setControls(
-                KeyEvent.VK_UP,     // jump
-                KeyEvent.VK_DOWN,   // shield
-                KeyEvent.VK_LEFT,   // left
-                KeyEvent.VK_RIGHT,  // right
-                KeyEvent.VK_J,      // attack1
-                KeyEvent.VK_K,      // attack2
-                KeyEvent.VK_L       // attack3
-        );
+        player1.setControls(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D,
+                KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C);
 
-        System.out.println("Multiplayer Mode Initialized!");
+        // --- 4. إنشاء اللاعب الثاني بناءً على الاختيار ---
+        int[][] p2Tex = getTextureByIndex(p2Type);
+        player2 = new Player(35, 20, p2Tex, p2Type, true);
+
+        player2.setControls(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
+                KeyEvent.VK_J, KeyEvent.VK_K, KeyEvent.VK_L);
+
+        System.out.println("Multiplayer Started: P1 type=" + p1Type + ", P2 type=" + p2Type);
+    }
+    private int[][] getTextureByIndex(int index) {
+        if(index == 0) return shinobiIDs;
+        if(index == 1) return fighterIDs;
+        if(index == 2) return samuraiIDs;
+        return shinobiIDs;
     }
 
     // Load textures for a character
@@ -224,13 +232,24 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
     @Override
     public void resetGame() {
-        // Reset player 1
-        player1.reset(15, 20, false);
+        // إعادة ضبط اللاعبين بنفس الشخصيات المختارة
+        player1.textureIDs = getTextureByIndex(p1Type);
+        player1.charIndex = p1Type;
+        // القيم دي بترجع اللاعب لمكانه الأصلي وحالته الطبيعية
+        player1.x = 15;
+        player1.y = 20;
+        player1.state = 1;
+        player1.health = 100;
+        player1.facingLeft = false;
 
-        // Reset player 2
-        player2.reset(35, 20, true);
+        player2.textureIDs = getTextureByIndex(p2Type);
+        player2.charIndex = p2Type;
+        player2.x = 35;
+        player2.y = 20;
+        player2.state = 1;
+        player2.health = 100;
+        player2.facingLeft = true;
 
-        // Clear keyboard state
         keyBits.clear();
     }
 
