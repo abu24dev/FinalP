@@ -18,7 +18,7 @@ public class GameModeMenu extends JFrame {
         soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
         setContentPane(new JPanel() {
-            Image bg = new ImageIcon("Background.png").getImage();
+            Image bg = new ImageIcon("Background2.png").getImage();
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -56,18 +56,19 @@ public class GameModeMenu extends JFrame {
         title.setFont(new Font("Arial", Font.BOLD, 36));
         title.setForeground(Color.WHITE);
 
+        // ... داخل الكونستركتور ...
+
         JButton singleBtn = new JButton("Single Player");
         JButton multiBtn = new JButton("Multiplayer");
         JButton backBtn = new JButton("Back");
 
-        styleButton(singleBtn);
-        styleButton(multiBtn);
+// --- التعديل هنا ---
+        styleButtonWithImage(singleBtn, "Assets/btn.png", "Assets/btn2.png");
+        styleButtonWithImage(multiBtn, "Assets/btn.png", "Assets/btn2.png");
+        styleButtonWithImage(backBtn, "Assets/btn.png", "Assets/btn2.png");
+// -------------------
 
-        backBtn.setFont(new Font("Arial", Font.BOLD, 24));
-        backBtn.setPreferredSize(new Dimension(300, 60));
-        backBtn.setBackground(Color.RED);
-        backBtn.setForeground(Color.WHITE);
-
+// إضافة الأزرار للواجهة
         add(Box.createVerticalStrut(60));
         add(center(title));
         add(Box.createVerticalStrut(40));
@@ -127,6 +128,38 @@ public class GameModeMenu extends JFrame {
         b.setFocusPainted(false);
         b.setOpaque(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+    // ضيف الدالة دي تحت styleButton القديمة
+    // دالة لتنسيق الزرار بالصور (عادي ومضغوط)
+    private void styleButtonWithImage(JButton b, String normalPath, String pressedPath) {
+        // 1. إعداد الأبعاد (نفس أبعادك القديمة)
+        int width = 350;
+        int height = 70;
+
+        // 2. تحميل وتغيير حجم الصورة العادية
+        ImageIcon iconNormal = new ImageIcon(normalPath);
+        Image imgNormal = iconNormal.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        b.setIcon(new ImageIcon(imgNormal));
+
+        // 3. تحميل وتغيير حجم صورة الضغط (Pressed)
+        ImageIcon iconPressed = new ImageIcon(pressedPath);
+        Image imgPressed = iconPressed.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        b.setPressedIcon(new ImageIcon(imgPressed));
+
+        // 4. تنسيق النص (أبيض وفي المنتصف تماماً)
+        b.setFont(new Font("Arial", Font.BOLD, 26));
+        b.setForeground(Color.WHITE);
+        b.setHorizontalTextPosition(JButton.CENTER); // النص أفقي في المنتصف
+        b.setVerticalTextPosition(JButton.CENTER);   // النص رأسي في المنتصف
+
+        // 5. إزالة الخلفيات والحدود الافتراضية
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
+        b.setOpaque(false);
+
+        // 6. تحديد الحجم
+        b.setPreferredSize(new Dimension(width, height));
     }
 
 }
