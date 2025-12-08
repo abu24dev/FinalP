@@ -20,6 +20,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
     // Difficulty
     enum Difficulty {EASY, MEDIUM, HARD}
+
     Difficulty currentDifficulty = Difficulty.MEDIUM; // default
 
     Random globalRand = new Random();
@@ -28,74 +29,74 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
     // --- Texture Arrays ---
     String[] shinobiTextures = {
-            "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png","Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
-            "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
-            "Assets/Shinobi/IAttack1.png","Assets/Shinobi/IAttack2.png","Assets/Shinobi/IAttack3.png","Assets/Shinobi/IAttack4.png","Assets/Shinobi/IAttack5.png",
-            "Assets/Shinobi/IIAttack1.png","Assets/Shinobi/IIAttack2.png","Assets/Shinobi/IIAttack3.png",
-            "Assets/Shinobi/IIIAttack1.png","Assets/Shinobi/IIIAttack2.png","Assets/Shinobi/IIIAttack3.png","Assets/Shinobi/IIIAttack4.png",
-            "Assets/Shinobi/Jump1.png","Assets/Shinobi/Jump2.png","Assets/Shinobi/Jump3.png","Assets/Shinobi/Jump4.png","Assets/Shinobi/Jump5.png","Assets/Shinobi/Jump6.png","Assets/Shinobi/Jump7.png","Assets/Shinobi/Jump8.png","Assets/Shinobi/Jump9.png","Assets/Shinobi/Jump10.png","Assets/Shinobi/Jump11.png",
-            "Assets/Shinobi/Run1.png","Assets/Shinobi/Run2.png","Assets/Shinobi/Run3.png","Assets/Shinobi/Run4.png","Assets/Shinobi/Run5.png","Assets/Shinobi/Run6.png","Assets/Shinobi/Run7.png","Assets/Shinobi/Run8.png",
-            "Assets/Shinobi/Hurt1.png","Assets/Shinobi/Hurt2.png",
-            "Assets/Shinobi/Dead1.png","Assets/Shinobi/Dead2.png","Assets/Shinobi/Dead3.png","Assets/Shinobi/Dead4.png",
-            "Assets/Shinobi/Shield1.png","Assets/Shinobi/Shield2.png","Assets/Shinobi/Shield3.png","Assets/Shinobi/Shield4.png",
+            "Assets/Shinobi/Walk1.png", "Assets/Shinobi/Walk2.png", "Assets/Shinobi/Walk3.png", "Assets/Shinobi/Walk4.png", "Assets/Shinobi/Walk5.png", "Assets/Shinobi/Walk6.png", "Assets/Shinobi/Walk7.png", "Assets/Shinobi/Walk8.png",
+            "Assets/Shinobi/Idle1.png", "Assets/Shinobi/Idle2.png", "Assets/Shinobi/Idle3.png", "Assets/Shinobi/Idle4.png", "Assets/Shinobi/Idle5.png", "Assets/Shinobi/Idle6.png",
+            "Assets/Shinobi/IAttack1.png", "Assets/Shinobi/IAttack2.png", "Assets/Shinobi/IAttack3.png", "Assets/Shinobi/IAttack4.png", "Assets/Shinobi/IAttack5.png",
+            "Assets/Shinobi/IIAttack1.png", "Assets/Shinobi/IIAttack2.png", "Assets/Shinobi/IIAttack3.png",
+            "Assets/Shinobi/IIIAttack1.png", "Assets/Shinobi/IIIAttack2.png", "Assets/Shinobi/IIIAttack3.png", "Assets/Shinobi/IIIAttack4.png",
+            "Assets/Shinobi/Jump1.png", "Assets/Shinobi/Jump2.png", "Assets/Shinobi/Jump3.png", "Assets/Shinobi/Jump4.png", "Assets/Shinobi/Jump5.png", "Assets/Shinobi/Jump6.png", "Assets/Shinobi/Jump7.png", "Assets/Shinobi/Jump8.png", "Assets/Shinobi/Jump9.png", "Assets/Shinobi/Jump10.png", "Assets/Shinobi/Jump11.png",
+            "Assets/Shinobi/Run1.png", "Assets/Shinobi/Run2.png", "Assets/Shinobi/Run3.png", "Assets/Shinobi/Run4.png", "Assets/Shinobi/Run5.png", "Assets/Shinobi/Run6.png", "Assets/Shinobi/Run7.png", "Assets/Shinobi/Run8.png",
+            "Assets/Shinobi/Hurt1.png", "Assets/Shinobi/Hurt2.png",
+            "Assets/Shinobi/Dead1.png", "Assets/Shinobi/Dead2.png", "Assets/Shinobi/Dead3.png", "Assets/Shinobi/Dead4.png",
+            "Assets/Shinobi/Shield1.png", "Assets/Shinobi/Shield2.png", "Assets/Shinobi/Shield3.png", "Assets/Shinobi/Shield4.png",
             "Assets/Shinobi/7.png"
     };
 
     String[] fighterTextures = {
-            "Assets/Fighter/Walk1.png","Assets/Fighter/Walk2.png","Assets/Fighter/Walk3.png","Assets/Fighter/Walk4.png","Assets/Fighter/Walk5.png","Assets/Fighter/Walk6.png","Assets/Fighter/Walk7.png","Assets/Fighter/Walk8.png",
-            "Assets/Fighter/Idle1.png","Assets/Fighter/Idle2.png","Assets/Fighter/Idle3.png","Assets/Fighter/Idle4.png","Assets/Fighter/Idle5.png","Assets/Fighter/Idle6.png",
-            "Assets/Fighter/IAttack1.png","Assets/Fighter/IAttack2.png","Assets/Fighter/IAttack3.png","Assets/Fighter/IAttack4.png",
-            "Assets/Fighter/IIAttack1.png","Assets/Fighter/IIAttack2.png","Assets/Fighter/IIAttack3.png",
-            "Assets/Fighter/IIIAttack1.png","Assets/Fighter/IIIAttack2.png","Assets/Fighter/IIIAttack3.png","Assets/Fighter/IIIAttack4.png",
-            "Assets/Fighter/Jump1.png","Assets/Fighter/Jump2.png","Assets/Fighter/Jump3.png","Assets/Fighter/Jump4.png","Assets/Fighter/Jump5.png","Assets/Fighter/Jump6.png","Assets/Fighter/Jump7.png","Assets/Fighter/Jump8.png","Assets/Fighter/Jump9.png","Assets/Fighter/Jump10.png",
-            "Assets/Fighter/Run1.png","Assets/Fighter/Run2.png","Assets/Fighter/Run3.png","Assets/Fighter/Run4.png","Assets/Fighter/Run5.png","Assets/Fighter/Run6.png","Assets/Fighter/Run7.png","Assets/Fighter/Run8.png",
-            "Assets/Fighter/Hurt1.png","Assets/Fighter/Hurt2.png","Assets/Fighter/Hurt3.png",
-            "Assets/Fighter/Dead1.png","Assets/Fighter/Dead2.png","Assets/Fighter/Dead3.png",
-            "Assets/Fighter/Shield1.png","Assets/Fighter/Shield2.png",
+            "Assets/Fighter/Walk1.png", "Assets/Fighter/Walk2.png", "Assets/Fighter/Walk3.png", "Assets/Fighter/Walk4.png", "Assets/Fighter/Walk5.png", "Assets/Fighter/Walk6.png", "Assets/Fighter/Walk7.png", "Assets/Fighter/Walk8.png",
+            "Assets/Fighter/Idle1.png", "Assets/Fighter/Idle2.png", "Assets/Fighter/Idle3.png", "Assets/Fighter/Idle4.png", "Assets/Fighter/Idle5.png", "Assets/Fighter/Idle6.png",
+            "Assets/Fighter/IAttack1.png", "Assets/Fighter/IAttack2.png", "Assets/Fighter/IAttack3.png", "Assets/Fighter/IAttack4.png",
+            "Assets/Fighter/IIAttack1.png", "Assets/Fighter/IIAttack2.png", "Assets/Fighter/IIAttack3.png",
+            "Assets/Fighter/IIIAttack1.png", "Assets/Fighter/IIIAttack2.png", "Assets/Fighter/IIIAttack3.png", "Assets/Fighter/IIIAttack4.png",
+            "Assets/Fighter/Jump1.png", "Assets/Fighter/Jump2.png", "Assets/Fighter/Jump3.png", "Assets/Fighter/Jump4.png", "Assets/Fighter/Jump5.png", "Assets/Fighter/Jump6.png", "Assets/Fighter/Jump7.png", "Assets/Fighter/Jump8.png", "Assets/Fighter/Jump9.png", "Assets/Fighter/Jump10.png",
+            "Assets/Fighter/Run1.png", "Assets/Fighter/Run2.png", "Assets/Fighter/Run3.png", "Assets/Fighter/Run4.png", "Assets/Fighter/Run5.png", "Assets/Fighter/Run6.png", "Assets/Fighter/Run7.png", "Assets/Fighter/Run8.png",
+            "Assets/Fighter/Hurt1.png", "Assets/Fighter/Hurt2.png", "Assets/Fighter/Hurt3.png",
+            "Assets/Fighter/Dead1.png", "Assets/Fighter/Dead2.png", "Assets/Fighter/Dead3.png",
+            "Assets/Fighter/Shield1.png", "Assets/Fighter/Shield2.png",
             "Assets/Fighter/7.png"
     };
 
     String[] samuraiTextures = {
-            "Assets/Samurai/Walk1.png","Assets/Samurai/Walk2.png","Assets/Samurai/Walk3.png","Assets/Samurai/Walk4.png","Assets/Samurai/Walk5.png","Assets/Samurai/Walk6.png","Assets/Samurai/Walk7.png","Assets/Samurai/Walk8.png",
-            "Assets/Samurai/Idle1.png","Assets/Samurai/Idle2.png","Assets/Samurai/Idle3.png","Assets/Samurai/Idle4.png","Assets/Samurai/Idle5.png","Assets/Samurai/Idle6.png",
-            "Assets/Samurai/IAttack1.png","Assets/Samurai/IAttack2.png","Assets/Samurai/IAttack3.png","Assets/Samurai/IAttack4.png","Assets/Samurai/IAttack5.png","Assets/Samurai/IAttack6.png",
-            "Assets/Samurai/IIAttack1.png","Assets/Samurai/IIAttack2.png","Assets/Samurai/IIAttack3.png","Assets/Samurai/IIAttack4.png",
-            "Assets/Samurai/IIIAttack1.png","Assets/Samurai/IIIAttack2.png","Assets/Samurai/IIIAttack3.png",
-            "Assets/Samurai/Jump1.png","Assets/Samurai/Jump2.png","Assets/Samurai/Jump3.png","Assets/Samurai/Jump4.png","Assets/Samurai/Jump5.png","Assets/Samurai/Jump6.png","Assets/Samurai/Jump7.png","Assets/Samurai/Jump8.png","Assets/Samurai/Jump9.png","Assets/Samurai/Jump10.png","Assets/Samurai/Jump11.png","Assets/Samurai/Jump12.png",
-            "Assets/Samurai/Run1.png","Assets/Samurai/Run2.png","Assets/Samurai/Run3.png","Assets/Samurai/Run4.png","Assets/Samurai/Run5.png","Assets/Samurai/Run6.png","Assets/Samurai/Run7.png","Assets/Samurai/Run8.png",
-            "Assets/Samurai/Hurt1.png","Assets/Samurai/Hurt2.png",
-            "Assets/Samurai/Dead1.png","Assets/Samurai/Dead2.png","Assets/Samurai/Dead3.png",
-            "Assets/Samurai/Shield1.png","Assets/Samurai/Shield2.png",
+            "Assets/Samurai/Walk1.png", "Assets/Samurai/Walk2.png", "Assets/Samurai/Walk3.png", "Assets/Samurai/Walk4.png", "Assets/Samurai/Walk5.png", "Assets/Samurai/Walk6.png", "Assets/Samurai/Walk7.png", "Assets/Samurai/Walk8.png",
+            "Assets/Samurai/Idle1.png", "Assets/Samurai/Idle2.png", "Assets/Samurai/Idle3.png", "Assets/Samurai/Idle4.png", "Assets/Samurai/Idle5.png", "Assets/Samurai/Idle6.png",
+            "Assets/Samurai/IAttack1.png", "Assets/Samurai/IAttack2.png", "Assets/Samurai/IAttack3.png", "Assets/Samurai/IAttack4.png", "Assets/Samurai/IAttack5.png", "Assets/Samurai/IAttack6.png",
+            "Assets/Samurai/IIAttack1.png", "Assets/Samurai/IIAttack2.png", "Assets/Samurai/IIAttack3.png", "Assets/Samurai/IIAttack4.png",
+            "Assets/Samurai/IIIAttack1.png", "Assets/Samurai/IIIAttack2.png", "Assets/Samurai/IIIAttack3.png",
+            "Assets/Samurai/Jump1.png", "Assets/Samurai/Jump2.png", "Assets/Samurai/Jump3.png", "Assets/Samurai/Jump4.png", "Assets/Samurai/Jump5.png", "Assets/Samurai/Jump6.png", "Assets/Samurai/Jump7.png", "Assets/Samurai/Jump8.png", "Assets/Samurai/Jump9.png", "Assets/Samurai/Jump10.png", "Assets/Samurai/Jump11.png", "Assets/Samurai/Jump12.png",
+            "Assets/Samurai/Run1.png", "Assets/Samurai/Run2.png", "Assets/Samurai/Run3.png", "Assets/Samurai/Run4.png", "Assets/Samurai/Run5.png", "Assets/Samurai/Run6.png", "Assets/Samurai/Run7.png", "Assets/Samurai/Run8.png",
+            "Assets/Samurai/Hurt1.png", "Assets/Samurai/Hurt2.png",
+            "Assets/Samurai/Dead1.png", "Assets/Samurai/Dead2.png", "Assets/Samurai/Dead3.png",
+            "Assets/Samurai/Shield1.png", "Assets/Samurai/Shield2.png",
             "Assets/Samurai/7.png"
     };
 
     // Frame counts (0=Shinobi,1=Fighter,2=Samurai) – all same counts now
-    int[] MAX_WALK    = {8,8,8};
-    int[] MAX_IDLE    = {6,6,6};
+    int[] MAX_WALK = {8, 8, 8};
+    int[] MAX_IDLE = {6, 6, 6};
 
     // Attack1
-    int[] MAX_ATTACK1 = {5,4,6};
+    int[] MAX_ATTACK1 = {5, 4, 6};
 
     // Attack2
-    int[] MAX_ATTACK2 = {3,3,4};
+    int[] MAX_ATTACK2 = {3, 3, 4};
 
     // Attack3
-    int[] MAX_ATTACK3 = {4,4,3};
+    int[] MAX_ATTACK3 = {4, 4, 3};
 
     // Jump
-    int[] MAX_JUMP    = {11,10,12};
+    int[] MAX_JUMP = {11, 10, 12};
 
     // Run
-    int[] MAX_RUN     = {8,8,8};
+    int[] MAX_RUN = {8, 8, 8};
 
     // Hurt
-    int[] MAX_HURT    = {2,3,2};
+    int[] MAX_HURT = {2, 3, 2};
 
     // Dead
-    int[] MAX_DEAD    = {4,3,3};
+    int[] MAX_DEAD = {4, 3, 3};
 
     // Shield
-    int[] MAX_SHIELD  = {4,2,2};
+    int[] MAX_SHIELD = {4, 2, 2};
 
 
     int[][] shinobiIDs;   // [state][frame]
@@ -106,7 +107,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
-        gl.glClearColor(1,1,1,1);
+        gl.glClearColor(1, 1, 1, 1);
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
@@ -147,22 +148,22 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         int[][] ids = new int[10][15]; // [state][frame]
         int offset = 0;
 
-        for(int i=0; i<MAX_WALK[charIdx]; i++)    ids[0][i] = genTex(gl, texFiles[offset++]); // WALK
-        for(int i=0; i<MAX_IDLE[charIdx]; i++)    ids[1][i] = genTex(gl, texFiles[offset++]); // IDLE
-        for(int i=0; i<MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]); // ATT1
-        for(int i=0; i<MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]); // ATT2
-        for(int i=0; i<MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]); // ATT3
-        for(int i=0; i<MAX_JUMP[charIdx]; i++)    ids[5][i] = genTex(gl, texFiles[offset++]); // JUMP
-        for(int i=0; i<MAX_RUN[charIdx]; i++)     ids[6][i] = genTex(gl, texFiles[offset++]); // RUN
-        for(int i=0; i<MAX_HURT[charIdx]; i++)    ids[7][i] = genTex(gl, texFiles[offset++]); // HURT
-        for(int i=0; i<MAX_DEAD[charIdx]; i++)    ids[8][i] = genTex(gl, texFiles[offset++]); // DEAD
-        for(int i=0; i<MAX_SHIELD[charIdx]; i++)  ids[9][i] = genTex(gl, texFiles[offset++]); // SHIELD
+        for (int i = 0; i < MAX_WALK[charIdx]; i++) ids[0][i] = genTex(gl, texFiles[offset++]); // WALK
+        for (int i = 0; i < MAX_IDLE[charIdx]; i++) ids[1][i] = genTex(gl, texFiles[offset++]); // IDLE
+        for (int i = 0; i < MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]); // ATT1
+        for (int i = 0; i < MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]); // ATT2
+        for (int i = 0; i < MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]); // ATT3
+        for (int i = 0; i < MAX_JUMP[charIdx]; i++) ids[5][i] = genTex(gl, texFiles[offset++]); // JUMP
+        for (int i = 0; i < MAX_RUN[charIdx]; i++) ids[6][i] = genTex(gl, texFiles[offset++]); // RUN
+        for (int i = 0; i < MAX_HURT[charIdx]; i++) ids[7][i] = genTex(gl, texFiles[offset++]); // HURT
+        for (int i = 0; i < MAX_DEAD[charIdx]; i++) ids[8][i] = genTex(gl, texFiles[offset++]); // DEAD
+        for (int i = 0; i < MAX_SHIELD[charIdx]; i++) ids[9][i] = genTex(gl, texFiles[offset++]); // SHIELD
 
         bgIDs[charIdx] = genTex(gl, texFiles[offset]); // background
         return ids;
     }
 
-    int genTex(GL gl, String path){
+    int genTex(GL gl, String path) {
         try {
             TextureReader.Texture tex = TextureReader.readTexture(path, true);
             int[] id = new int[1];
@@ -172,7 +173,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                     tex.getWidth(), tex.getHeight(),
                     GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, tex.getPixels());
             return id[0];
-        } catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Err loading texture: " + path + " -> " + e);
             return -1;
         }
@@ -197,16 +198,20 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
     }
 
-    void DrawBackground(GL gl, int tex){
+    void DrawBackground(GL gl, int tex) {
         gl.glEnable(GL.GL_BLEND);
         gl.glBindTexture(GL.GL_TEXTURE_2D, tex);
         gl.glPushMatrix();
         gl.glLoadIdentity();
         gl.glBegin(GL.GL_QUADS);
-        gl.glTexCoord2f(0,0); gl.glVertex2f(-1,-1);
-        gl.glTexCoord2f(1,0); gl.glVertex2f(1,-1);
-        gl.glTexCoord2f(1,1); gl.glVertex2f(1,1);
-        gl.glTexCoord2f(0,1); gl.glVertex2f(-1,1);
+        gl.glTexCoord2f(0, 0);
+        gl.glVertex2f(-1, -1);
+        gl.glTexCoord2f(1, 0);
+        gl.glVertex2f(1, -1);
+        gl.glTexCoord2f(1, 1);
+        gl.glVertex2f(1, 1);
+        gl.glTexCoord2f(0, 1);
+        gl.glVertex2f(-1, 1);
         gl.glEnd();
         gl.glPopMatrix();
         gl.glDisable(GL.GL_BLEND);
@@ -215,10 +220,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL gl = drawable.getGL();
-        gl.glViewport(0,0,width,height);
+        gl.glViewport(0, 0, width, height);
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
-        gl.glOrtho(-1,1,-1,1,-1,1);
+        gl.glOrtho(-1, 1, -1, 1, -1, 1);
         gl.glMatrixMode(GL.GL_MODELVIEW);
     }
 
@@ -242,13 +247,14 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     }
 
     @Override
-    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
+    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
+    }
 
     // ============================
     //   Key Handling
     // ============================
     @Override
-    public void keyPressed(KeyEvent e)  {
+    public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         keyBits.set(code, true);
 
@@ -276,7 +282,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+    }
 
     // =========================================================
     //  Inner Player class (works for Human and AI Enemy)
@@ -296,9 +303,9 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
         // Physics
         float velocityY = 0;
-        float gravity   = 0.1f;
+        float gravity = 0.1f;
         float jumpPower = 1.3f;
-        float groundY   = 20;
+        float groundY = 20;
         boolean isJumping = false;
 
         // controls
@@ -318,7 +325,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         Random rand = new Random();
         int aiDecisionTimer = 0;
 
-        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft, boolean ai){
+        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft, boolean ai) {
             this.x = startX;
             this.y = startY;
             this.groundY = startY;
@@ -328,12 +335,17 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             this.isAI = ai;
         }
 
-        public void setControls(int up, int down, int left, int right, int a1, int a2, int a3){
-            this.kUp = up; this.kDown = down; this.kLeft = left; this.kRight = right;
-            this.kAtt1 = a1; this.kAtt2 = a2; this.kAtt3 = a3;
+        public void setControls(int up, int down, int left, int right, int a1, int a2, int a3) {
+            this.kUp = up;
+            this.kDown = down;
+            this.kLeft = left;
+            this.kRight = right;
+            this.kAtt1 = a1;
+            this.kAtt2 = a2;
+            this.kAtt3 = a3;
         }
 
-        public void queueAttack(int attackState){
+        public void queueAttack(int attackState) {
             // attackState: 2 or 3 or 4
             if (isAttacking() || state == 7 || state == 8) return;
             if (queuedAttackType == 0) {
@@ -345,7 +357,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             return state == 2 || state == 3 || state == 4;
         }
 
-        public void reset(float startX, float startY, boolean startFaceLeft){
+        public void reset(float startX, float startY, boolean startFaceLeft) {
             this.x = startX;
             this.y = startY;
             this.groundY = startY;
@@ -364,23 +376,17 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
         // target = opponent
-        public void update(Player target){
-            // dead
-            if (state == 8) {
-                velocityY = 0;
-                return;
-            }
-
-            // hurt
+        public void update(Player target) {
             if (state == 7) {
                 frameDelay++;
-                if (frameDelay >= MAX_HURT[charIndex] * 3) {
-                    state = 1; animIndex = 0; frameDelay = 0;
+                if (frameDelay % 3 == 0) animIndex++;
+                if (animIndex >= MAX_HURT[charIndex]) {
+                    state = 1;
+                    animIndex = 0;
+                    frameDelay = 0;
                 }
                 return;
             }
-
-            // gravity
             y += velocityY;
             velocityY -= gravity;
 
@@ -388,37 +394,85 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 y = groundY;
                 velocityY = 0;
                 isJumping = false;
+                if (state == 8) {
+                    frameDelay++;
+                    if (frameDelay % 3 == 0) animIndex++;
+                    if (animIndex >= MAX_DEAD[charIndex]) animIndex = MAX_DEAD[charIndex] - 1;
+                    return;
+                }
             } else {
                 isJumping = true;
             }
+            if (state == 8) return;
 
             lastState = state;
 
-            if (isAI) {
-                updateAI(target);
-            } else {
-                handleHumanInput();
-            }
+            if (isAI) updateAI(target);
+            else handleHumanInput();
 
-            // Clamp to arena
             if (x < 0) x = 0;
             if (x > 50) x = 50;
 
-            // Combat check
-            if (target != null && target.state != 8) {
-                checkHit(target);
-            }
-
-            if(state != lastState){
-                animIndex = 0; frameDelay = 0;
+            if (target != null && target.state != 8) checkHit(target);
+            if (state != lastState) {
+                animIndex = 0;
+                frameDelay = 0;
             }
             frameDelay++;
+            if (frameDelay % 3 == 0) {
+                animIndex++;
+                int maxFrames = 1;
+                switch (state) {
+                    case 0:
+                        maxFrames = MAX_WALK[charIndex];
+                        break;
+                    case 1:
+                        maxFrames = MAX_IDLE[charIndex];
+                        break;
+                    case 2:
+                        maxFrames = MAX_ATTACK1[charIndex];
+                        break;
+                    case 3:
+                        maxFrames = MAX_ATTACK2[charIndex];
+                        break;
+                    case 4:
+                        maxFrames = MAX_ATTACK3[charIndex];
+                        break;
+                    case 5:
+                        maxFrames = MAX_JUMP[charIndex];
+                        break;
+                    case 7:
+                        maxFrames = MAX_HURT[charIndex];
+                        break;
+                    case 8:
+                        maxFrames = MAX_DEAD[charIndex];
+                        break;
+                    case 9:
+                        maxFrames = MAX_SHIELD[charIndex];
+                        break;
+                    default:
+                        maxFrames = MAX_IDLE[charIndex];
+                        break;
+                }
+
+                if (isAttacking() && animIndex >= maxFrames) {
+                    state = 1;
+                    animIndex = 0;
+                    frameDelay = 0;
+                    hasHitThisAttack = false;
+                } else if ((state == 8 || state == 9) && animIndex >= maxFrames) {
+                    animIndex = maxFrames - 1;
+                } else if (animIndex >= maxFrames) {
+                    animIndex = 0;
+                }
+            }
+
         }
 
         // -------------------- HUMAN INPUT --------------------
         private void handleHumanInput() {
             // jump triggered by keyBits
-            if(keyBits.get(kUp) && !isJumping) {
+            if (keyBits.get(kUp) && !isJumping) {
                 velocityY = jumpPower;
                 isJumping = true;
             }
@@ -446,12 +500,12 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             }
 
             // Movement (same base speed as before)
-            if(keyBits.get(kLeft)) {
-                if(x > 0) x -= 0.5f;
+            if (keyBits.get(kLeft)) {
+                if (x > 0) x -= 0.5f;
                 facingLeft = true;
             }
-            if(keyBits.get(kRight)) {
-                if(x < 50) x += 0.5f;
+            if (keyBits.get(kRight)) {
+                if (x < 50) x += 0.5f;
                 facingLeft = false;
             }
         }
@@ -615,21 +669,25 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
         // -------------------- DRAW --------------------
-        public void draw(GL gl){
+        public void draw(GL gl) {
             int texID = getCurrentFrame();
             gl.glEnable(GL.GL_BLEND);
             gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
             gl.glPushMatrix();
 
             // SAME transform / scale as multiplayer
-            gl.glTranslated(x/25.0 - 1, y/25.0 - 1, 0);
+            gl.glTranslated(x / 25.0 - 1, y / 25.0 - 1, 0);
             gl.glScaled(facingLeft ? -0.3 : 0.3, 0.3, 1);
 
             gl.glBegin(GL.GL_QUADS);
-            gl.glTexCoord2f(0,0); gl.glVertex3f(-1,-1,0);
-            gl.glTexCoord2f(1,0); gl.glVertex3f(1,-1,0);
-            gl.glTexCoord2f(1,1); gl.glVertex3f(1,1,0);
-            gl.glTexCoord2f(0,1); gl.glVertex3f(-1,1,0);
+            gl.glTexCoord2f(0, 0);
+            gl.glVertex3f(-1, -1, 0);
+            gl.glTexCoord2f(1, 0);
+            gl.glVertex3f(1, -1, 0);
+            gl.glTexCoord2f(1, 1);
+            gl.glVertex3f(1, 1, 0);
+            gl.glTexCoord2f(0, 1);
+            gl.glVertex3f(-1, 1, 0);
             gl.glEnd();
 
             gl.glPopMatrix();
@@ -637,40 +695,47 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
         // -------------------- ANIMATION FRAMES --------------------
-        int getCurrentFrame(){
-            int maxFrames;
-            switch(state){
-                case 0: maxFrames = MAX_WALK[charIndex];    break;
-                case 1: maxFrames = MAX_IDLE[charIndex];    break;
-                case 2: maxFrames = MAX_ATTACK1[charIndex]; break;
-                case 3: maxFrames = MAX_ATTACK2[charIndex]; break;
-                case 4: maxFrames = MAX_ATTACK3[charIndex]; break;
-                case 5: maxFrames = MAX_JUMP[charIndex];    break;
-                case 7: maxFrames = MAX_HURT[charIndex];    break;
-                case 8: maxFrames = MAX_DEAD[charIndex];    break;
-                case 9: maxFrames = MAX_SHIELD[charIndex];  break;
-                default:maxFrames = MAX_IDLE[charIndex];    break;
+        int getCurrentFrame() {
+            int maxFrames = 1;
+            switch (state) {
+                case 0:
+                    maxFrames = MAX_WALK[charIndex];
+                    break;
+                case 1:
+                    maxFrames = MAX_IDLE[charIndex];
+                    break;
+                case 2:
+                    maxFrames = MAX_ATTACK1[charIndex];
+                    break;
+                case 3:
+                    maxFrames = MAX_ATTACK2[charIndex];
+                    break;
+                case 4:
+                    maxFrames = MAX_ATTACK3[charIndex];
+                    break;
+                case 5:
+                    maxFrames = MAX_JUMP[charIndex];
+                    break;
+                case 7:
+                    maxFrames = MAX_HURT[charIndex];
+                    break;
+                case 8:
+                    maxFrames = MAX_DEAD[charIndex];
+                    break;
+                case 9:
+                    maxFrames = MAX_SHIELD[charIndex];
+                    break;
+                default:
+                    maxFrames = MAX_IDLE[charIndex];
+                    break;
             }
 
-            if(frameDelay % 3 == 0) {
-                animIndex++;
+            if (animIndex >= maxFrames) {
+                if (state == 8 || state == 9) animIndex = maxFrames - 1;
+                else animIndex = 0;
             }
-
-            // For attacks: when animation finishes, go back to idle automatically
-            if (isAttacking() && animIndex >= maxFrames) {
-                state = 1; // idle
-                animIndex = 0;
-                frameDelay = 0;
-                hasHitThisAttack = false;
-                maxFrames = MAX_IDLE[charIndex];
-            } else if ((state == 8 || state == 9) && animIndex >= maxFrames) {
-                // dead / shield stay at last frame
-                animIndex = maxFrames - 1;
-            } else if (animIndex >= maxFrames) {
-                animIndex = 0;
-            }
-
             return textureIDs[state][animIndex];
         }
     }
 }
+

@@ -242,7 +242,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
         int kUp, kDown, kLeft, kRight, kAtt1, kAtt2, kAtt3;
 
-        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft){
+        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft) {
             this.x = startX;
             this.y = startY;
             this.groundY = startY;
@@ -251,13 +251,18 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             this.facingLeft = startFaceLeft;
         }
 
-        public void setControls(int up, int down, int left, int right, int a1, int a2, int a3){
-            this.kUp = up; this.kDown = down; this.kLeft = left; this.kRight = right;
-            this.kAtt1 = a1; this.kAtt2 = a2; this.kAtt3 = a3;
+        public void setControls(int up, int down, int left, int right, int a1, int a2, int a3) {
+            this.kUp = up;
+            this.kDown = down;
+            this.kLeft = left;
+            this.kRight = right;
+            this.kAtt1 = a1;
+            this.kAtt2 = a2;
+            this.kAtt3 = a3;
         }
 
         // --- التعديل هنا: الدالة تستقبل مكان الخصم ---
-        public void update(float enemyX){
+        public void update(float enemyX) {
             y += velocityY;
             velocityY -= gravity;
 
@@ -270,13 +275,18 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             }
 
             if (state == 8) {
-                frameDelay++;
+
+                if (animIndex < MAX_DEAD[charIndex] - 1) {
+                    frameDelay++;
+                    if (frameDelay % 3 == 0) animIndex++;
+                }
                 return;
             }
 
             if (state == 7) {
                 frameDelay++;
-                if (frameDelay >= MAX_HURT[charIndex] * 3) {
+                if (frameDelay % 3 == 0) animIndex++;
+                if (animIndex >= MAX_HURT[charIndex]) {
                     state = 1; animIndex = 0; frameDelay = 0;
                 }
                 return;
@@ -284,7 +294,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
             lastState = state;
 
-            if(keyBits.get(kUp) && !isJumping) {
+            if (keyBits.get(kUp) && !isJumping) {
                 velocityY = jumpPower;
                 isJumping = true;
             }
@@ -307,13 +317,13 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
             // --- Movement Control ---
             if (state != 9) {
-                if(keyBits.get(kLeft)) {
-                    if(x > 0) x -= 0.5f;
-                    // !!! مسحنا facingLeft من هنا !!!
+                if (keyBits.get(kLeft)) {
+                    if (x > 0) x -= 0.5f;
+
                 }
-                if(keyBits.get(kRight)) {
-                    if(x < 50) x += 0.5f;
-                    // !!! مسحنا facingLeft من هنا !!!
+                if (keyBits.get(kRight)) {
+                    if (x < 50) x += 0.5f;
+
                 }
             }
 
@@ -327,69 +337,118 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             }
             // -------------------------
 
-            if(state != lastState){
-                animIndex = 0; frameDelay = 0;
+            if (state != lastState) {
+                animIndex = 0;
+                frameDelay = 0;
             }
             frameDelay++;
+            int speed = 3;
+            if (frameDelay % speed == 0) {
+                animIndex++;
+                int maxFrames = 1;
+                switch(state){
+                    case 0: maxFrames = MAX_WALK[charIndex]; break;
+                    case 1: maxFrames = MAX_IDLE[charIndex]; break;
+                    case 2: maxFrames = MAX_ATTACK1[charIndex]; break;
+                    case 3: maxFrames = MAX_ATTACK2[charIndex]; break;
+                    case 4: maxFrames = MAX_ATTACK3[charIndex]; break;
+                    case 5: maxFrames = MAX_JUMP[charIndex]; break;
+                    case 9: maxFrames = MAX_SHIELD[charIndex]; break;
+                    default: maxFrames = MAX_IDLE[charIndex]; break;
+                }
+
+
+                if (animIndex >= maxFrames) {
+                    if (state == 9) animIndex = maxFrames - 1;
+                    else animIndex = 0;
+                }
+            }
         }
 
         public void takeDamage() {
-            if(state == 8 || state == 7 || state == 9) return;
+            if (state == 8 || state == 7 || state == 9) return;
 
             health -= 20;
-            state = 7; animIndex = 0; frameDelay = 0;
+            state = 7;
+            animIndex = 0;
+            frameDelay = 0;
 
             if (health <= 0) {
-                health = 0; state = 8;
-                animIndex = 0; frameDelay = 0;
+                health = 0;
+                state = 8;
+                animIndex = 0;
+                frameDelay = 0;
                 System.out.println("Player Died");
             }
         }
 
-        public void draw(GL gl){
+        public void draw(GL gl) {
             int texID = getCurrentFrame();
             gl.glEnable(GL.GL_BLEND);
             gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
             gl.glPushMatrix();
 
-            gl.glTranslated(x/25.0 - 1, y/25.0 - 1, 0);
+            gl.glTranslated(x / 25.0 - 1, y / 25.0 - 1, 0);
 
             gl.glScaled(facingLeft ? -0.3 : 0.3, 0.3, 1);
             gl.glBegin(GL.GL_QUADS);
-            gl.glTexCoord2f(0,0); gl.glVertex3f(-1,-1,0);
-            gl.glTexCoord2f(1,0); gl.glVertex3f(1,-1,0);
-            gl.glTexCoord2f(1,1); gl.glVertex3f(1,1,0);
-            gl.glTexCoord2f(0,1); gl.glVertex3f(-1,1,0);
+            gl.glTexCoord2f(0, 0);
+            gl.glVertex3f(-1, -1, 0);
+            gl.glTexCoord2f(1, 0);
+            gl.glVertex3f(1, -1, 0);
+            gl.glTexCoord2f(1, 1);
+            gl.glVertex3f(1, 1, 0);
+            gl.glTexCoord2f(0, 1);
+            gl.glVertex3f(-1, 1, 0);
             gl.glEnd();
             gl.glPopMatrix();
             gl.glDisable(GL.GL_BLEND);
         }
 
-        int getCurrentFrame(){
+        int getCurrentFrame() {
             int maxFrames = 1;
-            switch(state){
-                case 0: maxFrames = MAX_WALK[charIndex]; break;
-                case 1: maxFrames = MAX_IDLE[charIndex]; break;
-                case 2: maxFrames = MAX_ATTACK1[charIndex]; break;
-                case 3: maxFrames = MAX_ATTACK2[charIndex]; break;
-                case 4: maxFrames = MAX_ATTACK3[charIndex]; break;
-                case 5: maxFrames = MAX_JUMP[charIndex]; break;
-                case 7: maxFrames = MAX_HURT[charIndex]; break;
-                case 8: maxFrames = MAX_DEAD[charIndex]; break;
-                case 9: maxFrames = MAX_SHIELD[charIndex]; break;
-                default: maxFrames = MAX_IDLE[charIndex]; break;
+            switch (state) {
+                case 0:
+                    maxFrames = MAX_WALK[charIndex];
+                    break;
+                case 1:
+                    maxFrames = MAX_IDLE[charIndex];
+                    break;
+                case 2:
+                    maxFrames = MAX_ATTACK1[charIndex];
+                    break;
+                case 3:
+                    maxFrames = MAX_ATTACK2[charIndex];
+                    break;
+                case 4:
+                    maxFrames = MAX_ATTACK3[charIndex];
+                    break;
+                case 5:
+                    maxFrames = MAX_JUMP[charIndex];
+                    break;
+                case 7:
+                    maxFrames = MAX_HURT[charIndex];
+                    break;
+                case 8:
+                    maxFrames = MAX_DEAD[charIndex];
+                    break;
+                case 9:
+                    maxFrames = MAX_SHIELD[charIndex];
+                    break;
+                default:
+                    maxFrames = MAX_IDLE[charIndex];
+                    break;
             }
 
-            int speed = 3;
 
-            if(frameDelay % speed == 0) animIndex++;
 
-            if ((state == 8 || state == 9) && animIndex >= maxFrames) {
-                animIndex = maxFrames - 1;
+
+            if (animIndex >= maxFrames) {
+
+                if (state == 8 || state == 9) animIndex = maxFrames - 1;
+                else animIndex = 0;
             }
-            else if(animIndex >= maxFrames) {
-                animIndex = 0;
-            }
+
             return textureIDs[state][animIndex];
         }
     }
