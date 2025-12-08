@@ -459,130 +459,94 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         // -------------------- AI BRAIN --------------------
         private void updateAI(Player target) {
             if (target == null || target.state == 8) {
-                state = 1; // idle if no target or target dead
+                state = 1;
                 return;
             }
 
-            // React when hit
-            if (wasHit) {
-                wasHit = false;
+            // PARAMETERS (Balanced)
+            float attackRange;
+            float moveSpeed;
+            float aggression;
+            float jumpChance;
+            float shieldChance;
 
-                if (currentDifficulty == Difficulty.HARD) {
-                    if (!isJumping && rand.nextFloat() < 0.5f) {
-                        velocityY = jumpPower;
-                        isJumping = true;
-                        state = 5;
-                        return;
-                    } else {
-                        state = 9; // shield
-                        return;
-                    }
+            switch (currentDifficulty) {
+                case EASY:
+                    attackRange = 6.0f;
+                    moveSpeed = 0.45f;
+                    aggression = 0.25f;
+                    jumpChance = 0.05f;
+                    shieldChance = 0.05f;
+                    break;
+
+                case HARD:
+                    attackRange = 7.0f;
+                    moveSpeed = 0.60f;  // FASTER than human
+                    aggression = 0.80f;
+                    jumpChance = 0.15f;
+                    shieldChance = 0.20f;
+                    break;
+
+                default: // MEDIUM
+                    attackRange = 6.5f;
+                    moveSpeed = 0.50f;  // SAME speed as human
+                    aggression = 0.50f;
+                    jumpChance = 0.10f;
+                    shieldChance = 0.15f;
+                    break;
+            }
+
+            // If attacking → let animation continue
+            if (isAttacking()) return;
+
+            // Distance analysis
+            float dx = target.x - this.x;
+            float dist = Math.abs(dx);
+            facingLeft = (dx < 0);
+
+            // ALWAYS MOVE — NO DECISION DELAY ANYMORE
+            float r = rand.nextFloat();
+
+            // If close → attack or shield
+            if (dist < attackRange) {
+                if (r < aggression) {
+                    int which = 2 + rand.nextInt(3); // attack 2,3,4
+                    state = which;
+                    animIndex = 0;
+                    frameDelay = 0;
+                    hasHitThisAttack = false;
+                    return;
                 }
-                if (currentDifficulty == Difficulty.MEDIUM && rand.nextFloat() < 0.3f) {
-                    state = 9;
+
+                if (r < aggression + shieldChance) {
+                    state = 9; // shield
                     return;
                 }
             }
 
-            // Basic difficulty parameters
-            float attackRange;
-            float moveSpeed;
-            float aggression;   // chance to attack when in range
-            float jumpChance;
-            float shieldChance;
-            int   decisionDelay;
-
-            switch (currentDifficulty) {
-                case EASY:
-                    attackRange = 5.0f;
-                    moveSpeed   = 0.4f;
-                    aggression  = 0.25f;
-                    jumpChance  = 0.05f;
-                    shieldChance= 0.05f;
-                    decisionDelay = 25;
-                    break;
-                case HARD:
-                    attackRange = 7.0f;
-                    moveSpeed   = 0.6f;
-                    aggression  = 0.8f;
-                    jumpChance  = 0.15f;
-                    shieldChance= 0.25f;
-                    decisionDelay = 8;
-                    break;
-                default: // MEDIUM
-                    attackRange = 6.0f;
-                    moveSpeed   = 0.5f;
-                    aggression  = 0.5f;
-                    jumpChance  = 0.1f;
-                    shieldChance= 0.15f;
-                    decisionDelay = 15;
+            // Movement logic — ALWAYS executes, no delay!
+            if (dist > attackRange + 0.5f) {
+                if (dx > 0) x += moveSpeed;
+                else x -= moveSpeed;
+                state = 0; // walk
+            } else if (dist < attackRange - 0.5f) {
+                if (dx > 0) x -= moveSpeed * 0.6f;
+                else x += moveSpeed * 0.6f;
+                state = 0; // walk back
+            } else {
+                state = 1; // idle close to player
             }
 
-            // If currently attacking, just let the animation continue
-            if (isAttacking()) {
-                return;
-            }
-
-            // Decision timer – AI doesn't change mind every frame
-            if (aiDecisionTimer > 0) {
-                aiDecisionTimer--;
-            }
-
-            float dx = target.x - this.x;
-            float dist = Math.abs(dx);
-
-            // face the player
-            facingLeft = (dx < 0);
-
-            if (aiDecisionTimer <= 0) {
-                aiDecisionTimer = decisionDelay;
-
-                float r = rand.nextFloat();
-
-                // If very close, maybe shield or attack
-                if (dist < attackRange) {
-                    if (r < aggression) {
-                        // choose random attack
-                        int which = 2 + rand.nextInt(3); // 2,3,4
-                        state = which;
-                        animIndex = 0;
-                        frameDelay = 0;
-                        hasHitThisAttack = false;
-                        return;
-                    } else if (r < aggression + shieldChance) {
-                        state = 9; // shield
-                        return;
-                    }
-                }
-
-                // Move towards or keep distance
-                if (dist > attackRange + 1.0f) {
-                    // go nearer
-                    if (dx > 0) x += moveSpeed;
-                    else x -= moveSpeed;
-                    state = 0; // walk
-                } else if (dist < attackRange - 1.0f) {
-                    // back off a bit
-                    if (dx > 0) x -= moveSpeed * 0.6f;
-                    else x += moveSpeed * 0.6f;
-                    state = 0; // walk
-                } else {
-                    state = 1; // idle near player
-                }
-
-                // random jump sometimes
-                if (!isJumping && rand.nextFloat() < jumpChance) {
-                    velocityY = jumpPower;
-                    isJumping = true;
-                    state = 5;
-                }
-            }
-
-            // if in the air – ensure we stay in JUMP state
-            if (isJumping) {
+            // Random jump
+            if (!isJumping && rand.nextFloat() < jumpChance) {
+                velocityY = jumpPower;
+                isJumping = true;
                 state = 5;
             }
+
+            if (isJumping) state = 5;
         }
+
 
         // -------------------- COLLISION & DAMAGE --------------------
         public void checkHit(Player target) {
