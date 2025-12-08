@@ -2,6 +2,8 @@ package FinalP;
 
 import com.sun.opengl.util.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.media.opengl.*;
 import javax.swing.*;
 
@@ -10,6 +12,8 @@ public class Anim extends JFrame {
     AnimListener listener;
     JPanel pauseMenuPanel;
     AudioPlayer myMusic;
+    final int MENU_WIDTH = 300;
+    final int MENU_HEIGHT = 250;
 
     public static void main(String[] args) {
         new MainMenu();
@@ -59,6 +63,23 @@ public class Anim extends JFrame {
         layeredPane.add(pauseMenuPanel, Integer.valueOf(1));
 
         setContentPane(layeredPane);
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // هات العرض والطول الجداد بتوع الشاشة
+                int width = getContentPane().getWidth();
+                int height = getContentPane().getHeight();
+
+                // 1. خلي اللعبة تاخد المساحة الجديدة كلها
+                glcanvas.setBounds(0, 0, width, height);
+
+                // 2. احسب نص الشاشة الجديد عشان تحط القائمة فيه
+                int menuX = (width - MENU_WIDTH) / 2;
+                int menuY = (height - MENU_HEIGHT) / 2;
+
+                pauseMenuPanel.setBounds(menuX, menuY, MENU_WIDTH, MENU_HEIGHT);
+            }
+        });
 
         setVisible(true);
         glcanvas.requestFocusInWindow();
