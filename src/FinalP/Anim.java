@@ -2,7 +2,8 @@ package FinalP;
 
 import com.sun.opengl.util.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.media.opengl.*;
 import javax.swing.*;
 
@@ -11,6 +12,8 @@ public class Anim extends JFrame {
     AnimListener listener;
     JPanel pauseMenuPanel;
     AudioPlayer myMusic;
+    final int MENU_WIDTH = 300;
+    final int MENU_HEIGHT = 250;
 
     public static void main(String[] args) {
         new MainMenu();
@@ -44,7 +47,7 @@ public class Anim extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(700, 700);
         setLocationRelativeTo(null);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         // =======================================================
         // 2. بنبعت الـ glcanvas للدالة عشان نعرف نرجعله الـ Focus
         // =======================================================
@@ -60,25 +63,24 @@ public class Anim extends JFrame {
         layeredPane.add(pauseMenuPanel, Integer.valueOf(1));
 
         setContentPane(layeredPane);
-
-        setVisible(true);
-        glcanvas.requestFocusInWindow();
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                // هات عرض وطول الشاشة الحاليين (سواء كبرت أو صغرت)
+                // هات العرض والطول الجداد بتوع الشاشة
                 int width = getContentPane().getWidth();
                 int height = getContentPane().getHeight();
 
-                // ظبط اللعبة تملأ المساحة كلها
+                // 1. خلي اللعبة تاخد المساحة الجديدة كلها
                 glcanvas.setBounds(0, 0, width, height);
 
-                // ظبط القائمة تفضل دايماً في النص
-                int menuW = 300;
-                int menuH = 250;
-                pauseMenuPanel.setBounds((width - menuW) / 2, (height - menuH) / 2, menuW, menuH);
+                // 2. احسب نص الشاشة الجديد عشان تحط القائمة فيه
+                int menuX = (width - MENU_WIDTH) / 2;
+                int menuY = (height - MENU_HEIGHT) / 2;
+
+                pauseMenuPanel.setBounds(menuX, menuY, MENU_WIDTH, MENU_HEIGHT);
             }
         });
+
         setVisible(true);
         glcanvas.requestFocusInWindow();
     }
