@@ -36,7 +36,7 @@ public class Anim extends JFrame {
         glcanvas.addKeyListener(listener);
         glcanvas.addMouseListener(listener);
 
-        Animator animator = new FPSAnimator(glcanvas, 24);
+        Animator animator = new FPSAnimator(glcanvas, 20);
         animator.start();
 
         setTitle("Fighting Game - " + title);

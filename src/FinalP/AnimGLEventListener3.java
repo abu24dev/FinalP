@@ -5,52 +5,102 @@ import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
 import java.awt.event.*;
 import java.util.BitSet;
+import java.util.Random;
 
 public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
+    // =========================================
+    // Single-player: Human vs AI Enemy
+    // =========================================
     Player player1;
+    Player enemy;
 
-    // we use the same keyBits mechanism as in AnimGLEventListener2
+    // keyboard state (for human movement / jump / shield)
     static BitSet keyBits = new BitSet(256);
 
-    // --- Texture Arrays (only Shinobi is actually used here) ---
+    // Difficulty
+    enum Difficulty {EASY, MEDIUM, HARD}
+    Difficulty currentDifficulty = Difficulty.MEDIUM; // default
+
+    Random globalRand = new Random();
+
+    // --- Texture Arrays: Shinobi / Fighter / Samurai (same filenames) ---
+
+    // --- Texture Arrays ---
     String[] shinobiTextures = {
-            // Walk (8)
-            "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png",
-            "Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
-            // Idle (6)
-            "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png",
-            "Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
-            // Attack1
-            "Assets/Shinobi/IAttack1.png","Assets/Shinobi/IAttack2.png","Assets/Shinobi/IAttack3.png",
-            "Assets/Shinobi/IAttack4.png","Assets/Shinobi/IAttack5.png",
-            // Attack2
+            "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png","Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
+            "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
+            "Assets/Shinobi/IAttack1.png","Assets/Shinobi/IAttack2.png","Assets/Shinobi/IAttack3.png","Assets/Shinobi/IAttack4.png","Assets/Shinobi/IAttack5.png",
             "Assets/Shinobi/IIAttack1.png","Assets/Shinobi/IIAttack2.png","Assets/Shinobi/IIAttack3.png",
-            // Attack3
             "Assets/Shinobi/IIIAttack1.png","Assets/Shinobi/IIIAttack2.png","Assets/Shinobi/IIIAttack3.png","Assets/Shinobi/IIIAttack4.png",
-            // Jump (11)
-            "Assets/Shinobi/Jump1.png","Assets/Shinobi/Jump2.png","Assets/Shinobi/Jump3.png","Assets/Shinobi/Jump4.png",
-            "Assets/Shinobi/Jump5.png","Assets/Shinobi/Jump6.png","Assets/Shinobi/Jump7.png","Assets/Shinobi/Jump8.png",
-            "Assets/Shinobi/Jump9.png","Assets/Shinobi/Jump10.png","Assets/Shinobi/Jump11.png",
-            // Run (8)
-            "Assets/Shinobi/Run1.png","Assets/Shinobi/Run2.png","Assets/Shinobi/Run3.png","Assets/Shinobi/Run4.png",
-            "Assets/Shinobi/Run5.png","Assets/Shinobi/Run6.png","Assets/Shinobi/Run7.png","Assets/Shinobi/Run8.png",
-            // Hurt (2)
+            "Assets/Shinobi/Jump1.png","Assets/Shinobi/Jump2.png","Assets/Shinobi/Jump3.png","Assets/Shinobi/Jump4.png","Assets/Shinobi/Jump5.png","Assets/Shinobi/Jump6.png","Assets/Shinobi/Jump7.png","Assets/Shinobi/Jump8.png","Assets/Shinobi/Jump9.png","Assets/Shinobi/Jump10.png","Assets/Shinobi/Jump11.png",
+            "Assets/Shinobi/Run1.png","Assets/Shinobi/Run2.png","Assets/Shinobi/Run3.png","Assets/Shinobi/Run4.png","Assets/Shinobi/Run5.png","Assets/Shinobi/Run6.png","Assets/Shinobi/Run7.png","Assets/Shinobi/Run8.png",
             "Assets/Shinobi/Hurt1.png","Assets/Shinobi/Hurt2.png",
-            // Dead (4)
             "Assets/Shinobi/Dead1.png","Assets/Shinobi/Dead2.png","Assets/Shinobi/Dead3.png","Assets/Shinobi/Dead4.png",
-            // Shield (4)
             "Assets/Shinobi/Shield1.png","Assets/Shinobi/Shield2.png","Assets/Shinobi/Shield3.png","Assets/Shinobi/Shield4.png",
-            // Background
             "Assets/Shinobi/7.png"
     };
 
-    // We keep the same frame counts as in multiplayer (index 0 = Shinobi)
-    int MAX_WALK[]   = {8,8,8}, MAX_IDLE[]   = {6,6,6}, MAX_ATTACK1[] = {5,4,6},
-            MAX_ATTACK2[] = {3,3,4}, MAX_ATTACK3[] = {4,4,3}, MAX_JUMP[]   = {11,10,12},
-            MAX_RUN[]     = {8,8,8}, MAX_HURT[]   = {2,3,2}, MAX_DEAD[]   = {4,3,3}, MAX_SHIELD[] = {4,2,2};
+    String[] fighterTextures = {
+            "Assets/Fighter/Walk1.png","Assets/Fighter/Walk2.png","Assets/Fighter/Walk3.png","Assets/Fighter/Walk4.png","Assets/Fighter/Walk5.png","Assets/Fighter/Walk6.png","Assets/Fighter/Walk7.png","Assets/Fighter/Walk8.png",
+            "Assets/Fighter/Idle1.png","Assets/Fighter/Idle2.png","Assets/Fighter/Idle3.png","Assets/Fighter/Idle4.png","Assets/Fighter/Idle5.png","Assets/Fighter/Idle6.png",
+            "Assets/Fighter/IAttack1.png","Assets/Fighter/IAttack2.png","Assets/Fighter/IAttack3.png","Assets/Fighter/IAttack4.png",
+            "Assets/Fighter/IIAttack1.png","Assets/Fighter/IIAttack2.png","Assets/Fighter/IIAttack3.png",
+            "Assets/Fighter/IIIAttack1.png","Assets/Fighter/IIIAttack2.png","Assets/Fighter/IIIAttack3.png","Assets/Fighter/IIIAttack4.png",
+            "Assets/Fighter/Jump1.png","Assets/Fighter/Jump2.png","Assets/Fighter/Jump3.png","Assets/Fighter/Jump4.png","Assets/Fighter/Jump5.png","Assets/Fighter/Jump6.png","Assets/Fighter/Jump7.png","Assets/Fighter/Jump8.png","Assets/Fighter/Jump9.png","Assets/Fighter/Jump10.png",
+            "Assets/Fighter/Run1.png","Assets/Fighter/Run2.png","Assets/Fighter/Run3.png","Assets/Fighter/Run4.png","Assets/Fighter/Run5.png","Assets/Fighter/Run6.png","Assets/Fighter/Run7.png","Assets/Fighter/Run8.png",
+            "Assets/Fighter/Hurt1.png","Assets/Fighter/Hurt2.png","Assets/Fighter/Hurt3.png",
+            "Assets/Fighter/Dead1.png","Assets/Fighter/Dead2.png","Assets/Fighter/Dead3.png",
+            "Assets/Fighter/Shield1.png","Assets/Fighter/Shield2.png",
+            "Assets/Fighter/7.png"
+    };
 
-    int[][] shinobiIDs;
+    String[] samuraiTextures = {
+            "Assets/Samurai/Walk1.png","Assets/Samurai/Walk2.png","Assets/Samurai/Walk3.png","Assets/Samurai/Walk4.png","Assets/Samurai/Walk5.png","Assets/Samurai/Walk6.png","Assets/Samurai/Walk7.png","Assets/Samurai/Walk8.png",
+            "Assets/Samurai/Idle1.png","Assets/Samurai/Idle2.png","Assets/Samurai/Idle3.png","Assets/Samurai/Idle4.png","Assets/Samurai/Idle5.png","Assets/Samurai/Idle6.png",
+            "Assets/Samurai/IAttack1.png","Assets/Samurai/IAttack2.png","Assets/Samurai/IAttack3.png","Assets/Samurai/IAttack4.png","Assets/Samurai/IAttack5.png","Assets/Samurai/IAttack6.png",
+            "Assets/Samurai/IIAttack1.png","Assets/Samurai/IIAttack2.png","Assets/Samurai/IIAttack3.png","Assets/Samurai/IIAttack4.png",
+            "Assets/Samurai/IIIAttack1.png","Assets/Samurai/IIIAttack2.png","Assets/Samurai/IIIAttack3.png",
+            "Assets/Samurai/Jump1.png","Assets/Samurai/Jump2.png","Assets/Samurai/Jump3.png","Assets/Samurai/Jump4.png","Assets/Samurai/Jump5.png","Assets/Samurai/Jump6.png","Assets/Samurai/Jump7.png","Assets/Samurai/Jump8.png","Assets/Samurai/Jump9.png","Assets/Samurai/Jump10.png","Assets/Samurai/Jump11.png","Assets/Samurai/Jump12.png",
+            "Assets/Samurai/Run1.png","Assets/Samurai/Run2.png","Assets/Samurai/Run3.png","Assets/Samurai/Run4.png","Assets/Samurai/Run5.png","Assets/Samurai/Run6.png","Assets/Samurai/Run7.png","Assets/Samurai/Run8.png",
+            "Assets/Samurai/Hurt1.png","Assets/Samurai/Hurt2.png",
+            "Assets/Samurai/Dead1.png","Assets/Samurai/Dead2.png","Assets/Samurai/Dead3.png",
+            "Assets/Samurai/Shield1.png","Assets/Samurai/Shield2.png",
+            "Assets/Samurai/7.png"
+    };
+
+    // Frame counts (0=Shinobi,1=Fighter,2=Samurai) – all same counts now
+    int[] MAX_WALK    = {8,8,8};
+    int[] MAX_IDLE    = {6,6,6};
+
+    // Attack1
+    int[] MAX_ATTACK1 = {5,4,6};
+
+    // Attack2
+    int[] MAX_ATTACK2 = {3,3,4};
+
+    // Attack3
+    int[] MAX_ATTACK3 = {4,4,3};
+
+    // Jump
+    int[] MAX_JUMP    = {11,10,12};
+
+    // Run
+    int[] MAX_RUN     = {8,8,8};
+
+    // Hurt
+    int[] MAX_HURT    = {2,3,2};
+
+    // Dead
+    int[] MAX_DEAD    = {4,3,3};
+
+    // Shield
+    int[] MAX_SHIELD  = {4,2,2};
+
+
+    int[][] shinobiIDs;   // [state][frame]
+    int[][] fighterIDs;
+    int[][] samuraiIDs;
     int[] bgIDs = new int[3];
 
     @Override
@@ -60,18 +110,19 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-        super.initUI(gl); // if your AnimListener has UI; safe to keep
 
+        super.initUI(gl); // UI bar
+
+        // load 3 characters
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
+        fighterIDs = loadCharacter(gl, fighterTextures, 1);
+        samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
-        // Single player = same as player1 in multiplayer:
-        // start at (15,20), use shinobiIDs, charIndex=0, facingRight (false = facing left? we set to false here)
-        player1 = new Player(15, 20, shinobiIDs, 0, false);
-
-        // same controls as your multiplayer player1
+        // Human player – always Shinobi
+        player1 = new Player(15, 20, shinobiIDs, 0, false, false);
         player1.setControls(
-                KeyEvent.VK_W,  // up  (jump)
-                KeyEvent.VK_S,  // down (shield)
+                KeyEvent.VK_W,  // jump
+                KeyEvent.VK_S,  // shield
                 KeyEvent.VK_A,  // left
                 KeyEvent.VK_D,  // right
                 KeyEvent.VK_Z,  // attack1
@@ -79,26 +130,35 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 KeyEvent.VK_C   // attack3
         );
 
-        System.out.println("Single Player Initialized!");
+        // Enemy – random character each match
+        int enemyCharIndex = globalRand.nextInt(3); // 0=Shinobi,1=Fighter,2=Samurai
+        int[][] enemyIDs;
+        if (enemyCharIndex == 0) enemyIDs = shinobiIDs;
+        else if (enemyCharIndex == 1) enemyIDs = fighterIDs;
+        else enemyIDs = samuraiIDs;
+
+        enemy = new Player(40, 20, enemyIDs, enemyCharIndex, true, true);
+
+        System.out.println("Single Player with AI Initialized (difficulty = MEDIUM, enemyCharIndex=" + enemyCharIndex + ").");
     }
 
+    // Load all state frames + background
     int[][] loadCharacter(GL gl, String[] texFiles, int charIdx) {
-        int[][] ids = new int[10][15]; // [State][Frame]
+        int[][] ids = new int[10][15]; // [state][frame]
         int offset = 0;
 
-        for(int i=0; i<MAX_WALK[charIdx]; i++)   ids[0][i] = genTex(gl, texFiles[offset++]);  // WALK
-        for(int i=0; i<MAX_IDLE[charIdx]; i++)   ids[1][i] = genTex(gl, texFiles[offset++]);  // IDLE
-        for(int i=0; i<MAX_ATTACK1[charIdx]; i++)ids[2][i] = genTex(gl, texFiles[offset++]);  // ATT1
-        for(int i=0; i<MAX_ATTACK2[charIdx]; i++)ids[3][i] = genTex(gl, texFiles[offset++]);  // ATT2
-        for(int i=0; i<MAX_ATTACK3[charIdx]; i++)ids[4][i] = genTex(gl, texFiles[offset++]);  // ATT3
-        for(int i=0; i<MAX_JUMP[charIdx]; i++)   ids[5][i] = genTex(gl, texFiles[offset++]);  // JUMP
-        for(int i=0; i<MAX_RUN[charIdx]; i++)    ids[6][i] = genTex(gl, texFiles[offset++]);  // RUN
-        for(int i=0; i<MAX_HURT[charIdx]; i++)   ids[7][i] = genTex(gl, texFiles[offset++]);  // HURT
-        for(int i=0; i<MAX_DEAD[charIdx]; i++)   ids[8][i] = genTex(gl, texFiles[offset++]);  // DEAD
-        for(int i=0; i<MAX_SHIELD[charIdx]; i++) ids[9][i] = genTex(gl, texFiles[offset++]);  // SHIELD
+        for(int i=0; i<MAX_WALK[charIdx]; i++)    ids[0][i] = genTex(gl, texFiles[offset++]); // WALK
+        for(int i=0; i<MAX_IDLE[charIdx]; i++)    ids[1][i] = genTex(gl, texFiles[offset++]); // IDLE
+        for(int i=0; i<MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]); // ATT1
+        for(int i=0; i<MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]); // ATT2
+        for(int i=0; i<MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]); // ATT3
+        for(int i=0; i<MAX_JUMP[charIdx]; i++)    ids[5][i] = genTex(gl, texFiles[offset++]); // JUMP
+        for(int i=0; i<MAX_RUN[charIdx]; i++)     ids[6][i] = genTex(gl, texFiles[offset++]); // RUN
+        for(int i=0; i<MAX_HURT[charIdx]; i++)    ids[7][i] = genTex(gl, texFiles[offset++]); // HURT
+        for(int i=0; i<MAX_DEAD[charIdx]; i++)    ids[8][i] = genTex(gl, texFiles[offset++]); // DEAD
+        for(int i=0; i<MAX_SHIELD[charIdx]; i++)  ids[9][i] = genTex(gl, texFiles[offset++]); // SHIELD
 
-        // background
-        bgIDs[charIdx] = genTex(gl, texFiles[offset]);
+        bgIDs[charIdx] = genTex(gl, texFiles[offset]); // background
         return ids;
     }
 
@@ -113,7 +173,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                     GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, tex.getPixels());
             return id[0];
         } catch(Exception e){
-            System.out.println("Err: " + path);
+            System.out.println("Err loading texture: " + path + " -> " + e);
             return -1;
         }
     }
@@ -124,13 +184,15 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
 
-        DrawBackground(gl, bgIDs[0]);  // shinobi background
+        DrawBackground(gl, bgIDs[0]); // you can change to bgIDs[player1.charIndex] if you want dynamic BG
 
         if (!isPaused) {
-            player1.update();
+            player1.update(enemy);   // human, target = enemy
+            enemy.update(player1);   // AI, target = player1
         }
 
         player1.draw(gl);
+        enemy.draw(gl);
 
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
     }
@@ -156,42 +218,68 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glViewport(0,0,width,height);
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
-        gl.glOrtho(-1,1,-1,1,-1,1);  // same as multiplayer
+        gl.glOrtho(-1,1,-1,1,-1,1);
         gl.glMatrixMode(GL.GL_MODELVIEW);
     }
+
     @Override
     public void resetGame() {
-        // 1. إرجاع اللاعب لنقطة البداية (نفس الأرقام اللي في init)
-        player1.x = 15;
-        player1.y = 20;
+        player1.reset(15, 20, false);
 
-        // 2. تصفير الحالة
-        player1.state = 1; // Idle
-        player1.facingLeft = false;
-        player1.velocityY = 0;
-        player1.isJumping = false;
-        player1.health = 100; // لو بتستخدم الـ Health
+        // new random enemy each rematch
+        int enemyCharIndex = globalRand.nextInt(3);
+        int[][] enemyIDs;
+        if (enemyCharIndex == 0) enemyIDs = shinobiIDs;
+        else if (enemyCharIndex == 1) enemyIDs = fighterIDs;
+        else enemyIDs = samuraiIDs;
 
-        // 3. مسح الأزرار المعلقة عشان اللاعب ميفضلش بيتحرك لوحده
+        enemy.textureIDs = enemyIDs;
+        enemy.charIndex = enemyCharIndex;
+        enemy.reset(40, 20, true);
+
         keyBits.clear();
+        System.out.println("Rematch! New enemy charIndex = " + enemyCharIndex);
     }
-
 
     @Override
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
 
-    // Key listener -> fills keyBits (same as multiplayer)
+    // ============================
+    //   Key Handling
+    // ============================
     @Override
-    public void keyPressed(KeyEvent e)  { keyBits.set(e.getKeyCode(), true); }
-    @Override
-    public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
-    @Override
-    public void keyTyped(KeyEvent e)    {}
+    public void keyPressed(KeyEvent e)  {
+        int code = e.getKeyCode();
+        keyBits.set(code, true);
 
+        // one-press attacks for player1
+        if (code == player1.kAtt1) player1.queueAttack(2); // ATTACK1
+        if (code == player1.kAtt2) player1.queueAttack(3); // ATTACK2
+        if (code == player1.kAtt3) player1.queueAttack(4); // ATTACK3
 
+        // difficulty keys: 1,2,3
+        if (code == KeyEvent.VK_1) {
+            currentDifficulty = Difficulty.EASY;
+            System.out.println("Difficulty: EASY");
+        } else if (code == KeyEvent.VK_2) {
+            currentDifficulty = Difficulty.MEDIUM;
+            System.out.println("Difficulty: MEDIUM");
+        } else if (code == KeyEvent.VK_3) {
+            currentDifficulty = Difficulty.HARD;
+            System.out.println("Difficulty: HARD");
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        keyBits.set(e.getKeyCode(), false);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
 
     // =========================================================
-    //  Inner Player class (copied from your multiplayer version)
+    //  Inner Player class (works for Human and AI Enemy)
     // =========================================================
     class Player {
         float x, y;
@@ -216,13 +304,28 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         // controls
         int kUp, kDown, kLeft, kRight, kAtt1, kAtt2, kAtt3;
 
-        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft){
+        // Attack queue (one-press)
+        int queuedAttackType = 0; // 0 = none, 2/3/4 = attack states
+        boolean hasHitThisAttack = false;
+
+        // Combat
+        float hitRange = 6.5f; // bigger hit box
+        boolean wasHit = false;
+        int damage = 20;
+
+        // AI
+        boolean isAI;
+        Random rand = new Random();
+        int aiDecisionTimer = 0;
+
+        public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft, boolean ai){
             this.x = startX;
             this.y = startY;
             this.groundY = startY;
             this.textureIDs = ids;
             this.charIndex = cIndex;
             this.facingLeft = startFaceLeft;
+            this.isAI = ai;
         }
 
         public void setControls(int up, int down, int left, int right, int a1, int a2, int a3){
@@ -230,10 +333,41 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             this.kAtt1 = a1; this.kAtt2 = a2; this.kAtt3 = a3;
         }
 
-        public void update(){
+        public void queueAttack(int attackState){
+            // attackState: 2 or 3 or 4
+            if (isAttacking() || state == 7 || state == 8) return;
+            if (queuedAttackType == 0) {
+                queuedAttackType = attackState;
+            }
+        }
+
+        boolean isAttacking() {
+            return state == 2 || state == 3 || state == 4;
+        }
+
+        public void reset(float startX, float startY, boolean startFaceLeft){
+            this.x = startX;
+            this.y = startY;
+            this.groundY = startY;
+            this.facingLeft = startFaceLeft;
+            this.health = 100;
+            this.state = 1;
+            this.lastState = 1;
+            this.animIndex = 0;
+            this.frameDelay = 0;
+            this.velocityY = 0;
+            this.isJumping = false;
+            this.queuedAttackType = 0;
+            this.hasHitThisAttack = false;
+            this.wasHit = false;
+            this.aiDecisionTimer = 0;
+        }
+
+        // target = opponent
+        public void update(Player target){
             // dead
             if (state == 8) {
-                if (animIndex < MAX_DEAD[charIndex] - 1) frameDelay++;
+                velocityY = 0;
                 return;
             }
 
@@ -260,36 +394,19 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
             lastState = state;
 
-            // Controls -> states
-            if(keyBits.get(kUp) && !isJumping) {
-                velocityY = jumpPower;
-                isJumping = true;
-            }
-
-            if (isJumping) {
-                state = 5; // jump
-            } else if (keyBits.get(kDown)) {
-                state = 9; // shield
-            } else if (keyBits.get(kAtt1)) {
-                state = 2;
-            } else if (keyBits.get(kAtt2)) {
-                state = 3;
-            } else if (keyBits.get(kAtt3)) {
-                state = 4;
-            } else if (keyBits.get(kLeft) || keyBits.get(kRight)) {
-                state = 0; // walk
+            if (isAI) {
+                updateAI(target);
             } else {
-                state = 1; // idle
+                handleHumanInput();
             }
 
-            // Movement
-            if(keyBits.get(kLeft)) {
-                if(x > 0) x -= 0.5f;
-                facingLeft = true;
-            }
-            if(keyBits.get(kRight)) {
-                if(x < 50) x += 0.5f;
-                facingLeft = false;
+            // Clamp to arena
+            if (x < 0) x = 0;
+            if (x > 50) x = 50;
+
+            // Combat check
+            if (target != null && target.state != 8) {
+                checkHit(target);
             }
 
             if(state != lastState){
@@ -298,13 +415,249 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             frameDelay++;
         }
 
+        // -------------------- HUMAN INPUT --------------------
+        private void handleHumanInput() {
+            // jump triggered by keyBits
+            if(keyBits.get(kUp) && !isJumping) {
+                velocityY = jumpPower;
+                isJumping = true;
+            }
+
+            if (isAttacking()) {
+                // continue current attack until animation finishes
+            } else if (queuedAttackType != 0) {
+                // start queued attack once
+                state = queuedAttackType;
+                animIndex = 0;
+                frameDelay = 0;
+                hasHitThisAttack = false;
+                queuedAttackType = 0;
+            } else {
+                // non-attack decisions
+                if (isJumping) {
+                    state = 5; // jump
+                } else if (keyBits.get(kDown)) {
+                    state = 9; // shield
+                } else if (keyBits.get(kLeft) || keyBits.get(kRight)) {
+                    state = 0; // walk
+                } else {
+                    state = 1; // idle
+                }
+            }
+
+            // Movement (same base speed as before)
+            if(keyBits.get(kLeft)) {
+                if(x > 0) x -= 0.5f;
+                facingLeft = true;
+            }
+            if(keyBits.get(kRight)) {
+                if(x < 50) x += 0.5f;
+                facingLeft = false;
+            }
+        }
+
+        // -------------------- AI BRAIN --------------------
+        private void updateAI(Player target) {
+            if (target == null || target.state == 8) {
+                state = 1; // idle if no target or target dead
+                return;
+            }
+
+            // React when hit
+            if (wasHit) {
+                wasHit = false;
+
+                if (currentDifficulty == Difficulty.HARD) {
+                    if (!isJumping && rand.nextFloat() < 0.5f) {
+                        velocityY = jumpPower;
+                        isJumping = true;
+                        state = 5;
+                        return;
+                    } else {
+                        state = 9; // shield
+                        return;
+                    }
+                }
+                if (currentDifficulty == Difficulty.MEDIUM && rand.nextFloat() < 0.3f) {
+                    state = 9;
+                    return;
+                }
+            }
+
+            // Basic difficulty parameters
+            float attackRange;
+            float moveSpeed;
+            float aggression;   // chance to attack when in range
+            float jumpChance;
+            float shieldChance;
+            int   decisionDelay;
+
+            switch (currentDifficulty) {
+                case EASY:
+                    attackRange = 5.0f;
+                    moveSpeed   = 0.4f;
+                    aggression  = 0.25f;
+                    jumpChance  = 0.05f;
+                    shieldChance= 0.05f;
+                    decisionDelay = 25;
+                    break;
+                case HARD:
+                    attackRange = 7.0f;
+                    moveSpeed   = 0.6f;
+                    aggression  = 0.8f;
+                    jumpChance  = 0.15f;
+                    shieldChance= 0.25f;
+                    decisionDelay = 8;
+                    break;
+                default: // MEDIUM
+                    attackRange = 6.0f;
+                    moveSpeed   = 0.5f;
+                    aggression  = 0.5f;
+                    jumpChance  = 0.1f;
+                    shieldChance= 0.15f;
+                    decisionDelay = 15;
+            }
+
+            // If currently attacking, just let the animation continue
+            if (isAttacking()) {
+                return;
+            }
+
+            // Decision timer – AI doesn't change mind every frame
+            if (aiDecisionTimer > 0) {
+                aiDecisionTimer--;
+            }
+
+            float dx = target.x - this.x;
+            float dist = Math.abs(dx);
+
+            // face the player
+            facingLeft = (dx < 0);
+
+            if (aiDecisionTimer <= 0) {
+                aiDecisionTimer = decisionDelay;
+
+                float r = rand.nextFloat();
+
+                // If very close, maybe shield or attack
+                if (dist < attackRange) {
+                    if (r < aggression) {
+                        // choose random attack
+                        int which = 2 + rand.nextInt(3); // 2,3,4
+                        state = which;
+                        animIndex = 0;
+                        frameDelay = 0;
+                        hasHitThisAttack = false;
+                        return;
+                    } else if (r < aggression + shieldChance) {
+                        state = 9; // shield
+                        return;
+                    }
+                }
+
+                // Move towards or keep distance
+                if (dist > attackRange + 1.0f) {
+                    // go nearer
+                    if (dx > 0) x += moveSpeed;
+                    else x -= moveSpeed;
+                    state = 0; // walk
+                } else if (dist < attackRange - 1.0f) {
+                    // back off a bit
+                    if (dx > 0) x -= moveSpeed * 0.6f;
+                    else x += moveSpeed * 0.6f;
+                    state = 0; // walk
+                } else {
+                    state = 1; // idle near player
+                }
+
+                // random jump sometimes
+                if (!isJumping && rand.nextFloat() < jumpChance) {
+                    velocityY = jumpPower;
+                    isJumping = true;
+                    state = 5;
+                }
+            }
+
+            // if in the air – ensure we stay in JUMP state
+            if (isJumping) {
+                state = 5;
+            }
+        }
+
+        // -------------------- COLLISION & DAMAGE --------------------
+        public void checkHit(Player target) {
+            if (target == null || target.state == 8) return; // target dead already
+
+            // Only apply damage during attack animations, once per attack
+            boolean inAttackFrame =
+                    (state == 2 && animIndex >= 1) ||
+                            (state == 3 && animIndex >= 1) ||
+                            (state == 4 && animIndex >= 1);
+
+            if (!inAttackFrame || hasHitThisAttack) return;
+
+            float dx = target.x - this.x;
+            float dist = Math.abs(dx);
+
+            // Must be in front
+            boolean facingCorrect =
+                    (facingLeft && dx < 0) ||
+                            (!facingLeft && dx > 0);
+
+            if (dist <= hitRange && facingCorrect) {
+                hasHitThisAttack = true;
+
+                // SHIELD CHECK
+                if (target.state == 9) {
+                    // shield reduces damage
+                    target.health -= 5;
+                    if (target.health < 0) target.health = 0;
+                    target.wasHit = true;
+
+                    if (target == enemy) {
+                        System.out.println("Enemy blocked! HP now = " + target.health);
+                    }
+                    return;
+                }
+
+                // Apply full damage
+                target.health -= damage;
+                if (target.health < 0) target.health = 0;
+                target.wasHit = true;
+
+                if (target == enemy) {
+                    System.out.println(">> Enemy HIT! HP now = " + target.health);
+                }
+
+                if (target.health <= 0) {
+                    target.health = 0;
+                    target.state = 8;   // DEAD
+                    target.animIndex = 0;
+                    target.frameDelay = 0;
+
+                    if (target == enemy) {
+                        System.out.println(">>> Enemy DIED!");
+                    } else if (target == player1) {
+                        System.out.println(">>> Player DIED!");
+                    }
+                    return;
+                }
+
+                // Hurt animation
+                target.state = 7;
+                target.animIndex = 0;
+                target.frameDelay = 0;
+            }
+        }
+
+        // -------------------- DRAW --------------------
         public void draw(GL gl){
             int texID = getCurrentFrame();
             gl.glEnable(GL.GL_BLEND);
             gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
             gl.glPushMatrix();
 
-            // SAME transformation as multiplayer
+            // SAME transform / scale as multiplayer
             gl.glTranslated(x/25.0 - 1, y/25.0 - 1, 0);
             gl.glScaled(facingLeft ? -0.3 : 0.3, 0.3, 1);
 
@@ -319,32 +672,41 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             gl.glDisable(GL.GL_BLEND);
         }
 
+        // -------------------- ANIMATION FRAMES --------------------
         int getCurrentFrame(){
             int maxFrames;
             switch(state){
-                case 0: maxFrames = MAX_WALK[charIndex];   break;
-                case 1: maxFrames = MAX_IDLE[charIndex];   break;
-                case 2: maxFrames = MAX_ATTACK1[charIndex];break;
-                case 3: maxFrames = MAX_ATTACK2[charIndex];break;
-                case 4: maxFrames = MAX_ATTACK3[charIndex];break;
-                case 5: maxFrames = MAX_JUMP[charIndex];   break;
-                case 7: maxFrames = MAX_HURT[charIndex];   break;
-                case 8: maxFrames = MAX_DEAD[charIndex];   break;
-                case 9: maxFrames = MAX_SHIELD[charIndex]; break;
-                default:maxFrames = MAX_IDLE[charIndex];   break;
+                case 0: maxFrames = MAX_WALK[charIndex];    break;
+                case 1: maxFrames = MAX_IDLE[charIndex];    break;
+                case 2: maxFrames = MAX_ATTACK1[charIndex]; break;
+                case 3: maxFrames = MAX_ATTACK2[charIndex]; break;
+                case 4: maxFrames = MAX_ATTACK3[charIndex]; break;
+                case 5: maxFrames = MAX_JUMP[charIndex];    break;
+                case 7: maxFrames = MAX_HURT[charIndex];    break;
+                case 8: maxFrames = MAX_DEAD[charIndex];    break;
+                case 9: maxFrames = MAX_SHIELD[charIndex];  break;
+                default:maxFrames = MAX_IDLE[charIndex];    break;
             }
 
-            if(frameDelay % 3 == 0) animIndex++;
+            if(frameDelay % 3 == 0) {
+                animIndex++;
+            }
 
-            // dead / shield: stop at last frame
-            if ((state == 8 || state == 9) && animIndex >= maxFrames) {
+            // For attacks: when animation finishes, go back to idle automatically
+            if (isAttacking() && animIndex >= maxFrames) {
+                state = 1; // idle
+                animIndex = 0;
+                frameDelay = 0;
+                hasHitThisAttack = false;
+                maxFrames = MAX_IDLE[charIndex];
+            } else if ((state == 8 || state == 9) && animIndex >= maxFrames) {
+                // dead / shield stay at last frame
                 animIndex = maxFrames - 1;
-            }
-            else if(animIndex >= maxFrames) {
+            } else if (animIndex >= maxFrames) {
                 animIndex = 0;
             }
+
             return textureIDs[state][animIndex];
         }
     }
-
 }
