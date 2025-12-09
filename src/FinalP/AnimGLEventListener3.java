@@ -105,6 +105,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
         super.initUI(gl); // UI bar
 
+        super.initTimer(gl);
+
         // load 3 characters
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
@@ -180,12 +182,29 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         GL gl = drawable.getGL();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
-
+        gl.glColor3f(1f, 1f, 1f);
         DrawBackground(gl, bgIDs[0]);
 
-        if (!isPaused) {
+        if (!isPaused && !isTimeOver) {
             player1.update(enemy);   // human, target = enemy
             enemy.update(player1);   // AI, target = player1
+        }
+
+        if (isTimeOver && !isGameOver) {
+            isGameOver = true;
+            if (player1.health > enemy.health) setGameOverMessage("YOU WIN!");
+            else if (enemy.health > player1.health) setGameOverMessage("YOU LOSE!");
+            else setGameOverMessage("DRAW! (TIME OUT)");
+        }
+
+        if (!isGameOver) {
+            if (player1.state == 8) { // Player died
+                isGameOver = true;
+                setGameOverMessage("YOU LOSE!");
+            } else if (enemy.state == 8) { // Enemy died
+                isGameOver = true;
+                setGameOverMessage("YOU WIN!");
+            }
         }
 
         player1.draw(gl);
@@ -213,6 +232,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glPopMatrix();
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glPopMatrix();
+        super.drawTimer(drawable, drawable.getWidth(), drawable.getHeight());
     }
 
     void DrawBackground(GL gl, int tex) {
@@ -242,6 +262,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
     @Override
     public void resetGame() {
+        setGameOverMessage("");
+        isGameOver = false;
+        isTimeOver = false;
+        timeRemaining = 120.0f;
         // إعادة تعيين اللاعب بالشخصية المختارة
         player1.reset(15, 20, false);
 
@@ -252,6 +276,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
         keyBits.clear();
         System.out.println("Game Reset. Same Characters.");
+
     }
 
     @Override
