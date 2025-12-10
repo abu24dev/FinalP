@@ -1,10 +1,10 @@
 package FinalP;
 
 import FinalP.Texture.TextureReader;
-import com.sun.opengl.util.j2d.TextRenderer; // استيراد
+import com.sun.opengl.util.j2d.TextRenderer;
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
-import java.awt.*; // استيراد Font و Color
+import java.awt.*;
 import java.awt.event.*;
 import java.util.BitSet;
 import java.util.Random;
@@ -24,11 +24,15 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     int myCharIndex = 0;
     int enemyCharIndex = 1;
 
-    // متغيرات الجولات
+    // --- متغيرات الجولات ---
     int currentRound = 1;
     final int MAX_ROUNDS = 3;
     boolean isRoundOver = false;
     long roundOverStartTime = 0;
+
+    // --- متغيرات الهايسكور والوقت ---
+    float totalTimeTaken = 0;   // لتجميع الوقت المستغرق في كل الجولات
+    boolean scoreSaved = false; // لضمان حفظ السكور مرة واحدة فقط
 
     // --- متغيرات الأسماء ---
     String player1Name = "Player";
@@ -52,7 +56,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         System.out.println("Difficulty set to: " + currentDifficulty);
     }
 
-    // --- دالة استقبال اسم اللاعب (الجديدة) ---
+    // دالة استقبال اسم اللاعب
     public void setPlayerNames(String n1, String n2_ignored) {
         this.player1Name = n1;
         // اسم العدو سيتم تحديده أوتوماتيكياً
@@ -128,7 +132,6 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         super.initUI(gl);
         super.initTimer(gl);
 
-        // إعداد ريندر الأسماء
         nameRenderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 24));
 
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
@@ -150,7 +153,6 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         System.out.println("Started Round " + currentRound + " Difficulty: " + currentDifficulty);
     }
 
-    // دالة تحديث اسم العدو
     private void updateEnemyName() {
         String charName = "";
         switch(enemyCharIndex) {
@@ -216,7 +218,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             if(enemy.state == 8) enemy.update(null);
         }
 
-        // --- منطق الجولات والفوز ---
+        // --- منطق الجولات والفوز والهايسكور ---
+
         if (player1.state == 8 && !isGameOver) {
             isGameOver = true;
             setGameOverMessage("GAME OVER - YOU LOSE!");
@@ -230,6 +233,20 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             } else {
                 isGameOver = true;
                 setGameOverMessage("YOU ARE THE CHAMPION!");
+
+                // --- حفظ الهاي سكور عند الفوز ---
+                if (!scoreSaved) {
+                    // الوقت المستغرق في آخر جولة
+                    float timeSpentInLastRound = 120.0f - timeRemaining;
+                    // إضافته للوقت الكلي
+                    totalTimeTaken += timeSpentInLastRound;
+
+                    // الحفظ في الملف
+                    HighScoreManager.saveScore(player1Name, (int)totalTimeTaken, currentDifficulty.toString());
+                    System.out.println("New Score Saved: " + (int)totalTimeTaken + " seconds");
+                    scoreSaved = true;
+                }
+                // -----------------------------
             }
         }
         else if (isTimeOver && !isGameOver) {
@@ -258,8 +275,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
         drawHealthBar(gl, enemy.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
 
-        // --- رسم الأسماء (التعديل هنا) ---
-        updateEnemyName(); // تحديث الاسم قبل الرسم
+        // تحديث ورسم الأسماء
+        updateEnemyName();
         drawPlayerNames(drawable.getWidth(), drawable.getHeight());
 
         gl.glMatrixMode(GL.GL_PROJECTION); gl.glPopMatrix();
@@ -267,30 +284,29 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         super.drawTimer(drawable, drawable.getWidth(), drawable.getHeight());
     }
 
-    // دالة رسم الأسماء (معدلة لتكون تحت البار)
     private void drawPlayerNames(int width, int height) {
         nameRenderer.beginRendering(width, height);
 
-        // اسم اللاعب (يسار - سماوي)
+        // اسم اللاعب (سماوي)
         nameRenderer.setColor(Color.CYAN);
-        // النزول لأسفل (height - 80)
-        nameRenderer.draw(player1Name, 20, height - 80);
+        nameRenderer.draw(player1Name, 20, height - 80); // نفس الإحداثي المضبوط
 
-        // اسم العدو (يمين - أحمر)
+        // اسم العدو (أحمر)
         nameRenderer.setColor(Color.RED);
-
-        // محاذاة لليمين
-        java.awt.geom.Rectangle2D bounds = nameRenderer.getBounds(enemyNameDisplay);
-        // int enemyX = (int) (width - 220 + (200 - bounds.getWidth())); // توسيط
         nameRenderer.draw(enemyNameDisplay, width - 250, height - 80);
 
         nameRenderer.endRendering();
     }
 
     private void startNextRound() {
+        // حساب الوقت المستغرق في الجولة المنتهية وإضافته للكلي
+        float timeSpent = 120.0f - timeRemaining;
+        totalTimeTaken += timeSpent;
+
         currentRound++;
         isRoundOver = false;
         setGameOverMessage("");
+        timeRemaining = 120.0f; // إعادة التايمر
 
         // تدوير الأعداء
         enemyCharIndex = (enemyCharIndex + 1) % 3;
@@ -337,6 +353,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         isRoundOver = false;
         timeRemaining = 120.0f;
         currentRound = 1;
+
+        // تصفير عداد الهايسكور عند إعادة اللعب
+        totalTimeTaken = 0;
+        scoreSaved = false;
 
         player1.reset(15, 20, false);
         enemy.textureIDs = getTextureByIndex(enemyCharIndex);

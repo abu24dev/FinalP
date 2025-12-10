@@ -9,32 +9,33 @@ public class MainMenu extends JFrame {
     private ImageIcon soundOffIcon;
     private JButton soundBtn;
 
-    // الكونستركتور الأساسي
+    // الكونستركتور الافتراضي (لأول مرة تشغيل)
     public MainMenu() {
-        this(false); // بيبدأ والصوت شغال افتراضياً
+        this(false);
     }
 
-    // الكونستركتور المعدل لاستقبال حالة الصوت
+    // الكونستركتور المعدل (لاستقبال حالة الصوت عند الرجوع)
     public MainMenu(boolean startMuted) {
         setTitle("Fighting Game - Main Menu");
         setSize(1000, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // تحميل الموسيقى والأيقونات
+        // تحميل الصوت والأيقونات
         menuMusic = new AudioPlayer("Assets/menu.wav");
         soundOnIcon = resizeIcon("Assets/sound_on.png", 50, 50);
         soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
-        // ضبط حالة الصوت
+        // ضبط حالة الصوت بناءً على ما تم تمريره
         if (startMuted) {
-            menuMusic.toggleMute();
+            menuMusic.toggleMute(); // كتم الصوت
             soundBtn = new JButton(soundOffIcon);
         } else {
-            menuMusic.playMusic();
+            menuMusic.playMusic(); // تشغيل الصوت
             soundBtn = new JButton(soundOnIcon);
         }
 
+        // الخلفية
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background.png").getImage();
             @Override
@@ -46,7 +47,7 @@ public class MainMenu extends JFrame {
 
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        // زر الصوت في الأعلى
+        // زر الصوت
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
         styleSoundButton(soundBtn);
@@ -62,14 +63,12 @@ public class MainMenu extends JFrame {
         topPanel.add(soundBtn);
         add(topPanel);
 
-        // --- الأزرار الرئيسية ---
+        // الأزرار الرئيسية
         JButton newGameBtn = new JButton("New Game");
         JButton highScoresBtn = new JButton("High Scores");
-        // زر التحكم الجديد
         JButton controlsBtn = new JButton("Controls");
         JButton exitBtn = new JButton("Exit");
 
-        // تطبيق الستايل
         styleButtonWithImage(newGameBtn, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(highScoresBtn, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(controlsBtn, "Assets/btn.png", "Assets/btn2.png");
@@ -80,7 +79,7 @@ public class MainMenu extends JFrame {
         add(Box.createVerticalStrut(20));
         add(center(highScoresBtn));
         add(Box.createVerticalStrut(20));
-        add(center(controlsBtn)); // إضافة زر Controls
+        add(center(controlsBtn));
         add(Box.createVerticalStrut(20));
         add(center(exitBtn));
 
@@ -91,14 +90,14 @@ public class MainMenu extends JFrame {
             new GameModeMenu(menuMusic);
         });
 
+        // زر الهايسكور يفتح القائمة الجديدة ويمرر الموسيقى
         highScoresBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "High Scores Coming Soon!");
+            dispose();
+            new HighScoreMenu(menuMusic);
         });
 
-        // أكشن زر Controls
         controlsBtn.addActionListener(e -> {
-            dispose(); // نغلق المنيو الحالية
-            // نفتح قائمة التحكم (false تعني أننا لسنا داخل اللعبة)
+            dispose();
             new ControlsMenu(false, menuMusic);
         });
 
