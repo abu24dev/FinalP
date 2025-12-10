@@ -20,26 +20,28 @@ public class Anim extends JFrame {
     }
 
     // =============================================================
-    // ده الكونستركتور الوحيد اللي محتاجينه دلوقتي
-    // بيستقبل نوع اللعبة + ارقام الشخصيات المختارة
+    // الكونستركتور المعدل لاستقبال الصعوبة
     // =============================================================
-    public Anim(boolean isMultiplayer, int p1, int p2) {
+    public Anim(boolean isMultiplayer, int p1, int p2, String difficulty) {
         if (isMultiplayer) {
             // --- وضع Multiplayer ---
             AnimGLEventListener2 listener = new AnimGLEventListener2();
-            listener.setPlayerChoices(p1, p2); // بنبعت الشخصيات لليسنر
+            listener.setPlayerChoices(p1, p2);
 
             setupGame(listener, "Multiplayer");
         } else {
             // --- وضع Single Player ---
             AnimGLEventListener3 listener = new AnimGLEventListener3();
-            listener.setCharacters(p1, p2); // بنبعت الشخصيات لليسنر
+            listener.setCharacters(p1, p2);
+
+            // تمرير الصعوبة لليسنر (تأكد أنك أضفت دالة setDifficulty هناك)
+            listener.setDifficulty(difficulty);
 
             setupGame(listener, "Single Player");
         }
     }
 
-    // دالة تجهيز اللعبة (مشتركة للنوعين)
+    // دالة تجهيز اللعبة (مشتركة للنوعين) - زي ما هي بالظبط
     private void setupGame(AnimListener gameListener, String title) {
         this.listener = gameListener;
 

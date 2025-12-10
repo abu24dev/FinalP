@@ -14,9 +14,11 @@ public class GameModeMenu extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        // تحميل أيقونات الصوت
         soundOnIcon = resizeIcon("Assets/sound_on.png", 50, 50);
         soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
+        // إعداد الخلفية
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background2.png").getImage();
             @Override
@@ -28,10 +30,10 @@ public class GameModeMenu extends JFrame {
 
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
+        // اللوحة العلوية لزر الصوت
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
 
-        // ضبط زر الصوت بناءً على حالة الموسيقى المستلمة
         if (menuMusic != null && menuMusic.isMuted()) {
             soundBtn = new JButton(soundOffIcon);
         } else {
@@ -52,10 +54,12 @@ public class GameModeMenu extends JFrame {
         topPanel.add(soundBtn);
         add(topPanel);
 
+        // العنوان
         JLabel title = new JLabel("SELECT GAME MODE", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 36));
         title.setForeground(Color.WHITE);
 
+        // الأزرار
         JButton singleBtn = new JButton("Single Player");
         JButton multiBtn = new JButton("Multiplayer");
         JButton backBtn = new JButton("Back");
@@ -73,31 +77,28 @@ public class GameModeMenu extends JFrame {
         add(Box.createVerticalStrut(20));
         add(center(backBtn));
 
-        // --- Action Listeners ---
+        // --- Action Listeners (التعديلات هنا) ---
 
+        // 1. Single Player -> يذهب لاختيار الصعوبة
         singleBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            new NameInputMenu(false, menuMusic);
+            new DifficultySelectionMenu(menuMusic);
         });
 
+        // 2. Multiplayer -> يذهب لإدخال الأسماء (مع صعوبة افتراضية MEDIUM)
         multiBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            new NameInputMenu(true, menuMusic);
+            // نمرر "MEDIUM" لأن الكونستركتور الجديد يطلب String difficulty
+            new NameInputMenu(true, menuMusic, "MEDIUM");
         });
 
-        // --- التعديل هنا (زر الرجوع) ---
+        // 3. Back -> العودة للقائمة الرئيسية
         backBtn.addActionListener(e -> {
-            // 1. نعرف الحالة الحالية للصوت (هل هو ميوت؟)
             boolean isCurrentlyMuted = (menuMusic != null && menuMusic.isMuted());
-
-            // 2. نوقف الموسيقى الحالية (عشان MainMenu هتعمل واحدة جديدة)
             if (menuMusic != null) menuMusic.stop();
-
             dispose();
-
-            // 3. نفتح الـ MainMenu ونبعتلها الحالة (عشان تبدأ بنفس الوضع)
             new MainMenu(isCurrentlyMuted);
         });
 

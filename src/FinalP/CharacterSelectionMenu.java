@@ -9,9 +9,12 @@ public class CharacterSelectionMenu extends JFrame {
     private boolean isMultiplayer;
     private AudioPlayer menuMusic;
 
-    // متغيرات لحفظ الأسماء المستلمة من الشاشة السابقة
+    // متغيرات لحفظ الأسماء
     private String p1Name;
     private String p2Name;
+
+    // متغير لحفظ الصعوبة (التعديل الجديد)
+    private String selectedDifficulty;
 
     // اختيارات الشخصيات (القيم الافتراضية)
     private int p1Choice = 0;
@@ -20,23 +23,22 @@ public class CharacterSelectionMenu extends JFrame {
     private JButton[] p1Buttons = new JButton[3];
     private JButton[] p2Buttons = new JButton[3];
 
-    // مسارات الصور
+    // مسارات الصور (كما هي في ملفك)
     String[] iconPaths = {
             "Assets/ShinobiIcon.png",
             "Assets/FighterIcon.png",
-            "Assets/SamuraiIcon.png" // تأكد من المسار ده
+            "Assets/SamuraiIcon.png"
     };
-
-
 
     String[] charNames = {"Shinobi", "Fighter", "Samurai"};
 
-    // الكونستركتور المعدل لاستقبال الأسماء
-    public CharacterSelectionMenu(boolean isMultiplayer, AudioPlayer music, String name1, String name2) {
+    // الكونستركتور المعدل لاستقبال الصعوبة (String difficulty)
+    public CharacterSelectionMenu(boolean isMultiplayer, AudioPlayer music, String name1, String name2, String difficulty) {
         this.isMultiplayer = isMultiplayer;
         this.menuMusic = music;
         this.p1Name = name1;
         this.p2Name = name2;
+        this.selectedDifficulty = difficulty; // حفظ الصعوبة
 
         setTitle("Select Characters");
         setSize(1000, 900);
@@ -49,7 +51,6 @@ public class CharacterSelectionMenu extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // رسم الخلفية وتغميقها
                 g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
                 g.setColor(new Color(0, 0, 0, 100));
                 g.fillRect(0, 0, getWidth(), getHeight());
@@ -69,7 +70,7 @@ public class CharacterSelectionMenu extends JFrame {
         mainPanel.setOpaque(false);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
 
-        // إنشاء أقسام اللاعبين باستخدام الأسماء الممررة
+        // إنشاء أقسام اللاعبين
         JPanel p1Panel = createPlayerSection(p1Name, 1);
         JPanel p2Panel = createPlayerSection(p2Name, 2);
 
@@ -79,16 +80,15 @@ public class CharacterSelectionMenu extends JFrame {
 
         // زر البدء (FIGHT)
         JButton startBtn = new JButton("FIGHT!");
-
-
-
         styleButtonWithImage(startBtn, "Assets/btn.png", "Assets/btn2.png");
 
         startBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            // بدء اللعبة وتمرير الاختيارات (يمكنك أيضاً تمرير الأسماء للعبة لاحقاً إذا أردت عرضها بالداخل)
-            new Anim(isMultiplayer, p1Choice, p2Choice);
+
+            // --- التعديل هنا: تمرير الصعوبة للعبة ---
+            // تأكد إنك عدلت Anim لاستقبال الصعوبة كمان
+            new Anim(isMultiplayer, p1Choice, p2Choice, selectedDifficulty);
         });
 
         JPanel bottomPanel = new JPanel();
@@ -108,7 +108,6 @@ public class CharacterSelectionMenu extends JFrame {
         // عرض اسم اللاعب
         JLabel lbl = new JLabel(titleText);
         lbl.setFont(new Font("Arial", Font.BOLD, 28));
-        // تلوين الاسم (أزرق للاعب 1، وأخضر/بنفسجي للاعب 2)
         lbl.setForeground(playerNum == 1 ? new Color(0, 255, 255) : (isMultiplayer ? new Color(0, 255, 0) : new Color(255, 0, 255)));
         lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
         lbl.setBorder(BorderFactory.createEmptyBorder(0,0,20,0));
@@ -132,7 +131,7 @@ public class CharacterSelectionMenu extends JFrame {
             btn.setFont(new Font("Arial", Font.BOLD, 18));
             btn.setForeground(Color.WHITE);
 
-            // خلفية سوداء صريحة (تعديلك السابق)
+            // خلفية سوداء صريحة
             btn.setBackground(Color.BLACK);
             btn.setOpaque(true);
 
@@ -186,34 +185,29 @@ public class CharacterSelectionMenu extends JFrame {
             }
         }
     }
+
     private void styleButtonWithImage(JButton b, String normalPath, String pressedPath) {
-        // 1. إعداد الأبعاد (نفس أبعادك القديمة)
         int width = 350;
         int height = 70;
 
-        // 2. تحميل وتغيير حجم الصورة العادية
         ImageIcon iconNormal = new ImageIcon(normalPath);
         Image imgNormal = iconNormal.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
         b.setIcon(new ImageIcon(imgNormal));
 
-        // 3. تحميل وتغيير حجم صورة الضغط (Pressed)
         ImageIcon iconPressed = new ImageIcon(pressedPath);
         Image imgPressed = iconPressed.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
         b.setPressedIcon(new ImageIcon(imgPressed));
 
-        // 4. تنسيق النص (أبيض وفي المنتصف تماماً)
         b.setFont(new Font("Arial", Font.BOLD, 26));
         b.setForeground(Color.WHITE);
-        b.setHorizontalTextPosition(JButton.CENTER); // النص أفقي في المنتصف
-        b.setVerticalTextPosition(JButton.CENTER);   // النص رأسي في المنتصف
+        b.setHorizontalTextPosition(JButton.CENTER);
+        b.setVerticalTextPosition(JButton.CENTER);
 
-        // 5. إزالة الخلفيات والحدود الافتراضية
         b.setContentAreaFilled(false);
         b.setBorderPainted(false);
         b.setFocusPainted(false);
         b.setOpaque(false);
 
-        // 6. تحديد الحجم
         b.setPreferredSize(new Dimension(width, height));
     }
 }

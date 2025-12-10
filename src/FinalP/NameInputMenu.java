@@ -11,24 +11,29 @@ public class NameInputMenu extends JFrame {
     private JTextField p1NameField;
     private JTextField p2NameField;
 
-    public NameInputMenu(boolean isMultiplayer, AudioPlayer music) {
+    // متغير لحفظ الصعوبة المستلمة من الشاشة السابقة
+    private String selectedDifficulty;
+
+    // تم تعديل الكونستركتور لاستقبال الصعوبة (String difficulty)
+    public NameInputMenu(boolean isMultiplayer, AudioPlayer music, String difficulty) {
         this.isMultiplayer = isMultiplayer;
         this.menuMusic = music;
+        this.selectedDifficulty = difficulty; // حفظ القيمة لتمريرها لاحقاً
 
         setTitle("Enter Player Names");
-        // زودنا العرض شوية (600) عشان العنوان ميتكتبش ناقص
+        // نفس الأبعاد التي ضبطناها سابقاً
         setSize(600, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // خلفية النافذة
+        // خلفية النافذة (نفس الكود القديم)
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background.png").getImage();
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-                // طبقة سوداء أتقل شوية عشان التباين يبقى أحسن
+                // طبقة سوداء لتوضيح الكلام
                 g.setColor(new Color(0, 0, 0, 180));
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
@@ -37,21 +42,20 @@ public class NameInputMenu extends JFrame {
 
         // --- العنوان ---
         JLabel title = new JLabel("ENTER NAMES");
-        title.setFont(new Font("Arial", Font.BOLD, 35)); // كبرنا الخط
+        title.setFont(new Font("Arial", Font.BOLD, 35));
         title.setForeground(Color.WHITE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // مسافات
         add(Box.createVerticalStrut(30));
         add(title);
         add(Box.createVerticalStrut(30));
 
         // --- خانة اللاعب الأول ---
         add(createLabel("Player 1 Name:"));
-        add(Box.createVerticalStrut(10)); // مسافة صغيرة بين العنوان والخانة
+        add(Box.createVerticalStrut(10));
         p1NameField = createTextField();
         add(p1NameField);
-        add(Box.createVerticalStrut(20)); // مسافة بين اللاعبين
+        add(Box.createVerticalStrut(20));
 
         // --- خانة اللاعب الثاني ---
         if (isMultiplayer) {
@@ -60,7 +64,7 @@ public class NameInputMenu extends JFrame {
             p2NameField = createTextField();
             add(p2NameField);
         } else {
-            // لو سينجل، نضيف مسافة فاضية عشان الشكل يفضل متناسق
+            // مسافة لظبط الشكل في السنجل
             add(Box.createVerticalStrut(80));
         }
 
@@ -68,10 +72,9 @@ public class NameInputMenu extends JFrame {
 
         // --- زر المتابعة (NEXT) ---
         JButton nextBtn = new JButton("NEXT");
-        // تأكد من وجود الصور دي أو استخدم ستايل عادي لو مش موجودة
+        // الحفاظ على ستايل الصور للأزرار
         styleButtonWithImage(nextBtn, "Assets/btn.png", "Assets/btn2.png");
 
-        // محاذاة الزر في النص
         nextBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         nextBtn.addActionListener(e -> {
@@ -82,53 +85,50 @@ public class NameInputMenu extends JFrame {
             if (isMultiplayer && p2Name.isEmpty()) p2Name = "Player 2";
 
             dispose();
-            new CharacterSelectionMenu(isMultiplayer, menuMusic, p1Name, p2Name);
+
+            // --- التعديل هنا: تمرير الصعوبة للشاشة التالية (CharacterSelectionMenu) ---
+            new CharacterSelectionMenu(isMultiplayer, menuMusic, p1Name, p2Name, selectedDifficulty);
         });
 
         add(nextBtn);
         setVisible(true);
     }
 
-    // دالة تصميم التكست فيلد الجديد
+    // نفس دالة تصميم التكست فيلد (ستايل حديث)
     private JTextField createTextField() {
         JTextField tf = new JTextField();
-        // تكبير حجم الخانة
         Dimension size = new Dimension(350, 50);
         tf.setPreferredSize(size);
         tf.setMaximumSize(size);
 
-        // تنسيق الخط واللون
         tf.setFont(new Font("Arial", Font.BOLD, 20));
         tf.setHorizontalAlignment(JTextField.CENTER);
-        tf.setBackground(Color.WHITE); // لون أبيض صريح (أنظف)
+        tf.setBackground(Color.WHITE);
         tf.setForeground(Color.DARK_GRAY);
-        tf.setCaretColor(Color.BLACK); // لون مؤشر الكتابة
+        tf.setCaretColor(Color.BLACK);
 
-        // أهم سطر عشان يظبط في النص مع BoxLayout
         tf.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // عمل برواز (Border) شكله نظيف ومسافة داخلية للكلام
         tf.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(100, 100, 100), 2), // برواز رمادي
-                BorderFactory.createEmptyBorder(5, 10, 5, 10) // حشوة داخلية
+                new LineBorder(new Color(100, 100, 100), 2),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
 
         return tf;
     }
 
+    // نفس دالة الليبل
     private JLabel createLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("Arial", Font.BOLD, 22)); // خط أوضح
-        lbl.setForeground(new Color(0, 255, 255)); // سماوي
+        lbl.setFont(new Font("Arial", Font.BOLD, 22));
+        lbl.setForeground(new Color(0, 255, 255));
         lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-        // إضافة ظل أسود خفيف للكلام عشان يظهر أكتر (اختياري)
-        // lbl.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
         return lbl;
     }
 
-    // دالة الزرار (زي ما هي عندك)
+    // نفس دالة ستايل الأزرار بالصور
     private void styleButtonWithImage(JButton b, String normalPath, String pressedPath) {
-        int width = 300; // صغرنا الزرار شوية عشان يتناسب مع الشاشة
+        int width = 300;
         int height = 60;
 
         ImageIcon iconNormal = new ImageIcon(normalPath);
@@ -149,6 +149,6 @@ public class NameInputMenu extends JFrame {
         b.setFocusPainted(false);
         b.setOpaque(false);
         b.setPreferredSize(new Dimension(width, height));
-        b.setMaximumSize(new Dimension(width, height)); // مهم للـ BoxLayout
+        b.setMaximumSize(new Dimension(width, height));
     }
 }

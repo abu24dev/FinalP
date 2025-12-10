@@ -15,23 +15,42 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     Player player1;
     Player enemy;
 
-    // keyboard state
     static BitSet keyBits = new BitSet(256);
 
-    // Difficulty
+    // تعريف مستويات الصعوبة
     enum Difficulty {EASY, MEDIUM, HARD}
-    Difficulty currentDifficulty = Difficulty.MEDIUM; // default
+
+    // المستوى الافتراضي (هيتغير لما نبعتله القيمة من المنيو)
+    Difficulty currentDifficulty = Difficulty.MEDIUM;
 
     Random globalRand = new Random();
 
-    // --- متغيرات جديدة لحفظ اختيارات اللاعبين ---
-    int myCharIndex = 0;    // الافتراضي
-    int enemyCharIndex = 1; // الافتراضي
+    // متغيرات اختيارات اللاعبين
+    int myCharIndex = 0;
+    int enemyCharIndex = 1;
 
-    // --- دالة لاستقبال الاختيارات من القائمة ---
+    // --- دالة استقبال الاختيارات ---
     public void setCharacters(int p1, int p2) {
         this.myCharIndex = p1;
         this.enemyCharIndex = p2;
+    }
+
+    // --- دالة استقبال الصعوبة (الجديدة) ---
+    public void setDifficulty(String diff) {
+        if (diff == null) return;
+        switch (diff.toUpperCase()) {
+            case "EASY":
+                currentDifficulty = Difficulty.EASY;
+                break;
+            case "HARD":
+                currentDifficulty = Difficulty.HARD;
+                break;
+            case "MEDIUM":
+            default:
+                currentDifficulty = Difficulty.MEDIUM;
+                break;
+        }
+        System.out.println("Difficulty set to: " + currentDifficulty);
     }
 
     // --- Texture Arrays ---
@@ -77,7 +96,6 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             "Assets/Samurai/7.png"
     };
 
-    // Frame counts
     int[] MAX_WALK = {8, 8, 8};
     int[] MAX_IDLE = {6, 6, 6};
     int[] MAX_ATTACK1 = {5, 4, 6};
@@ -88,7 +106,6 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     int[] MAX_HURT = {2, 3, 2};
     int[] MAX_DEAD = {4, 3, 3};
     int[] MAX_SHIELD = {4, 2, 2};
-
 
     int[][] shinobiIDs;
     int[][] fighterIDs;
@@ -103,61 +120,48 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-        super.initUI(gl); // UI bar
-
+        super.initUI(gl);
         super.initTimer(gl);
 
-        // load 3 characters
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
         samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
-        // --- تعديل: استخدام myCharIndex بدلاً من التثبيت ---
         int[][] p1Textures = getTextureByIndex(myCharIndex);
         player1 = new Player(15, 20, p1Textures, myCharIndex, false, false);
 
         player1.setControls(
-                KeyEvent.VK_W,  // jump
-                KeyEvent.VK_S,  // shield
-                KeyEvent.VK_A,  // left
-                KeyEvent.VK_D,  // right
-                KeyEvent.VK_Z,  // attack1
-                KeyEvent.VK_X,  // attack2
-                KeyEvent.VK_C   // attack3
+                KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D,
+                KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C
         );
 
-        // --- تعديل: استخدام enemyCharIndex بدلاً من الـ Random ---
         int[][] enemyTextures = getTextureByIndex(enemyCharIndex);
         enemy = new Player(40, 20, enemyTextures, enemyCharIndex, true, true);
 
         System.out.println("Single Player Initialized: Me=" + myCharIndex + " vs AI=" + enemyCharIndex);
-        System.out.println("Default Difficulty: MEDIUM");
+        System.out.println("Difficulty Level: " + currentDifficulty);
     }
 
-    // دالة مساعدة لاختيار المصفوفة
     private int[][] getTextureByIndex(int index) {
         if (index == 0) return shinobiIDs;
         if (index == 1) return fighterIDs;
         return samuraiIDs;
     }
 
-    // Load all state frames + background
     int[][] loadCharacter(GL gl, String[] texFiles, int charIdx) {
-        int[][] ids = new int[10][15]; // [state][frame]
+        int[][] ids = new int[10][15];
         int offset = 0;
-
-        for (int i = 0; i < MAX_WALK[charIdx]; i++) ids[0][i] = genTex(gl, texFiles[offset++]); // WALK
-        for (int i = 0; i < MAX_IDLE[charIdx]; i++) ids[1][i] = genTex(gl, texFiles[offset++]); // IDLE
-        for (int i = 0; i < MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]); // ATT1
-        for (int i = 0; i < MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]); // ATT2
-        for (int i = 0; i < MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]); // ATT3
-        for (int i = 0; i < MAX_JUMP[charIdx]; i++) ids[5][i] = genTex(gl, texFiles[offset++]); // JUMP
-        for (int i = 0; i < MAX_RUN[charIdx]; i++) ids[6][i] = genTex(gl, texFiles[offset++]); // RUN
-        for (int i = 0; i < MAX_HURT[charIdx]; i++) ids[7][i] = genTex(gl, texFiles[offset++]); // HURT
-        for (int i = 0; i < MAX_DEAD[charIdx]; i++) ids[8][i] = genTex(gl, texFiles[offset++]); // DEAD
-        for (int i = 0; i < MAX_SHIELD[charIdx]; i++) ids[9][i] = genTex(gl, texFiles[offset++]); // SHIELD
-
-        bgIDs[charIdx] = genTex(gl, texFiles[offset]); // background
+        for (int i = 0; i < MAX_WALK[charIdx]; i++) ids[0][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_IDLE[charIdx]; i++) ids[1][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_ATTACK1[charIdx]; i++) ids[2][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_ATTACK2[charIdx]; i++) ids[3][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_ATTACK3[charIdx]; i++) ids[4][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_JUMP[charIdx]; i++) ids[5][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_RUN[charIdx]; i++) ids[6][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_HURT[charIdx]; i++) ids[7][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_DEAD[charIdx]; i++) ids[8][i] = genTex(gl, texFiles[offset++]);
+        for (int i = 0; i < MAX_SHIELD[charIdx]; i++) ids[9][i] = genTex(gl, texFiles[offset++]);
+        bgIDs[charIdx] = genTex(gl, texFiles[offset]);
         return ids;
     }
 
@@ -186,8 +190,8 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         DrawBackground(gl, bgIDs[0]);
 
         if (!isPaused && !isTimeOver) {
-            player1.update(enemy);   // human, target = enemy
-            enemy.update(player1);   // AI, target = player1
+            player1.update(enemy);
+            enemy.update(player1);
         }
 
         if (isTimeOver && !isGameOver) {
@@ -198,10 +202,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
         if (!isGameOver) {
-            if (player1.state == 8) { // Player died
+            if (player1.state == 8) {
                 isGameOver = true;
                 setGameOverMessage("YOU LOSE!");
-            } else if (enemy.state == 8) { // Enemy died
+            } else if (enemy.state == 8) {
                 isGameOver = true;
                 setGameOverMessage("YOU WIN!");
             }
@@ -211,27 +215,16 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         enemy.draw(gl);
 
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
-        // ==========================================
-        // 3. رسم شريط الصحة (Health Bars)
-        // ==========================================
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glPushMatrix();
-        gl.glLoadIdentity();
+
+        gl.glMatrixMode(GL.GL_PROJECTION); gl.glPushMatrix(); gl.glLoadIdentity();
         new GLU().gluOrtho2D(0, drawable.getWidth(), 0, drawable.getHeight());
-        gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glPushMatrix();
-        gl.glLoadIdentity();
+        gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPushMatrix(); gl.glLoadIdentity();
 
-        // اللاعب (Human) - يسار
         drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
-
-        // العدو (AI) - يمين
         drawHealthBar(gl, enemy.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
 
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glPopMatrix();
-        gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glPopMatrix();
+        gl.glMatrixMode(GL.GL_PROJECTION); gl.glPopMatrix();
+        gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPopMatrix();
         super.drawTimer(drawable, drawable.getWidth(), drawable.getHeight());
     }
 
@@ -254,8 +247,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL gl = drawable.getGL();
         gl.glViewport(0, 0, width, height);
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glLoadIdentity();
+        gl.glMatrixMode(GL.GL_PROJECTION); gl.glLoadIdentity();
         gl.glOrtho(-1, 1, -1, 1, -1, 1);
         gl.glMatrixMode(GL.GL_MODELVIEW);
     }
@@ -266,60 +258,34 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         isGameOver = false;
         isTimeOver = false;
         timeRemaining = 120.0f;
-        // إعادة تعيين اللاعب بالشخصية المختارة
         player1.reset(15, 20, false);
-
-        // إعادة تعيين العدو بالشخصية المختارة (بدون تغيير عشوائي)
         enemy.textureIDs = getTextureByIndex(enemyCharIndex);
         enemy.charIndex = enemyCharIndex;
         enemy.reset(40, 20, true);
-
         keyBits.clear();
-        System.out.println("Game Reset. Same Characters.");
-
+        System.out.println("Game Reset. Difficulty: " + currentDifficulty);
     }
 
     @Override
-    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
-    }
+    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
 
-    // ============================
-    //    Key Handling
-    // ============================
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         keyBits.set(code, true);
 
-        // one-press attacks for player1
-        if (code == player1.kAtt1) player1.queueAttack(2); // ATTACK1
-        if (code == player1.kAtt2) player1.queueAttack(3); // ATTACK2
-        if (code == player1.kAtt3) player1.queueAttack(4); // ATTACK3
+        if (code == player1.kAtt1) player1.queueAttack(2);
+        if (code == player1.kAtt2) player1.queueAttack(3);
+        if (code == player1.kAtt3) player1.queueAttack(4);
 
-        // difficulty keys: 1,2,3
-        if (code == KeyEvent.VK_1) {
-            currentDifficulty = Difficulty.EASY;
-            System.out.println("Difficulty: EASY");
-        } else if (code == KeyEvent.VK_2) {
-            currentDifficulty = Difficulty.MEDIUM;
-            System.out.println("Difficulty: MEDIUM");
-        } else if (code == KeyEvent.VK_3) {
-            currentDifficulty = Difficulty.HARD;
-            System.out.println("Difficulty: HARD");
-        }
+        // تم إلغاء أزرار 1,2,3 لأن الصعوبة تأتي الآن من القائمة
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-        keyBits.set(e.getKeyCode(), false);
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
+    @Override public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
+    @Override public void keyTyped(KeyEvent e) {}
 
     // =========================================================
-    //  Inner Player class (works for Human and AI Enemy)
+    //  Inner Player class
     // =========================================================
     class Player {
         float x, y;
@@ -329,34 +295,24 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         int health = 100;
         int animIndex = 0;
         int frameDelay = 0;
-
-        // states: 0 walk,1 idle,2 att1,3 att2,4 att3,5 jump,7 hurt,8 dead,9 shield
         int state = 1;
         int lastState = 1;
 
-        // Physics
         float velocityY = 0;
         float gravity = 0.1f;
         float jumpPower = 1.3f;
         float groundY = 20;
         boolean isJumping = false;
 
-        // controls
         int kUp, kDown, kLeft, kRight, kAtt1, kAtt2, kAtt3;
-
-        // Attack queue (one-press)
-        int queuedAttackType = 0; // 0 = none, 2/3/4 = attack states
+        int queuedAttackType = 0;
         boolean hasHitThisAttack = false;
-
-        // Combat
-        float hitRange = 6.5f; // bigger hit box
+        float hitRange = 6.5f;
         boolean wasHit = false;
         int damage = 20;
 
-        // AI
         boolean isAI;
         Random rand = new Random();
-        int aiDecisionTimer = 0;
 
         public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft, boolean ai) {
             this.x = startX;
@@ -369,54 +325,33 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
         public void setControls(int up, int down, int left, int right, int a1, int a2, int a3) {
-            this.kUp = up;
-            this.kDown = down;
-            this.kLeft = left;
-            this.kRight = right;
-            this.kAtt1 = a1;
-            this.kAtt2 = a2;
-            this.kAtt3 = a3;
+            this.kUp = up; this.kDown = down; this.kLeft = left; this.kRight = right;
+            this.kAtt1 = a1; this.kAtt2 = a2; this.kAtt3 = a3;
         }
 
         public void queueAttack(int attackState) {
-            // attackState: 2 or 3 or 4
             if (isAttacking() || state == 7 || state == 8) return;
-            if (queuedAttackType == 0) {
-                queuedAttackType = attackState;
-            }
+            if (queuedAttackType == 0) queuedAttackType = attackState;
         }
 
-        boolean isAttacking() {
-            return state == 2 || state == 3 || state == 4;
-        }
+        boolean isAttacking() { return state == 2 || state == 3 || state == 4; }
 
         public void reset(float startX, float startY, boolean startFaceLeft) {
-            this.x = startX;
-            this.y = startY;
-            this.groundY = startY;
-            this.facingLeft = startFaceLeft;
-            this.health = 100;
-            this.state = 1;
-            this.lastState = 1;
-            this.animIndex = 0;
-            this.frameDelay = 0;
-            this.velocityY = 0;
-            this.isJumping = false;
-            this.queuedAttackType = 0;
-            this.hasHitThisAttack = false;
+            this.x = startX; this.y = startY; this.groundY = startY;
+            this.facingLeft = startFaceLeft; this.health = 100;
+            this.state = 1; this.lastState = 1;
+            this.animIndex = 0; this.frameDelay = 0;
+            this.velocityY = 0; this.isJumping = false;
+            this.queuedAttackType = 0; this.hasHitThisAttack = false;
             this.wasHit = false;
-            this.aiDecisionTimer = 0;
         }
 
-        // target = opponent
         public void update(Player target) {
             if (state == 7) {
                 frameDelay++;
                 if (frameDelay % 3 == 0) animIndex++;
                 if (animIndex >= MAX_HURT[charIndex]) {
-                    state = 1;
-                    animIndex = 0;
-                    frameDelay = 0;
+                    state = 1; animIndex = 0; frameDelay = 0;
                 }
                 return;
             }
@@ -424,9 +359,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             velocityY -= gravity;
 
             if (y <= groundY) {
-                y = groundY;
-                velocityY = 0;
-                isJumping = false;
+                y = groundY; velocityY = 0; isJumping = false;
                 if (state == 8) {
                     frameDelay++;
                     if (frameDelay % 3 == 0) animIndex++;
@@ -447,110 +380,55 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             if (x > 50) x = 50;
 
             if (target != null && target.state != 8) checkHit(target);
-            if (state != lastState) {
-                animIndex = 0;
-                frameDelay = 0;
-            }
+            if (state != lastState) { animIndex = 0; frameDelay = 0; }
             frameDelay++;
             if (frameDelay % 3 == 0) {
                 animIndex++;
-                int maxFrames = 1;
-                switch (state) {
-                    case 0:
-                        maxFrames = MAX_WALK[charIndex];
-                        break;
-                    case 1:
-                        maxFrames = MAX_IDLE[charIndex];
-                        break;
-                    case 2:
-                        maxFrames = MAX_ATTACK1[charIndex];
-                        break;
-                    case 3:
-                        maxFrames = MAX_ATTACK2[charIndex];
-                        break;
-                    case 4:
-                        maxFrames = MAX_ATTACK3[charIndex];
-                        break;
-                    case 5:
-                        maxFrames = MAX_JUMP[charIndex];
-                        break;
-                    case 7:
-                        maxFrames = MAX_HURT[charIndex];
-                        break;
-                    case 8:
-                        maxFrames = MAX_DEAD[charIndex];
-                        break;
-                    case 9:
-                        maxFrames = MAX_SHIELD[charIndex];
-                        break;
-                    default:
-                        maxFrames = MAX_IDLE[charIndex];
-                        break;
-                }
-
+                int maxFrames = getMaxFramesForState();
                 if (isAttacking() && animIndex >= maxFrames) {
-                    state = 1;
-                    animIndex = 0;
-                    frameDelay = 0;
-                    hasHitThisAttack = false;
+                    state = 1; animIndex = 0; frameDelay = 0; hasHitThisAttack = false;
                 } else if ((state == 8 || state == 9) && animIndex >= maxFrames) {
                     animIndex = maxFrames - 1;
                 } else if (animIndex >= maxFrames) {
                     animIndex = 0;
                 }
             }
-
         }
 
-        // -------------------- HUMAN INPUT --------------------
+        private int getMaxFramesForState() {
+            switch (state) {
+                case 0: return MAX_WALK[charIndex];
+                case 1: return MAX_IDLE[charIndex];
+                case 2: return MAX_ATTACK1[charIndex];
+                case 3: return MAX_ATTACK2[charIndex];
+                case 4: return MAX_ATTACK3[charIndex];
+                case 5: return MAX_JUMP[charIndex];
+                case 7: return MAX_HURT[charIndex];
+                case 8: return MAX_DEAD[charIndex];
+                case 9: return MAX_SHIELD[charIndex];
+                default: return MAX_IDLE[charIndex];
+            }
+        }
+
         private void handleHumanInput() {
-            // jump triggered by keyBits
-            if (keyBits.get(kUp) && !isJumping) {
-                velocityY = jumpPower;
-                isJumping = true;
-            }
-
-            if (isAttacking()) {
-                // continue current attack until animation finishes
-            } else if (queuedAttackType != 0) {
-                // start queued attack once
-                state = queuedAttackType;
-                animIndex = 0;
-                frameDelay = 0;
-                hasHitThisAttack = false;
-                queuedAttackType = 0;
+            if (keyBits.get(kUp) && !isJumping) { velocityY = jumpPower; isJumping = true; }
+            if (isAttacking()) { }
+            else if (queuedAttackType != 0) {
+                state = queuedAttackType; animIndex = 0; frameDelay = 0; hasHitThisAttack = false; queuedAttackType = 0;
             } else {
-                // non-attack decisions
-                if (isJumping) {
-                    state = 5; // jump
-                } else if (keyBits.get(kDown)) {
-                    state = 9; // shield
-                } else if (keyBits.get(kLeft) || keyBits.get(kRight)) {
-                    state = 0; // walk
-                } else {
-                    state = 1; // idle
-                }
+                if (isJumping) state = 5;
+                else if (keyBits.get(kDown)) state = 9;
+                else if (keyBits.get(kLeft) || keyBits.get(kRight)) state = 0;
+                else state = 1;
             }
-
-            // Movement (same base speed as before)
-            if (keyBits.get(kLeft)) {
-                if (x > 0) x -= 0.5f;
-                facingLeft = true;
-            }
-            if (keyBits.get(kRight)) {
-                if (x < 50) x += 0.5f;
-                facingLeft = false;
-            }
+            if (keyBits.get(kLeft)) { x -= 0.5f; if (x < 0) x = 0; facingLeft = true;}
+            if (keyBits.get(kRight)) { x += 0.5f; if (x > 50) x = 50; facingLeft = false;}
         }
 
-        // -------------------- AI BRAIN --------------------
         private void updateAI(Player target) {
-            if (target == null || target.state == 8) {
-                state = 1;
-                return;
-            }
+            if (target == null || target.state == 8) { state = 1; return; }
 
-            // PARAMETERS (Balanced)
+            // === إعدادات الصعوبة (تتغير تلقائياً بناءً على currentDifficulty) ===
             float attackRange;
             float moveSpeed;
             float aggression;
@@ -561,90 +439,67 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 case EASY:
                     attackRange = 6.0f;
                     moveSpeed = 0.45f;
-                    aggression = 0.25f;
+                    aggression = 0.25f; // هجوم قليل
                     jumpChance = 0.05f;
                     shieldChance = 0.05f;
                     break;
-
                 case HARD:
                     attackRange = 7.0f;
-                    moveSpeed = 0.60f;  // FASTER than human
-                    aggression = 0.80f;
+                    moveSpeed = 0.60f;  // أسرع من اللاعب
+                    aggression = 0.80f; // هجوم مكثف
                     jumpChance = 0.15f;
                     shieldChance = 0.20f;
                     break;
-
                 default: // MEDIUM
                     attackRange = 6.5f;
-                    moveSpeed = 0.50f;  // SAME speed as human
+                    moveSpeed = 0.50f;
                     aggression = 0.50f;
                     jumpChance = 0.10f;
                     shieldChance = 0.15f;
                     break;
             }
 
-            // If attacking → let animation continue
             if (isAttacking()) return;
 
-            // Distance analysis
             float dx = target.x - this.x;
             float dist = Math.abs(dx);
             facingLeft = (dx < 0);
 
-            // ALWAYS MOVE — NO DECISION DELAY ANYMORE
+            // اتخاذ القرار
             float r = rand.nextFloat();
-
-            // If close → attack or shield
             if (dist < attackRange) {
                 if (r < aggression) {
-                    int which = 2 + rand.nextInt(3); // attack 2,3,4
-                    state = which;
-                    animIndex = 0;
-                    frameDelay = 0;
-                    hasHitThisAttack = false;
+                    int which = 2 + rand.nextInt(3); // هجوم عشوائي
+                    state = which; animIndex = 0; frameDelay = 0; hasHitThisAttack = false;
                     return;
                 }
-
                 if (r < aggression + shieldChance) {
-                    state = 9; // shield
+                    state = 9; // درع
                     return;
                 }
             }
 
-            // Movement logic — ALWAYS executes, no delay!
+            // الحركة
             if (dist > attackRange + 0.5f) {
-                if (dx > 0) x += moveSpeed;
-                else x -= moveSpeed;
-                state = 0; // walk
+                if (dx > 0) x += moveSpeed; else x -= moveSpeed;
+                state = 0;
             } else if (dist < attackRange - 0.5f) {
-                if (dx > 0) x -= moveSpeed * 0.6f;
-                else x += moveSpeed * 0.6f;
-                state = 0; // walk back
+                if (dx > 0) x -= moveSpeed * 0.6f; else x += moveSpeed * 0.6f;
+                state = 0;
             } else {
-                state = 1; // idle close to player
+                state = 1;
             }
 
-            // Random jump
             if (!isJumping && rand.nextFloat() < jumpChance) {
-                velocityY = jumpPower;
-                isJumping = true;
-                state = 5;
+                velocityY = jumpPower; isJumping = true; state = 5;
             }
-
             if (isJumping) state = 5;
         }
 
-
-        // -------------------- COLLISION & DAMAGE --------------------
         public void checkHit(Player target) {
-            if (target == null || target.state == 8) return; // لو ميت أصلاً ميعملش حاجة
+            if (target == null || target.state == 8) return;
 
-            // التأكد إن الضربة في الفريم الصح
-            boolean inAttackFrame =
-                    (state == 2 && animIndex >= 1) ||
-                            (state == 3 && animIndex >= 1) ||
-                            (state == 4 && animIndex >= 1);
-
+            boolean inAttackFrame = (state == 2 && animIndex >= 1) || (state == 3 && animIndex >= 1) || (state == 4 && animIndex >= 1);
             if (!inAttackFrame || hasHitThisAttack) return;
 
             float dx = target.x - this.x;
@@ -653,114 +508,43 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
             if (dist <= hitRange && facingCorrect) {
                 hasHitThisAttack = true;
-
-                // --- التعامل مع الـ Shield ---
                 if (target.state == 9) {
-                    target.health -= 5; // ضرر مخفف
-                    if (target.health < 0) target.health = 0;
-                    target.wasHit = true;
-
-                    if (target == enemy) System.out.println("Enemy Blocked! HP: " + target.health);
-
-                    // +++ التعديل الجديد هنا +++
-                    // لازم نشيك لو مات وهو عامل Shield
+                    target.health -= 5;
                     if (target.health <= 0) {
-                        target.state = 8; // تحويل لحالة الموت
-                        target.animIndex = 0;
-                        target.frameDelay = 0;
-                        if (target == enemy) System.out.println(">>> Enemy Died while shielding!");
-                        else System.out.println(">>> Player Died while shielding!");
+                        target.health = 0; target.state = 8; target.animIndex = 0; target.frameDelay = 0;
+                    } else {
+                        target.wasHit = true;
                     }
-                    // ++++++++++++++++++++++++++
-
-                    return; // نخرج عشان مننقصش الـ 20 بتوع الضربة العادية
+                    return;
                 }
-
-                // --- التعامل مع الضربة العادية (بدون Shield) ---
                 target.health -= damage;
-                if (target.health < 0) target.health = 0;
-                target.wasHit = true;
-
-                if (target == enemy) System.out.println("Enemy Hit! HP: " + target.health);
-
-                // الموت العادي
                 if (target.health <= 0) {
-                    target.state = 8;
-                    target.animIndex = 0;
-                    target.frameDelay = 0;
-                    if (target == enemy) System.out.println(">>> Enemy DIED!");
-                    else System.out.println(">>> Player DIED!");
+                    target.health = 0; target.state = 8; target.animIndex = 0; target.frameDelay = 0;
                 } else {
-                    // لو لسه عايش يتوجع (Hurt)
-                    target.state = 7;
-                    target.animIndex = 0;
-                    target.frameDelay = 0;
+                    target.state = 7; target.animIndex = 0; target.frameDelay = 0; target.wasHit = true;
                 }
             }
         }
 
-        // -------------------- DRAW --------------------
         public void draw(GL gl) {
             int texID = getCurrentFrame();
             gl.glEnable(GL.GL_BLEND);
             gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
             gl.glPushMatrix();
-
-            // SAME transform / scale as multiplayer
             gl.glTranslated(x / 25.0 - 1, y / 25.0 - 1, 0);
             gl.glScaled(facingLeft ? -0.3 : 0.3, 0.3, 1);
-
             gl.glBegin(GL.GL_QUADS);
-            gl.glTexCoord2f(0, 0);
-            gl.glVertex3f(-1, -1, 0);
-            gl.glTexCoord2f(1, 0);
-            gl.glVertex3f(1, -1, 0);
-            gl.glTexCoord2f(1, 1);
-            gl.glVertex3f(1, 1, 0);
-            gl.glTexCoord2f(0, 1);
-            gl.glVertex3f(-1, 1, 0);
+            gl.glTexCoord2f(0, 0); gl.glVertex3f(-1, -1, 0);
+            gl.glTexCoord2f(1, 0); gl.glVertex3f(1, -1, 0);
+            gl.glTexCoord2f(1, 1); gl.glVertex3f(1, 1, 0);
+            gl.glTexCoord2f(0, 1); gl.glVertex3f(-1, 1, 0);
             gl.glEnd();
-
             gl.glPopMatrix();
             gl.glDisable(GL.GL_BLEND);
         }
 
-        // -------------------- ANIMATION FRAMES --------------------
         int getCurrentFrame() {
-            int maxFrames = 1;
-            switch (state) {
-                case 0:
-                    maxFrames = MAX_WALK[charIndex];
-                    break;
-                case 1:
-                    maxFrames = MAX_IDLE[charIndex];
-                    break;
-                case 2:
-                    maxFrames = MAX_ATTACK1[charIndex];
-                    break;
-                case 3:
-                    maxFrames = MAX_ATTACK2[charIndex];
-                    break;
-                case 4:
-                    maxFrames = MAX_ATTACK3[charIndex];
-                    break;
-                case 5:
-                    maxFrames = MAX_JUMP[charIndex];
-                    break;
-                case 7:
-                    maxFrames = MAX_HURT[charIndex];
-                    break;
-                case 8:
-                    maxFrames = MAX_DEAD[charIndex];
-                    break;
-                case 9:
-                    maxFrames = MAX_SHIELD[charIndex];
-                    break;
-                default:
-                    maxFrames = MAX_IDLE[charIndex];
-                    break;
-            }
-
+            int maxFrames = getMaxFramesForState();
             if (animIndex >= maxFrames) {
                 if (state == 8 || state == 9) animIndex = maxFrames - 1;
                 else animIndex = 0;
