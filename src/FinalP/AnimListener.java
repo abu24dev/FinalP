@@ -9,7 +9,6 @@ import javax.media.opengl.glu.GLU;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.text.DecimalFormat;
 
 public abstract class AnimListener implements GLEventListener, KeyListener, MouseListener {
 
@@ -19,10 +18,10 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
     // === متغيرات التايمر ونهاية اللعبة ===
     TextRenderer timeRenderer;
-    float timeRemaining = 120.0f; // 120 ثانية
+    float timeRemaining = 120.0f;
     boolean isTimeOver = false;
-    public boolean isGameOver = false; // هل اللعبة انتهت؟
-    protected String gameOverMessage = ""; // رسالة الفوز
+    public boolean isGameOver = false;
+    protected String gameOverMessage = ""; // رسالة الفوز أو نهاية الجولة
 
     // === متغيرات UI ===
     int pauseID, playID, soundOnID, soundOffID;
@@ -48,15 +47,13 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
     public abstract void resetGame();
 
-    // === دالة تهيئة التايمر ===
     public void initTimer(GL gl) {
-        // نستخدم فونت عريض وواضح
         timeRenderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 40));
     }
 
-    // === دالة رسم التايمر والرسائل ===
+    // === دالة رسم التايمر والرسائل (التعديل هنا) ===
     public void drawTimer(GLAutoDrawable drawable, int width, int height) {
-        // 1. منطق الوقت
+        // منطق الوقت
         if (!isPaused && timeRemaining > 0 && !isGameOver) {
             timeRemaining -= (1.0f / 24.0f);
             if (timeRemaining <= 0) {
@@ -67,19 +64,16 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
         String timeString = String.format("%02d", (int) Math.ceil(timeRemaining));
 
-        // حساب مكان التايمر (فوق في النص)
         Rectangle2D timeBounds = timeRenderer.getBounds(timeString);
         int x = (int) ((width / 2.0) - (timeBounds.getWidth() / 2.0));
         int y = height - 50;
 
         timeRenderer.beginRendering(width, height);
 
-        // --- رسم التايمر ---
-        // الظل
+        // رسم التايمر
         timeRenderer.setColor(Color.BLACK);
         timeRenderer.draw(timeString, x + 2, y - 2);
 
-        // النص الأساسي
         if (timeRemaining <= 10) {
             timeRenderer.setColor(Color.RED);
         } else {
@@ -89,15 +83,15 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
         timeRenderer.endRendering();
 
-        // --- رسم رسالة نهاية اللعبة (في المنتصف بالضبط) ---
-        if (isTimeOver || (isGameOver && !gameOverMessage.isEmpty())) {
+        // ---------------------------------------------------------
+        // التعديل: إظهار الرسالة إذا كان هناك نص، بغض النظر عن حالة اللعبة
+        // ---------------------------------------------------------
+        if (!gameOverMessage.isEmpty()) {
 
-            // 1. نحسب أبعاد النص المكتوب عشان نجيب نصه بالظبط
             Rectangle2D bounds = timeRenderer.getBounds(gameOverMessage);
             double textWidth = bounds.getWidth();
             double textHeight = bounds.getHeight();
 
-            // 2. معادلة السنتر: (نص الشاشة) - (نص عرض الكلام)
             int msgX = (int) ((width / 2.0) - (textWidth / 2.0));
             int msgY = (int) ((height / 2.0) - (textHeight / 2.0));
 
@@ -107,14 +101,15 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
             timeRenderer.setColor(new Color(0, 0, 0, 180));
             timeRenderer.draw(gameOverMessage, msgX + 4, msgY - 4);
 
-            // النص (أصفر)
+            // النص
             timeRenderer.setColor(Color.YELLOW);
             timeRenderer.draw(gameOverMessage, msgX, msgY);
 
             timeRenderer.endRendering();
         }
     }
-    // === باقي دوال الـ Init والـ UI القديمة ===
+
+    // === باقي الدوال كما هي ===
     public void initUI(GL gl) {
         try {
             pauseID = loadOneTexture(gl, "Assets/pause.png");
@@ -157,13 +152,9 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         this.height = h;
         updateBtnPositions();
 
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glPushMatrix();
-        gl.glLoadIdentity();
+        gl.glMatrixMode(GL.GL_PROJECTION); gl.glPushMatrix(); gl.glLoadIdentity();
         new GLU().gluOrtho2D(0, width, 0, height);
-        gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glPushMatrix();
-        gl.glLoadIdentity();
+        gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPushMatrix(); gl.glLoadIdentity();
         gl.glEnable(GL.GL_BLEND);
 
         int currentPauseTex = isPaused ? playID : pauseID;
@@ -173,10 +164,8 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         drawIcon(gl, currentSoundTex, btn2X, btn2Y, btnSize);
 
         gl.glDisable(GL.GL_BLEND);
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glPopMatrix();
-        gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glPopMatrix();
+        gl.glMatrixMode(GL.GL_PROJECTION); gl.glPopMatrix();
+        gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPopMatrix();
     }
 
     private void updateBtnPositions() {

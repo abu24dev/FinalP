@@ -9,51 +9,40 @@ import java.util.Random;
 
 public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
-    // =========================================
-    // Single-player: Human vs AI Enemy
-    // =========================================
     Player player1;
     Player enemy;
 
     static BitSet keyBits = new BitSet(256);
 
-    // تعريف مستويات الصعوبة
     enum Difficulty {EASY, MEDIUM, HARD}
-
-    // المستوى الافتراضي (هيتغير لما نبعتله القيمة من المنيو)
     Difficulty currentDifficulty = Difficulty.MEDIUM;
 
     Random globalRand = new Random();
 
-    // متغيرات اختيارات اللاعبين
     int myCharIndex = 0;
     int enemyCharIndex = 1;
 
-    // --- دالة استقبال الاختيارات ---
+    // متغيرات الجولات
+    int currentRound = 1;
+    final int MAX_ROUNDS = 3;
+    boolean isRoundOver = false;
+    long roundOverStartTime = 0;
+
     public void setCharacters(int p1, int p2) {
         this.myCharIndex = p1;
         this.enemyCharIndex = p2;
     }
 
-    // --- دالة استقبال الصعوبة (الجديدة) ---
     public void setDifficulty(String diff) {
         if (diff == null) return;
         switch (diff.toUpperCase()) {
-            case "EASY":
-                currentDifficulty = Difficulty.EASY;
-                break;
-            case "HARD":
-                currentDifficulty = Difficulty.HARD;
-                break;
-            case "MEDIUM":
-            default:
-                currentDifficulty = Difficulty.MEDIUM;
-                break;
+            case "EASY": currentDifficulty = Difficulty.EASY; break;
+            case "HARD": currentDifficulty = Difficulty.HARD; break;
+            default: currentDifficulty = Difficulty.MEDIUM; break;
         }
         System.out.println("Difficulty set to: " + currentDifficulty);
     }
 
-    // --- Texture Arrays ---
     String[] shinobiTextures = {
             "Assets/Shinobi/Walk1.png", "Assets/Shinobi/Walk2.png", "Assets/Shinobi/Walk3.png", "Assets/Shinobi/Walk4.png", "Assets/Shinobi/Walk5.png", "Assets/Shinobi/Walk6.png", "Assets/Shinobi/Walk7.png", "Assets/Shinobi/Walk8.png",
             "Assets/Shinobi/Idle1.png", "Assets/Shinobi/Idle2.png", "Assets/Shinobi/Idle3.png", "Assets/Shinobi/Idle4.png", "Assets/Shinobi/Idle5.png", "Assets/Shinobi/Idle6.png",
@@ -138,8 +127,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         int[][] enemyTextures = getTextureByIndex(enemyCharIndex);
         enemy = new Player(40, 20, enemyTextures, enemyCharIndex, true, true);
 
-        System.out.println("Single Player Initialized: Me=" + myCharIndex + " vs AI=" + enemyCharIndex);
-        System.out.println("Difficulty Level: " + currentDifficulty);
+        System.out.println("Started Round " + currentRound + " Difficulty: " + currentDifficulty);
     }
 
     private int[][] getTextureByIndex(int index) {
@@ -189,25 +177,41 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glColor3f(1f, 1f, 1f);
         DrawBackground(gl, bgIDs[0]);
 
-        if (!isPaused && !isTimeOver) {
+        if (!isPaused && !isTimeOver && !isGameOver && !isRoundOver) {
             player1.update(enemy);
             enemy.update(player1);
+        } else {
+            if(player1.state == 8) player1.update(null);
+            if(enemy.state == 8) enemy.update(null);
         }
 
-        if (isTimeOver && !isGameOver) {
+        // --- منطق الجولات والفوز ---
+        if (player1.state == 8 && !isGameOver) {
             isGameOver = true;
-            if (player1.health > enemy.health) setGameOverMessage("YOU WIN!");
-            else if (enemy.health > player1.health) setGameOverMessage("YOU LOSE!");
-            else setGameOverMessage("DRAW! (TIME OUT)");
+            setGameOverMessage("GAME OVER - YOU LOSE!");
+        }
+        else if (enemy.state == 8 && !isRoundOver && !isGameOver) {
+            isRoundOver = true;
+            roundOverStartTime = System.currentTimeMillis();
+
+            if (currentRound < MAX_ROUNDS) {
+                setGameOverMessage("ROUND " + currentRound + " CLEARED!");
+            } else {
+                isGameOver = true;
+                setGameOverMessage("YOU ARE THE CHAMPION!");
+            }
+        }
+        else if (isTimeOver && !isGameOver) {
+            isGameOver = true;
+            if (player1.health > enemy.health) setGameOverMessage("YOU WIN (TIME)!");
+            else setGameOverMessage("GAME OVER (TIME)!");
         }
 
-        if (!isGameOver) {
-            if (player1.state == 8) {
-                isGameOver = true;
-                setGameOverMessage("YOU LOSE!");
-            } else if (enemy.state == 8) {
-                isGameOver = true;
-                setGameOverMessage("YOU WIN!");
+        // --- الانتقال للجولة التالية ---
+        if (isRoundOver && !isGameOver) {
+            long now = System.currentTimeMillis();
+            if (now - roundOverStartTime > 3000) {
+                startNextRound();
             }
         }
 
@@ -226,6 +230,25 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glMatrixMode(GL.GL_PROJECTION); gl.glPopMatrix();
         gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPopMatrix();
         super.drawTimer(drawable, drawable.getWidth(), drawable.getHeight());
+    }
+
+    private void startNextRound() {
+        currentRound++;
+        isRoundOver = false;
+        setGameOverMessage("");
+
+        // --- التعديل هنا: التبديل بالترتيب (Cycling) بدلاً من العشوائي ---
+        // ده هيضمن إننا نلعب ضد الـ 3 شخصيات في الـ 3 جولات
+        enemyCharIndex = (enemyCharIndex + 1) % 3;
+        // -----------------------------------------------------------
+
+        System.out.println("Starting Round " + currentRound + " vs Enemy " + enemyCharIndex);
+
+        player1.reset(15, 20, false);
+
+        enemy.textureIDs = getTextureByIndex(enemyCharIndex);
+        enemy.charIndex = enemyCharIndex;
+        enemy.reset(40, 20, true);
     }
 
     void DrawBackground(GL gl, int tex) {
@@ -257,35 +280,34 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         setGameOverMessage("");
         isGameOver = false;
         isTimeOver = false;
+        isRoundOver = false;
         timeRemaining = 120.0f;
+        currentRound = 1;
+
         player1.reset(15, 20, false);
         enemy.textureIDs = getTextureByIndex(enemyCharIndex);
         enemy.charIndex = enemyCharIndex;
         enemy.reset(40, 20, true);
         keyBits.clear();
-        System.out.println("Game Reset. Difficulty: " + currentDifficulty);
+        System.out.println("Game Reset.");
     }
 
-    @Override
-    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
+    @Override public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         keyBits.set(code, true);
-
         if (code == player1.kAtt1) player1.queueAttack(2);
         if (code == player1.kAtt2) player1.queueAttack(3);
         if (code == player1.kAtt3) player1.queueAttack(4);
-
-        // تم إلغاء أزرار 1,2,3 لأن الصعوبة تأتي الآن من القائمة
     }
 
     @Override public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
     @Override public void keyTyped(KeyEvent e) {}
 
     // =========================================================
-    //  Inner Player class
+    //  Player Class
     // =========================================================
     class Player {
         float x, y;
@@ -315,13 +337,9 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         Random rand = new Random();
 
         public Player(float startX, float startY, int[][] ids, int cIndex, boolean startFaceLeft, boolean ai) {
-            this.x = startX;
-            this.y = startY;
-            this.groundY = startY;
-            this.textureIDs = ids;
-            this.charIndex = cIndex;
-            this.facingLeft = startFaceLeft;
-            this.isAI = ai;
+            this.x = startX; this.y = startY; this.groundY = startY;
+            this.textureIDs = ids; this.charIndex = cIndex;
+            this.facingLeft = startFaceLeft; this.isAI = ai;
         }
 
         public void setControls(int up, int down, int left, int right, int a1, int a2, int a3) {
@@ -347,6 +365,19 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
         public void update(Player target) {
+            if (state == 8) {
+                y += velocityY;
+                velocityY -= gravity;
+                if (y <= groundY) { y = groundY; velocityY = 0; }
+
+                frameDelay++;
+                if (frameDelay % 3 == 0) animIndex++;
+                if (animIndex >= MAX_DEAD[charIndex]) {
+                    animIndex = MAX_DEAD[charIndex] - 1;
+                }
+                return;
+            }
+
             if (state == 7) {
                 frameDelay++;
                 if (frameDelay % 3 == 0) animIndex++;
@@ -355,21 +386,15 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 }
                 return;
             }
+
             y += velocityY;
             velocityY -= gravity;
 
             if (y <= groundY) {
                 y = groundY; velocityY = 0; isJumping = false;
-                if (state == 8) {
-                    frameDelay++;
-                    if (frameDelay % 3 == 0) animIndex++;
-                    if (animIndex >= MAX_DEAD[charIndex]) animIndex = MAX_DEAD[charIndex] - 1;
-                    return;
-                }
             } else {
                 isJumping = true;
             }
-            if (state == 8) return;
 
             lastState = state;
 
@@ -380,14 +405,16 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             if (x > 50) x = 50;
 
             if (target != null && target.state != 8) checkHit(target);
+
             if (state != lastState) { animIndex = 0; frameDelay = 0; }
+
             frameDelay++;
             if (frameDelay % 3 == 0) {
                 animIndex++;
                 int maxFrames = getMaxFramesForState();
                 if (isAttacking() && animIndex >= maxFrames) {
                     state = 1; animIndex = 0; frameDelay = 0; hasHitThisAttack = false;
-                } else if ((state == 8 || state == 9) && animIndex >= maxFrames) {
+                } else if ((state == 9) && animIndex >= maxFrames) {
                     animIndex = maxFrames - 1;
                 } else if (animIndex >= maxFrames) {
                     animIndex = 0;
@@ -428,7 +455,6 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         private void updateAI(Player target) {
             if (target == null || target.state == 8) { state = 1; return; }
 
-            // === إعدادات الصعوبة (تتغير تلقائياً بناءً على currentDifficulty) ===
             float attackRange;
             float moveSpeed;
             float aggression;
@@ -437,25 +463,16 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
             switch (currentDifficulty) {
                 case EASY:
-                    attackRange = 6.0f;
-                    moveSpeed = 0.45f;
-                    aggression = 0.25f; // هجوم قليل
-                    jumpChance = 0.05f;
-                    shieldChance = 0.05f;
+                    attackRange = 6.0f; moveSpeed = 0.45f; aggression = 0.25f;
+                    jumpChance = 0.05f; shieldChance = 0.05f;
                     break;
                 case HARD:
-                    attackRange = 7.0f;
-                    moveSpeed = 0.60f;  // أسرع من اللاعب
-                    aggression = 0.80f; // هجوم مكثف
-                    jumpChance = 0.15f;
-                    shieldChance = 0.20f;
+                    attackRange = 7.0f; moveSpeed = 0.60f; aggression = 0.80f;
+                    jumpChance = 0.15f; shieldChance = 0.20f;
                     break;
-                default: // MEDIUM
-                    attackRange = 6.5f;
-                    moveSpeed = 0.50f;
-                    aggression = 0.50f;
-                    jumpChance = 0.10f;
-                    shieldChance = 0.15f;
+                default:
+                    attackRange = 6.5f; moveSpeed = 0.50f; aggression = 0.50f;
+                    jumpChance = 0.10f; shieldChance = 0.15f;
                     break;
             }
 
@@ -465,21 +482,16 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             float dist = Math.abs(dx);
             facingLeft = (dx < 0);
 
-            // اتخاذ القرار
             float r = rand.nextFloat();
             if (dist < attackRange) {
                 if (r < aggression) {
-                    int which = 2 + rand.nextInt(3); // هجوم عشوائي
+                    int which = 2 + rand.nextInt(3);
                     state = which; animIndex = 0; frameDelay = 0; hasHitThisAttack = false;
                     return;
                 }
-                if (r < aggression + shieldChance) {
-                    state = 9; // درع
-                    return;
-                }
+                if (r < aggression + shieldChance) { state = 9; return; }
             }
 
-            // الحركة
             if (dist > attackRange + 0.5f) {
                 if (dx > 0) x += moveSpeed; else x -= moveSpeed;
                 state = 0;
@@ -519,7 +531,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 }
                 target.health -= damage;
                 if (target.health <= 0) {
-                    target.health = 0; target.state = 8; target.animIndex = 0; target.frameDelay = 0;
+                    target.health = 0;
+                    target.state = 8;
+                    target.animIndex = 0;
+                    target.frameDelay = 0;
                 } else {
                     target.state = 7; target.animIndex = 0; target.frameDelay = 0; target.wasHit = true;
                 }

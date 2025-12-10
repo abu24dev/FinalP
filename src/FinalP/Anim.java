@@ -103,7 +103,7 @@ public class Anim extends JFrame {
         p.setLayout(new GridLayout(3, 1, 0, 15));
 
         // لون الخلفية أسود نصف شفاف
-        p.setBackground(new Color(16, 16, 16, 249));
+        p.setBackground(new Color(0, 0, 0, 255));
         p.setVisible(false);
 
         JButton btnResume = new JButton("RESUME");
