@@ -14,11 +14,11 @@ public class GameModeMenu extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // تحميل أيقونات الصوت
+
         soundOnIcon = resizeIcon("Assets/sound_on.png", 50, 50);
         soundOffIcon = resizeIcon("Assets/sound_off.png", 50, 50);
 
-        // إعداد الخلفية
+
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background2.png").getImage();
             @Override
@@ -30,7 +30,7 @@ public class GameModeMenu extends JFrame {
 
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        // اللوحة العلوية لزر الصوت
+
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setOpaque(false);
 
@@ -54,12 +54,12 @@ public class GameModeMenu extends JFrame {
         topPanel.add(soundBtn);
         add(topPanel);
 
-        // العنوان
+
         JLabel title = new JLabel("SELECT GAME MODE", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 36));
         title.setForeground(Color.WHITE);
 
-        // الأزرار
+
         JButton singleBtn = new JButton("Single Player");
         JButton multiBtn = new JButton("Multiplayer");
         JButton backBtn = new JButton("Back");
@@ -77,24 +77,23 @@ public class GameModeMenu extends JFrame {
         add(Box.createVerticalStrut(20));
         add(center(backBtn));
 
-        // --- Action Listeners (التعديلات هنا) ---
 
-        // 1. Single Player -> يذهب لاختيار الصعوبة
+
         singleBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
             new DifficultySelectionMenu(menuMusic);
         });
 
-        // 2. Multiplayer -> يذهب لإدخال الأسماء (مع صعوبة افتراضية MEDIUM)
+
         multiBtn.addActionListener(e -> {
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            // نمرر "MEDIUM" لأن الكونستركتور الجديد يطلب String difficulty
+
             new NameInputMenu(true, menuMusic, "MEDIUM");
         });
 
-        // 3. Back -> العودة للقائمة الرئيسية
+
         backBtn.addActionListener(e -> {
             boolean isCurrentlyMuted = (menuMusic != null && menuMusic.isMuted());
             if (menuMusic != null) menuMusic.stop();

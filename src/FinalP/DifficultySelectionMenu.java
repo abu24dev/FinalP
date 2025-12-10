@@ -15,7 +15,7 @@ public class DifficultySelectionMenu extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // الخلفية
+
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background.png").getImage();
             @Override
@@ -28,7 +28,7 @@ public class DifficultySelectionMenu extends JFrame {
         });
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-        // العنوان
+
         JLabel title = new JLabel("SELECT DIFFICULTY");
         title.setFont(new Font("Arial", Font.BOLD, 40));
         title.setForeground(Color.WHITE);
@@ -38,12 +38,12 @@ public class DifficultySelectionMenu extends JFrame {
         add(title);
         add(Box.createVerticalStrut(50));
 
-        // الأزرار
+
         JButton easyBtn = new JButton("EASY");
         JButton mediumBtn = new JButton("MEDIUM");
         JButton hardBtn = new JButton("HARD");
 
-        // تطبيق الستايل بالصور (نفس الزرار المستخدم في القوائم الثانية)
+
         styleButtonWithImage(easyBtn, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(mediumBtn, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(hardBtn, "Assets/btn.png", "Assets/btn2.png");
@@ -54,7 +54,7 @@ public class DifficultySelectionMenu extends JFrame {
         add(Box.createVerticalStrut(20));
         add(hardBtn);
 
-        // الأكشن لكل زرار (بينقل على شاشة الأسماء ويبعت مستوى الصعوبة)
+
         easyBtn.addActionListener(e -> {
             dispose();
             new NameInputMenu(false, menuMusic, "EASY");

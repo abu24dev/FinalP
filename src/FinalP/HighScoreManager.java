@@ -7,10 +7,10 @@ public class HighScoreManager {
 
     private static final String FILE_NAME = "highscores.txt";
 
-    // كلاس داخلي يمثل السكور الواحد
+
     public static class Score implements Comparable<Score> {
         String name;
-        int time; // الوقت بالثواني
+        int time;
         String difficulty;
 
         public Score(String name, int time, String difficulty) {
@@ -21,7 +21,7 @@ public class HighScoreManager {
 
         @Override
         public int compareTo(Score other) {
-            return this.time - other.time; // ترتيب تصاعدي (الأسرع هو الأفضل)
+            return this.time - other.time;
         }
 
         @Override
@@ -30,7 +30,7 @@ public class HighScoreManager {
         }
     }
 
-    // دالة لحفظ سكور جديد
+
     public static void saveScore(String name, int time, String difficulty) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
             writer.write(name + "," + time + "," + difficulty);
@@ -40,7 +40,7 @@ public class HighScoreManager {
         }
     }
 
-    // دالة لجلب السكورات الخاصة بمستوى معين (مرتبة)
+
     public static ArrayList<Score> getScoresByDifficulty(String difficultyLevel) {
         ArrayList<Score> scores = new ArrayList<>();
         File file = new File(FILE_NAME);

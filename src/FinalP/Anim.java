@@ -11,10 +11,8 @@ public class Anim extends JFrame {
 
     AnimListener listener;
     JPanel pauseMenuPanel;
-    // +++ متغيرات قائمة النهاية +++
     JPanel gameOverMenuPanel;
     JLabel gameOverLabel;
-    // +++++++++++++++++++++++++
     AudioPlayer myMusic;
 
     final int MENU_WIDTH = 300;
@@ -62,25 +60,22 @@ public class Anim extends JFrame {
         setSize(700, 700);
         setLocationRelativeTo(null);
 
-        // إنشاء القوائم
+
         pauseMenuPanel = createPauseMenu(glcanvas);
         listener.setPausePanel(pauseMenuPanel);
 
-        // +++ إنشاء قائمة النهاية +++
-        createGameOverMenu(); // تجهيز البانل والليبل
+        createGameOverMenu();
         listener.setGameOverPanel(gameOverMenuPanel, gameOverLabel);
-        // +++++++++++++++++++++++++
 
         JLayeredPane layeredPane = new JLayeredPane();
         glcanvas.setBounds(0, 0, 700, 700);
 
-        // ضبط أماكن القوائم في المنتصف مبدئياً
         pauseMenuPanel.setBounds(200, 200, MENU_WIDTH, MENU_HEIGHT);
-        gameOverMenuPanel.setBounds(200, 200, MENU_WIDTH, MENU_HEIGHT); // نفس مكان الـ Pause
+        gameOverMenuPanel.setBounds(200, 200, MENU_WIDTH, MENU_HEIGHT);
 
         layeredPane.add(glcanvas, Integer.valueOf(0));
         layeredPane.add(pauseMenuPanel, Integer.valueOf(1));
-        layeredPane.add(gameOverMenuPanel, Integer.valueOf(2)); // طبقة أعلى (2) عشان تظهر فوق كل حاجة
+        layeredPane.add(gameOverMenuPanel, Integer.valueOf(2));
 
         setContentPane(layeredPane);
 
@@ -96,7 +91,7 @@ public class Anim extends JFrame {
                 int menuY = (height - MENU_HEIGHT) / 2;
 
                 pauseMenuPanel.setBounds(menuX, menuY, MENU_WIDTH, MENU_HEIGHT);
-                gameOverMenuPanel.setBounds(menuX, menuY, MENU_WIDTH, MENU_HEIGHT); // تحديث مكان قائمة النهاية أيضاً
+                gameOverMenuPanel.setBounds(menuX, menuY, MENU_WIDTH, MENU_HEIGHT);
             }
         });
 
@@ -153,33 +148,29 @@ public class Anim extends JFrame {
         return p;
     }
 
-    // --- دالة إنشاء قائمة النهاية الجديدة ---
     private void createGameOverMenu() {
         gameOverMenuPanel = new JPanel();
-        // GridLayout: 3 صفوف (عنوان + زرارين)
         gameOverMenuPanel.setLayout(new GridLayout(3, 1, 0, 15));
         gameOverMenuPanel.setBackground(new Color(28, 28, 28, 255));;
         gameOverMenuPanel.setVisible(false);
 
-        // الليبل اللي هيتكتب فيه النتيجة
         gameOverLabel = new JLabel("GAME OVER", JLabel.CENTER);
         gameOverLabel.setFont(new Font("Arial", Font.BOLD, 28));
         gameOverLabel.setForeground(Color.YELLOW);
 
-        // الأزرار
+
         JButton btnPlayAgain = new JButton("PLAY AGAIN");
         JButton btnMainMenu = new JButton("MAIN MENU");
 
         styleButtonWithImage(btnPlayAgain, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(btnMainMenu, "Assets/btn.png", "Assets/btn2.png");
 
-        // أكشن Play Again (زي Rematch)
+
         btnPlayAgain.addActionListener(e -> {
-            listener.resetGame(); // تصفير اللعبة
-            gameOverMenuPanel.setVisible(false); // إخفاء القائمة
+            listener.resetGame();
+            gameOverMenuPanel.setVisible(false);
         });
 
-        // أكشن Main Menu
         btnMainMenu.addActionListener(e -> {
             boolean wasMuted = (myMusic != null && myMusic.isMuted());
             myMusic.stop();

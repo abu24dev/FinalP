@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class ControlsMenu extends JFrame {
 
-    private boolean isFromGame; // لتحديد مصدر الدخول
+    private boolean isFromGame;
     private AudioPlayer menuMusic;
 
     public ControlsMenu(boolean isFromGame, AudioPlayer music) {
@@ -17,7 +17,7 @@ public class ControlsMenu extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(isFromGame ? JFrame.DISPOSE_ON_CLOSE : JFrame.EXIT_ON_CLOSE);
 
-        // الخلفية
+
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background.png").getImage();
             @Override
@@ -30,19 +30,19 @@ public class ControlsMenu extends JFrame {
         });
         setLayout(new BorderLayout());
 
-        // العنوان
+
         JLabel title = new JLabel("HOW TO PLAY", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 40));
         title.setForeground(Color.WHITE);
         title.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
         add(title, BorderLayout.NORTH);
 
-        // منطقة التحكمات
+
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 50, 0));
         mainPanel.setOpaque(false);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
 
-        // --- Player 1 Controls ---
+
         JPanel p1Panel = createControlPanel("PLAYER 1", Color.CYAN,
                 "Move: A, D",
                 "Jump: W",
@@ -52,7 +52,7 @@ public class ControlsMenu extends JFrame {
                 "Attack 3: C"
         );
 
-        // --- Player 2 Controls ---
+
         JPanel p2Panel = createControlPanel("PLAYER 2", Color.GREEN,
                 "Move: Left, Right",
                 "Jump: Up",
@@ -66,29 +66,28 @@ public class ControlsMenu extends JFrame {
         mainPanel.add(p2Panel);
         add(mainPanel, BorderLayout.CENTER);
 
-        // زر الرجوع
+
         JButton backBtn = new JButton("BACK");
         styleButtonWithImage(backBtn, "Assets/btn.png", "Assets/btn2.png");
 
-        // --- التعديل هنا (إصلاح زر الميوت وتداخل الصوت) ---
+
         backBtn.addActionListener(e -> {
 
-            // 1. حفظ حالة الصوت الحالية قبل الخروج
+
             boolean wasMuted = (menuMusic != null && menuMusic.isMuted());
 
-            // 2. إيقاف الموسيقى القديمة (عشان متشتغلش فوق الجديدة)
+
             if (!isFromGame && menuMusic != null) {
                 menuMusic.stop();
             }
 
-            dispose(); // إغلاق النافذة الحالية
+            dispose();
 
-            // 3. لو راجع للقائمة الرئيسية، ابعتلها حالة الصوت
             if (!isFromGame) {
                 new MainMenu(wasMuted);
             }
         });
-        // ------------------------------------------------
+
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);

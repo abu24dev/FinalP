@@ -16,7 +16,7 @@ public class HighScoreMenu extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // الخلفية
+
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background.png").getImage();
             @Override
@@ -29,14 +29,14 @@ public class HighScoreMenu extends JFrame {
         });
         setLayout(new BorderLayout());
 
-        // العنوان
+
         JLabel title = new JLabel("HALL OF FAME", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 40));
         title.setForeground(Color.YELLOW);
         title.setBorder(BorderFactory.createEmptyBorder(30, 0, 20, 0));
         add(title, BorderLayout.NORTH);
 
-        // لوحة التحكم والتبويبات
+
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
@@ -56,7 +56,7 @@ public class HighScoreMenu extends JFrame {
         filterPanel.add(btnMedium);
         filterPanel.add(btnHard);
 
-        // قائمة عرض النتايج
+
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setOpaque(false);
@@ -74,16 +74,16 @@ public class HighScoreMenu extends JFrame {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // زر الرجوع
+
         JButton backBtn = new JButton("BACK");
         styleButtonWithImage(backBtn, "Assets/btn.png", "Assets/btn2.png");
 
-        // الأكشن المهم لإصلاح الصوت
+
         backBtn.addActionListener(e -> {
             boolean wasMuted = (menuMusic != null && menuMusic.isMuted());
             if (menuMusic != null) menuMusic.stop();
             dispose();
-            new MainMenu(wasMuted); // العودة للقائمة الرئيسية بنفس الحالة
+            new MainMenu(wasMuted);
         });
 
         JPanel bottomPanel = new JPanel();
@@ -92,12 +92,12 @@ public class HighScoreMenu extends JFrame {
         bottomPanel.add(backBtn);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // تفعيل أزرار الفلتر
+
         btnEasy.addActionListener(e -> loadScores("EASY"));
         btnMedium.addActionListener(e -> loadScores("MEDIUM"));
         btnHard.addActionListener(e -> loadScores("HARD"));
 
-        // تحميل الافتراضي
+
         loadScores("EASY");
 
         setVisible(true);
@@ -105,7 +105,6 @@ public class HighScoreMenu extends JFrame {
 
     private void loadScores(String difficulty) {
         listPanel.removeAll();
-        // جلب النتايج من HighScoreManager
         ArrayList<HighScoreManager.Score> scores = HighScoreManager.getScoresByDifficulty(difficulty);
 
         if (scores.isEmpty()) {
@@ -116,13 +115,13 @@ public class HighScoreMenu extends JFrame {
             listPanel.add(Box.createVerticalStrut(50));
             listPanel.add(empty);
         } else {
-            // الهيدر
+
             JPanel header = createRow("RANK", "NAME", "TIME (Sec)", new Color(255, 215, 0));
             listPanel.add(header);
             listPanel.add(Box.createVerticalStrut(10));
 
             for (int i = 0; i < scores.size(); i++) {
-                if (i >= 10) break; // عرض أول 10 فقط
+                if (i >= 10) break;
                 HighScoreManager.Score s = scores.get(i);
                 JPanel row = createRow("#" + (i + 1), s.name, s.time + "s", Color.WHITE);
                 listPanel.add(row);

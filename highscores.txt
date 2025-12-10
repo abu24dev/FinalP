@@ -1,3 +1,0 @@
-Abdullah,17,EASY
-Adam,21,EASY
-Abdullah,22,EASY

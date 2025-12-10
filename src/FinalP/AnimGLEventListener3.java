@@ -24,28 +24,28 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     int myCharIndex = 0;
     int enemyCharIndex = 1;
 
-    // --- متغيرات الجولات ---
+
     int currentRound = 1;
     final int MAX_ROUNDS = 3;
     boolean isRoundOver = false;
     long roundOverStartTime = 0;
 
-    // --- متغيرات الهايسكور والوقت ---
-    float totalTimeTaken = 0;   // لتجميع الوقت المستغرق في كل الجولات
-    boolean scoreSaved = false; // لضمان حفظ السكور مرة واحدة فقط
 
-    // --- متغيرات الأسماء ---
+    float totalTimeTaken = 0;
+    boolean scoreSaved = false;
+
+
     String player1Name = "Player";
     String enemyNameDisplay = "CPU";
     TextRenderer nameRenderer;
 
-    // دالة استقبال الشخصيات
+
     public void setCharacters(int p1, int p2) {
         this.myCharIndex = p1;
         this.enemyCharIndex = p2;
     }
 
-    // دالة استقبال الصعوبة
+
     public void setDifficulty(String diff) {
         if (diff == null) return;
         switch (diff.toUpperCase()) {
@@ -56,10 +56,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         System.out.println("Difficulty set to: " + currentDifficulty);
     }
 
-    // دالة استقبال اسم اللاعب
+
     public void setPlayerNames(String n1, String n2_ignored) {
         this.player1Name = n1;
-        // اسم العدو سيتم تحديده أوتوماتيكياً
+
     }
 
     // --- Texture Arrays ---
@@ -149,7 +149,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         int[][] enemyTextures = getTextureByIndex(enemyCharIndex);
         enemy = new Player(40, 20, enemyTextures, enemyCharIndex, true, true);
 
-        updateEnemyName(); // تحديث اسم العدو
+        updateEnemyName();
         System.out.println("Started Round " + currentRound + " Difficulty: " + currentDifficulty);
     }
 
@@ -218,7 +218,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             if(enemy.state == 8) enemy.update(null);
         }
 
-        // --- منطق الجولات والفوز والهايسكور ---
+
 
         if (player1.state == 8 && !isGameOver) {
             isGameOver = true;
@@ -234,19 +234,19 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 isGameOver = true;
                 setGameOverMessage("YOU ARE THE CHAMPION!");
 
-                // --- حفظ الهاي سكور عند الفوز ---
+
                 if (!scoreSaved) {
-                    // الوقت المستغرق في آخر جولة
+
                     float timeSpentInLastRound = 120.0f - timeRemaining;
-                    // إضافته للوقت الكلي
+
                     totalTimeTaken += timeSpentInLastRound;
 
-                    // الحفظ في الملف
+
                     HighScoreManager.saveScore(player1Name, (int)totalTimeTaken, currentDifficulty.toString());
                     System.out.println("New Score Saved: " + (int)totalTimeTaken + " seconds");
                     scoreSaved = true;
                 }
-                // -----------------------------
+
             }
         }
         else if (isTimeOver && !isGameOver) {
@@ -255,7 +255,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             else setGameOverMessage("GAME OVER (TIME)!");
         }
 
-        // --- الانتقال للجولة التالية ---
+
         if (isRoundOver && !isGameOver) {
             long now = System.currentTimeMillis();
             if (now - roundOverStartTime > 3000) {
@@ -275,7 +275,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
         drawHealthBar(gl, enemy.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
 
-        // تحديث ورسم الأسماء
+
         updateEnemyName();
         drawPlayerNames(drawable.getWidth(), drawable.getHeight());
 
@@ -287,11 +287,11 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     private void drawPlayerNames(int width, int height) {
         nameRenderer.beginRendering(width, height);
 
-        // اسم اللاعب (سماوي)
+
         nameRenderer.setColor(Color.CYAN);
         nameRenderer.draw(player1Name, 20, height - 80); // نفس الإحداثي المضبوط
 
-        // اسم العدو (أحمر)
+
         nameRenderer.setColor(Color.RED);
         nameRenderer.draw(enemyNameDisplay, width - 250, height - 80);
 
@@ -299,16 +299,16 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     }
 
     private void startNextRound() {
-        // حساب الوقت المستغرق في الجولة المنتهية وإضافته للكلي
+
         float timeSpent = 120.0f - timeRemaining;
         totalTimeTaken += timeSpent;
 
         currentRound++;
         isRoundOver = false;
         setGameOverMessage("");
-        timeRemaining = 120.0f; // إعادة التايمر
+        timeRemaining = 120.0f;
 
-        // تدوير الأعداء
+
         enemyCharIndex = (enemyCharIndex + 1) % 3;
         updateEnemyName();
 
@@ -354,7 +354,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         timeRemaining = 120.0f;
         currentRound = 1;
 
-        // تصفير عداد الهايسكور عند إعادة اللعب
+
         totalTimeTaken = 0;
         scoreSaved = false;
 
@@ -380,9 +380,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     @Override public void keyReleased(KeyEvent e) { keyBits.set(e.getKeyCode(), false); }
     @Override public void keyTyped(KeyEvent e) {}
 
-    // =========================================================
-    //  Player Class
-    // =========================================================
+
     class Player {
         float x, y;
         boolean facingLeft;
