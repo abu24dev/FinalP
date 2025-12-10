@@ -13,26 +13,34 @@ public class Anim extends JFrame {
     JPanel pauseMenuPanel;
     AudioPlayer myMusic;
 
-    // أبعاد قائمة التوقف (صغيرة)
+    // أبعاد قائمة التوقف (تم زيادة الطول لاستيعاب الزر الرابع)
     final int MENU_WIDTH = 300;
-    final int MENU_HEIGHT = 250;
+    final int MENU_HEIGHT = 320;
 
     public static void main(String[] args) {
         new MainMenu();
     }
 
-    // الكونستركتور المعدل (يستقبل الصعوبة)
-    public Anim(boolean isMultiplayer, int p1, int p2, String difficulty) {
+    // الكونستركتور المعدل لاستقبال الأسماء والصعوبة
+    public Anim(boolean isMultiplayer, int p1, int p2, String difficulty, String p1Name, String p2Name) {
         if (isMultiplayer) {
             // --- وضع Multiplayer ---
             AnimGLEventListener2 listener = new AnimGLEventListener2();
             listener.setPlayerChoices(p1, p2);
+
+            // تمرير الأسماء للمالتي بلاير
+            listener.setPlayerNames(p1Name, p2Name);
+
             setupGame(listener, "Multiplayer");
         } else {
             // --- وضع Single Player ---
             AnimGLEventListener3 listener = new AnimGLEventListener3();
             listener.setCharacters(p1, p2);
-            listener.setDifficulty(difficulty); // تمرير الصعوبة
+            listener.setDifficulty(difficulty);
+
+            // تمرير الأسماء للسينجل بلاير (اسم اللاعب واسم الكمبيوتر)
+            listener.setPlayerNames(p1Name, "CPU");
+
             setupGame(listener, "Single Player");
         }
     }
@@ -69,7 +77,7 @@ public class Anim extends JFrame {
         // استخدام LayeredPane لوضع القائمة فوق اللعبة
         JLayeredPane layeredPane = new JLayeredPane();
         glcanvas.setBounds(0, 0, 700, 700);
-        pauseMenuPanel.setBounds(200, 200, 300, 250);
+        pauseMenuPanel.setBounds(200, 200, MENU_WIDTH, MENU_HEIGHT);
 
         layeredPane.add(glcanvas, Integer.valueOf(0)); // اللعبة تحت
         layeredPane.add(pauseMenuPanel, Integer.valueOf(1)); // القائمة فوق
@@ -96,23 +104,25 @@ public class Anim extends JFrame {
         glcanvas.requestFocusInWindow();
     }
 
-    // --- دالة إنشاء قائمة التوقف ---
+    // --- دالة إنشاء قائمة التوقف (بنفس التصميم الشفاف والأزرار الصخرية) ---
     private JPanel createPauseMenu(GLCanvas canvas) {
         JPanel p = new JPanel();
-        // GridLayout: 3 صفوف، عمود واحد، مسافات (0 أفقي، 15 رأسي)
-        p.setLayout(new GridLayout(3, 1, 0, 15));
+        // GridLayout: 4 صفوف (عشان الزر الجديد)، عمود واحد، مسافات بسيطة
+        p.setLayout(new GridLayout(4, 1, 0, 10));
 
-        // لون الخلفية أسود نصف شفاف
-        p.setBackground(new Color(0, 0, 0, 255));
+        // خلفية شفافة (عشان الأزرار تظهر عائمة) - كما طلبت في التعديل الأخير
+        p.setBackground(new Color(28, 28, 28, 255));
         p.setVisible(false);
 
         JButton btnResume = new JButton("RESUME");
         JButton btnRematch = new JButton("REMATCH");
+        JButton btnControls = new JButton("CONTROLS");
         JButton btnMenu = new JButton("MAIN MENU");
 
-        // --- التعديل هنا: تطبيق ستايل الصور ---
+        // تطبيق ستايل الصور
         styleButtonWithImage(btnResume, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(btnRematch, "Assets/btn.png", "Assets/btn2.png");
+        styleButtonWithImage(btnControls, "Assets/btn.png", "Assets/btn2.png");
         styleButtonWithImage(btnMenu, "Assets/btn.png", "Assets/btn2.png");
 
         // --- الأكشنز ---
@@ -132,7 +142,13 @@ public class Anim extends JFrame {
             canvas.requestFocusInWindow();
         });
 
-        // 3. Main Menu
+        // 3. Controls (الجديد)
+        btnControls.addActionListener(e -> {
+            // نمرر true عشان يعرف إننا جايين من اللعبة
+            new ControlsMenu(true, myMusic);
+        });
+
+        // 4. Main Menu
         btnMenu.addActionListener(e -> {
             myMusic.stop();
             dispose();
@@ -140,18 +156,19 @@ public class Anim extends JFrame {
         });
 
         // إضافة هوامش للبانل عشان الزراير متلزقش في الحواف
-        p.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        p.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
         p.add(btnResume);
         p.add(btnRematch);
+        p.add(btnControls); // إضافة الزر للبانل
         p.add(btnMenu);
 
         return p;
     }
 
-    // --- دالة تنسيق الأزرار بالصور (مخصصة للحجم الصغير) ---
+    // --- دالة تنسيق الأزرار بالصور (مخصصة للحجم الصغير 240x55) ---
     private void styleButtonWithImage(JButton b, String normalPath, String pressedPath) {
-        // حجم الزرار هنا (240x55) مناسب لحجم القائمة (300x250)
+        // حجم الزرار هنا (240x55) مناسب لحجم القائمة
         int width = 240;
         int height = 55;
 
@@ -176,7 +193,5 @@ public class Anim extends JFrame {
         b.setBorderPainted(false);
         b.setFocusPainted(false);
         b.setOpaque(false);
-
-        // ملاحظة: GridLayout سيجبر الأزرار على ملء الخانة، لكن الصور ستظهر بالحجم المحدد
     }
 }

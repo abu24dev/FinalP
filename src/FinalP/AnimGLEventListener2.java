@@ -1,8 +1,10 @@
 package FinalP;
 
 import FinalP.Texture.TextureReader;
+import com.sun.opengl.util.j2d.TextRenderer;
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLU;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.BitSet;
 
@@ -13,32 +15,34 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
 
     static BitSet keyBits = new BitSet(256);
 
-    // --- 1. متغيرات لحفظ اختيارات اللاعبين ---
+    // متغيرات الاختيار
     int p1Type = 0;
     int p2Type = 2;
 
-    // --- 2. دالة لاستقبال الاختيارات من Anim ---
+    // متغيرات الأسماء
+    String player1Name = "Player 1";
+    String player2Name = "Player 2";
+    TextRenderer nameRenderer;
+
     public void setPlayerChoices(int p1, int p2) {
         this.p1Type = p1;
         this.p2Type = p2;
     }
 
-    // --- Texture Arrays ---
+    public void setPlayerNames(String n1, String n2) {
+        this.player1Name = n1;
+        this.player2Name = n2;
+    }
+
+    // --- Texture Arrays (نفس المصفوفات القديمة) ---
     String[] shinobiTextures = {
-            "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png",
-            "Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
-            "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png",
-            "Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
-            "Assets/Shinobi/IAttack1.png","Assets/Shinobi/IAttack2.png","Assets/Shinobi/IAttack3.png",
-            "Assets/Shinobi/IAttack4.png","Assets/Shinobi/IAttack5.png",
+            "Assets/Shinobi/Walk1.png","Assets/Shinobi/Walk2.png","Assets/Shinobi/Walk3.png","Assets/Shinobi/Walk4.png","Assets/Shinobi/Walk5.png","Assets/Shinobi/Walk6.png","Assets/Shinobi/Walk7.png","Assets/Shinobi/Walk8.png",
+            "Assets/Shinobi/Idle1.png","Assets/Shinobi/Idle2.png","Assets/Shinobi/Idle3.png","Assets/Shinobi/Idle4.png","Assets/Shinobi/Idle5.png","Assets/Shinobi/Idle6.png",
+            "Assets/Shinobi/IAttack1.png","Assets/Shinobi/IAttack2.png","Assets/Shinobi/IAttack3.png","Assets/Shinobi/IAttack4.png","Assets/Shinobi/IAttack5.png",
             "Assets/Shinobi/IIAttack1.png","Assets/Shinobi/IIAttack2.png","Assets/Shinobi/IIAttack3.png",
-            "Assets/Shinobi/IIIAttack1.png","Assets/Shinobi/IIIAttack2.png","Assets/Shinobi/IIIAttack3.png",
-            "Assets/Shinobi/IIIAttack4.png",
-            "Assets/Shinobi/Jump1.png","Assets/Shinobi/Jump2.png","Assets/Shinobi/Jump3.png","Assets/Shinobi/Jump4.png",
-            "Assets/Shinobi/Jump5.png","Assets/Shinobi/Jump6.png","Assets/Shinobi/Jump7.png","Assets/Shinobi/Jump8.png",
-            "Assets/Shinobi/Jump9.png","Assets/Shinobi/Jump10.png","Assets/Shinobi/Jump11.png",
-            "Assets/Shinobi/Run1.png","Assets/Shinobi/Run2.png","Assets/Shinobi/Run3.png","Assets/Shinobi/Run4.png",
-            "Assets/Shinobi/Run5.png","Assets/Shinobi/Run6.png","Assets/Shinobi/Run7.png","Assets/Shinobi/Run8.png",
+            "Assets/Shinobi/IIIAttack1.png","Assets/Shinobi/IIIAttack2.png","Assets/Shinobi/IIIAttack3.png","Assets/Shinobi/IIIAttack4.png",
+            "Assets/Shinobi/Jump1.png","Assets/Shinobi/Jump2.png","Assets/Shinobi/Jump3.png","Assets/Shinobi/Jump4.png","Assets/Shinobi/Jump5.png","Assets/Shinobi/Jump6.png","Assets/Shinobi/Jump7.png","Assets/Shinobi/Jump8.png","Assets/Shinobi/Jump9.png","Assets/Shinobi/Jump10.png","Assets/Shinobi/Jump11.png",
+            "Assets/Shinobi/Run1.png","Assets/Shinobi/Run2.png","Assets/Shinobi/Run3.png","Assets/Shinobi/Run4.png","Assets/Shinobi/Run5.png","Assets/Shinobi/Run6.png","Assets/Shinobi/Run7.png","Assets/Shinobi/Run8.png",
             "Assets/Shinobi/Hurt1.png","Assets/Shinobi/Hurt2.png",
             "Assets/Shinobi/Dead1.png","Assets/Shinobi/Dead2.png","Assets/Shinobi/Dead3.png","Assets/Shinobi/Dead4.png",
             "Assets/Shinobi/Shield1.png","Assets/Shinobi/Shield2.png","Assets/Shinobi/Shield3.png","Assets/Shinobi/Shield4.png",
@@ -46,19 +50,13 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     };
 
     String[] fighterTextures = {
-            "Assets/Fighter/Walk1.png","Assets/Fighter/Walk2.png","Assets/Fighter/Walk3.png","Assets/Fighter/Walk4.png",
-            "Assets/Fighter/Walk5.png","Assets/Fighter/Walk6.png","Assets/Fighter/Walk7.png","Assets/Fighter/Walk8.png",
-            "Assets/Fighter/Idle1.png","Assets/Fighter/Idle2.png","Assets/Fighter/Idle3.png","Assets/Fighter/Idle4.png",
-            "Assets/Fighter/Idle5.png","Assets/Fighter/Idle6.png",
+            "Assets/Fighter/Walk1.png","Assets/Fighter/Walk2.png","Assets/Fighter/Walk3.png","Assets/Fighter/Walk4.png","Assets/Fighter/Walk5.png","Assets/Fighter/Walk6.png","Assets/Fighter/Walk7.png","Assets/Fighter/Walk8.png",
+            "Assets/Fighter/Idle1.png","Assets/Fighter/Idle2.png","Assets/Fighter/Idle3.png","Assets/Fighter/Idle4.png","Assets/Fighter/Idle5.png","Assets/Fighter/Idle6.png",
             "Assets/Fighter/IAttack1.png","Assets/Fighter/IAttack2.png","Assets/Fighter/IAttack3.png","Assets/Fighter/IAttack4.png",
             "Assets/Fighter/IIAttack1.png","Assets/Fighter/IIAttack2.png","Assets/Fighter/IIAttack3.png",
-            "Assets/Fighter/IIIAttack1.png","Assets/Fighter/IIIAttack2.png","Assets/Fighter/IIIAttack3.png",
-            "Assets/Fighter/IIIAttack4.png",
-            "Assets/Fighter/Jump1.png","Assets/Fighter/Jump2.png","Assets/Fighter/Jump3.png","Assets/Fighter/Jump4.png",
-            "Assets/Fighter/Jump5.png","Assets/Fighter/Jump6.png","Assets/Fighter/Jump7.png","Assets/Fighter/Jump8.png",
-            "Assets/Fighter/Jump9.png","Assets/Fighter/Jump10.png",
-            "Assets/Fighter/Run1.png","Assets/Fighter/Run2.png","Assets/Fighter/Run3.png","Assets/Fighter/Run4.png",
-            "Assets/Fighter/Run5.png","Assets/Fighter/Run6.png","Assets/Fighter/Run7.png","Assets/Fighter/Run8.png",
+            "Assets/Fighter/IIIAttack1.png","Assets/Fighter/IIIAttack2.png","Assets/Fighter/IIIAttack3.png","Assets/Fighter/IIIAttack4.png",
+            "Assets/Fighter/Jump1.png","Assets/Fighter/Jump2.png","Assets/Fighter/Jump3.png","Assets/Fighter/Jump4.png","Assets/Fighter/Jump5.png","Assets/Fighter/Jump6.png","Assets/Fighter/Jump7.png","Assets/Fighter/Jump8.png","Assets/Fighter/Jump9.png","Assets/Fighter/Jump10.png",
+            "Assets/Fighter/Run1.png","Assets/Fighter/Run2.png","Assets/Fighter/Run3.png","Assets/Fighter/Run4.png","Assets/Fighter/Run5.png","Assets/Fighter/Run6.png","Assets/Fighter/Run7.png","Assets/Fighter/Run8.png",
             "Assets/Fighter/Hurt1.png","Assets/Fighter/Hurt2.png","Assets/Fighter/Hurt3.png",
             "Assets/Fighter/Dead1.png","Assets/Fighter/Dead2.png","Assets/Fighter/Dead3.png",
             "Assets/Fighter/Shield1.png","Assets/Fighter/Shield2.png",
@@ -66,20 +64,13 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     };
 
     String[] samuraiTextures = {
-            "Assets/Samurai/Walk1.png","Assets/Samurai/Walk2.png","Assets/Samurai/Walk3.png","Assets/Samurai/Walk4.png",
-            "Assets/Samurai/Walk5.png","Assets/Samurai/Walk6.png","Assets/Samurai/Walk7.png","Assets/Samurai/Walk8.png",
-            "Assets/Samurai/Idle1.png","Assets/Samurai/Idle2.png","Assets/Samurai/Idle3.png","Assets/Samurai/Idle4.png",
-            "Assets/Samurai/Idle5.png","Assets/Samurai/Idle6.png",
-            "Assets/Samurai/IAttack1.png","Assets/Samurai/IAttack2.png","Assets/Samurai/IAttack3.png",
-            "Assets/Samurai/IAttack4.png","Assets/Samurai/IAttack5.png","Assets/Samurai/IAttack6.png",
-            "Assets/Samurai/IIAttack1.png","Assets/Samurai/IIAttack2.png","Assets/Samurai/IIAttack3.png",
-            "Assets/Samurai/IIAttack4.png",
+            "Assets/Samurai/Walk1.png","Assets/Samurai/Walk2.png","Assets/Samurai/Walk3.png","Assets/Samurai/Walk4.png","Assets/Samurai/Walk5.png","Assets/Samurai/Walk6.png","Assets/Samurai/Walk7.png","Assets/Samurai/Walk8.png",
+            "Assets/Samurai/Idle1.png","Assets/Samurai/Idle2.png","Assets/Samurai/Idle3.png","Assets/Samurai/Idle4.png","Assets/Samurai/Idle5.png","Assets/Samurai/Idle6.png",
+            "Assets/Samurai/IAttack1.png","Assets/Samurai/IAttack2.png","Assets/Samurai/IAttack3.png","Assets/Samurai/IAttack4.png","Assets/Samurai/IAttack5.png","Assets/Samurai/IAttack6.png",
+            "Assets/Samurai/IIAttack1.png","Assets/Samurai/IIAttack2.png","Assets/Samurai/IIAttack3.png","Assets/Samurai/IIAttack4.png",
             "Assets/Samurai/IIIAttack1.png","Assets/Samurai/IIIAttack2.png","Assets/Samurai/IIIAttack3.png",
-            "Assets/Samurai/Jump1.png","Assets/Samurai/Jump2.png","Assets/Samurai/Jump3.png","Assets/Samurai/Jump4.png",
-            "Assets/Samurai/Jump5.png","Assets/Samurai/Jump6.png","Assets/Samurai/Jump7.png","Assets/Samurai/Jump8.png",
-            "Assets/Samurai/Jump9.png","Assets/Samurai/Jump10.png","Assets/Samurai/Jump11.png","Assets/Samurai/Jump12.png",
-            "Assets/Samurai/Run1.png","Assets/Samurai/Run2.png","Assets/Samurai/Run3.png","Assets/Samurai/Run4.png",
-            "Assets/Samurai/Run5.png","Assets/Samurai/Run6.png","Assets/Samurai/Run7.png","Assets/Samurai/Run8.png",
+            "Assets/Samurai/Jump1.png","Assets/Samurai/Jump2.png","Assets/Samurai/Jump3.png","Assets/Samurai/Jump4.png","Assets/Samurai/Jump5.png","Assets/Samurai/Jump6.png","Assets/Samurai/Jump7.png","Assets/Samurai/Jump8.png","Assets/Samurai/Jump9.png","Assets/Samurai/Jump10.png","Assets/Samurai/Jump11.png","Assets/Samurai/Jump12.png",
+            "Assets/Samurai/Run1.png","Assets/Samurai/Run2.png","Assets/Samurai/Run3.png","Assets/Samurai/Run4.png","Assets/Samurai/Run5.png","Assets/Samurai/Run6.png","Assets/Samurai/Run7.png","Assets/Samurai/Run8.png",
             "Assets/Samurai/Hurt1.png","Assets/Samurai/Hurt2.png",
             "Assets/Samurai/Dead1.png","Assets/Samurai/Dead2.png","Assets/Samurai/Dead3.png",
             "Assets/Samurai/Shield1.png","Assets/Samurai/Shield2.png",
@@ -91,7 +82,6 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     int[][] samuraiIDs;
     int[] bgIDs = new int[3];
 
-    // Frame counts
     int[] MAX_WALK = {8, 8, 8};
     int[] MAX_IDLE = {6, 6, 6};
     int[] MAX_ATTACK1 = {5, 4, 6};
@@ -103,7 +93,6 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     int[] MAX_DEAD = {4, 3, 3};
     int[] MAX_SHIELD = {4, 2, 2};
 
-
     @Override
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
@@ -113,26 +102,26 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
         super.initUI(gl);
-        super.initTimer(gl); // تشغيل التايمر
+        super.initTimer(gl);
 
-        // تحميل الشخصيات
+        // إعداد TextRenderer
+        nameRenderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 24));
+
         shinobiIDs = loadCharacter(gl, shinobiTextures, 0);
         fighterIDs = loadCharacter(gl, fighterTextures, 1);
         samuraiIDs = loadCharacter(gl, samuraiTextures, 2);
 
-        // إعداد اللاعب الأول
         int[][] p1Tex = getTextureByIndex(p1Type);
         player1 = new Player(15, 20, p1Tex, p1Type, false);
         player1.setControls(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D,
                 KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C);
 
-        // إعداد اللاعب الثاني
         int[][] p2Tex = getTextureByIndex(p2Type);
         player2 = new Player(35, 20, p2Tex, p2Type, true);
         player2.setControls(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
                 KeyEvent.VK_J, KeyEvent.VK_K, KeyEvent.VK_L);
 
-        System.out.println("Multiplayer Started: P1 type=" + p1Type + ", P2 type=" + p2Type);
+        System.out.println("Multiplayer Started: " + player1Name + " vs " + player2Name);
     }
 
     private int[][] getTextureByIndex(int index) {
@@ -180,55 +169,40 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         GL gl = drawable.getGL();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         gl.glLoadIdentity();
-
-        // حل مشكلة الشاشة الحمراء
         gl.glColor3f(1f, 1f, 1f);
 
-        // Draw background
         DrawBackground(gl, bgIDs[0]);
 
-        // ==========================================
-        //  منطق الفوز والموت
-        // ==========================================
-
-        // 1. لو الوقت خلص (Time Out)
         if (isTimeOver && !isGameOver) {
             isGameOver = true;
-            if (player1.health > player2.health) setGameOverMessage("PLAYER 1 WINS!");
-            else if (player2.health > player1.health) setGameOverMessage("PLAYER 2 WINS!");
+            if (player1.health > player2.health) setGameOverMessage(player1Name + " WINS!");
+            else if (player2.health > player1.health) setGameOverMessage(player2Name + " WINS!");
             else setGameOverMessage("DRAW! (TIME OUT)");
         }
 
-        // 2. لو حد مات (Dead)
         if (!isGameOver) {
-            if (player1.state == 8) { // اللاعب الأول مات
+            if (player1.state == 8) {
                 isGameOver = true;
-                setGameOverMessage("PLAYER 2 WINS!");
-            } else if (player2.state == 8) { // اللاعب التاني مات
+                setGameOverMessage(player2Name + " WINS!");
+            } else if (player2.state == 8) {
                 isGameOver = true;
-                setGameOverMessage("PLAYER 1 WINS!");
+                setGameOverMessage(player1Name + " WINS!");
             }
         }
 
-        // 3. تحديث اللاعبين (فقط لو اللعبة شغالة)
-        // ده بيخلي اللعبة تقف تماماً لما حد يموت أو الوقت يخلص
         if (!isPaused && !isGameOver) {
             player1.update(player2);
             player2.update(player1);
         } else {
-            // هام جداً: حتى لو اللعبة واقفة، لازم نحدث الميت عشان يكمل أنيميشن الوقوع
             if (player1.state == 8) player1.update(null);
             if (player2.state == 8) player2.update(null);
         }
 
-        // Draw players
         player1.draw(gl);
         player2.draw(gl);
 
-        // Draw UI
         super.drawUI(gl, drawable.getWidth(), drawable.getHeight());
 
-        // Health Bars
         gl.glMatrixMode(GL.GL_PROJECTION); gl.glPushMatrix(); gl.glLoadIdentity();
         new GLU().gluOrtho2D(0, drawable.getWidth(), 0, drawable.getHeight());
         gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPushMatrix(); gl.glLoadIdentity();
@@ -236,11 +210,31 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
         drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
         drawHealthBar(gl, player2.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
 
+        // رسم الأسماء (التعديل هنا)
+        drawPlayerNames(drawable.getWidth(), drawable.getHeight());
+
         gl.glMatrixMode(GL.GL_PROJECTION); gl.glPopMatrix();
         gl.glMatrixMode(GL.GL_MODELVIEW); gl.glPopMatrix();
 
-        // Draw Timer & Messages
         super.drawTimer(drawable, drawable.getWidth(), drawable.getHeight());
+    }
+
+    // دالة رسم الأسماء (المعدلة)
+    private void drawPlayerNames(int width, int height) {
+        nameRenderer.beginRendering(width, height);
+
+        // Player 1 (Left - Cyan)
+        nameRenderer.setColor(Color.CYAN);
+        // التعديل: height - 80 يضع الاسم في المنتصف بين البار والأزرار
+        nameRenderer.draw(player1Name, 20, height - 80);
+
+        // Player 2 (Right - Green)
+        nameRenderer.setColor(Color.GREEN);
+
+        // محاذاة للاعب الثاني
+        nameRenderer.draw(player2Name, width - 220, height - 80);
+
+        nameRenderer.endRendering();
     }
 
     void DrawBackground(GL gl, int tex) {
@@ -302,7 +296,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
     @Override public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {}
 
     // =========================================================
-    //  Inner Player Class (محدثة عشان الوقوع على الأرض)
+    //  Inner Player Class
     // =========================================================
     class Player {
         float x, y;
@@ -372,24 +366,20 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
             y += velocityY;
             velocityY -= gravity;
 
-            // +++ الكود المهم للوقوع على الأرض +++
             if (y <= groundY) {
                 y = groundY;
                 velocityY = 0;
                 isJumping = false;
 
-                // لو اللاعب ميت، نخليه يكمل أنيميشن الموت لحد الآخر ويثبت
                 if (state == 8) {
                     frameDelay++;
                     if (frameDelay % 3 == 0) animIndex++;
-                    // لو وصل لآخر فريم، يثبت عليه
                     if (animIndex >= MAX_DEAD[charIndex]) animIndex = MAX_DEAD[charIndex] - 1;
-                    return; // نوقف أي تحديث تاني
+                    return;
                 }
             } else {
                 isJumping = true;
             }
-            // +++++++++++++++++++++++++++++++++++++
 
             if (state == 8) return;
 
@@ -411,7 +401,7 @@ public class AnimGLEventListener2 extends AnimListener implements KeyListener {
                 if (isAttacking() && animIndex >= maxFrames) {
                     state = 1; animIndex = 0; frameDelay = 0; hasHitThisAttack = false;
                 } else if ((state == 8 || state == 9) && animIndex >= maxFrames) {
-                    animIndex = maxFrames - 1; // يثبت على آخر فريم
+                    animIndex = maxFrames - 1;
                 } else if (animIndex >= maxFrames) {
                     animIndex = 0;
                 }
