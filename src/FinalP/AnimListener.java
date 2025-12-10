@@ -21,13 +21,19 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
     float timeRemaining = 120.0f;
     boolean isTimeOver = false;
     public boolean isGameOver = false;
-    protected String gameOverMessage = ""; // رسالة الفوز أو نهاية الجولة
+    protected String gameOverMessage = "";
 
-    // === متغيرات UI ===
+    // === متغيرات UI والقوائم ===
     int pauseID, playID, soundOnID, soundOffID;
     int[] healthTexIDs = new int[11];
     int width, height;
     JPanel pausePanel;
+
+    // +++ متغيرات قائمة النهاية الجديدة +++
+    JPanel gameOverPanel;
+    JLabel gameOverLabel;
+    // +++++++++++++++++++++++++++++++++++
+
     int btnSize = 60;
     int margin = 30;
     int topMargin = 90;
@@ -41,6 +47,12 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         this.pausePanel = panel;
     }
 
+    // +++ دالة ربط قائمة النهاية +++
+    public void setGameOverPanel(JPanel panel, JLabel label) {
+        this.gameOverPanel = panel;
+        this.gameOverLabel = label;
+    }
+
     public void setGameOverMessage(String msg) {
         this.gameOverMessage = msg;
     }
@@ -51,9 +63,7 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         timeRenderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 40));
     }
 
-    // === دالة رسم التايمر والرسائل (التعديل هنا) ===
     public void drawTimer(GLAutoDrawable drawable, int width, int height) {
-        // منطق الوقت
         if (!isPaused && timeRemaining > 0 && !isGameOver) {
             timeRemaining -= (1.0f / 24.0f);
             if (timeRemaining <= 0) {
@@ -63,53 +73,47 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         }
 
         String timeString = String.format("%02d", (int) Math.ceil(timeRemaining));
-
         Rectangle2D timeBounds = timeRenderer.getBounds(timeString);
         int x = (int) ((width / 2.0) - (timeBounds.getWidth() / 2.0));
         int y = height - 50;
 
         timeRenderer.beginRendering(width, height);
-
-        // رسم التايمر
         timeRenderer.setColor(Color.BLACK);
         timeRenderer.draw(timeString, x + 2, y - 2);
-
-        if (timeRemaining <= 10) {
-            timeRenderer.setColor(Color.RED);
-        } else {
-            timeRenderer.setColor(Color.WHITE);
-        }
+        if (timeRemaining <= 10) timeRenderer.setColor(Color.RED);
+        else timeRenderer.setColor(Color.WHITE);
         timeRenderer.draw(timeString, x, y);
-
         timeRenderer.endRendering();
 
         // ---------------------------------------------------------
-        // التعديل: إظهار الرسالة إذا كان هناك نص، بغض النظر عن حالة اللعبة
+        // التعديل: إظهار قائمة النهاية عند انتهاء اللعبة
         // ---------------------------------------------------------
-        if (!gameOverMessage.isEmpty()) {
+        if (isGameOver) {
+            // لو القائمة موجودة ومش ظاهرة، أظهرها وحدث النص
+            if (gameOverPanel != null && !gameOverPanel.isVisible()) {
+                if (gameOverLabel != null) gameOverLabel.setText("<html><center>" + gameOverMessage + "</center></html>");
+                gameOverPanel.setVisible(true);
+            }
+        }
+        // ---------------------------------------------------------
 
+        // رسم الرسائل العادية (مثل Round Cleared) لو اللعبة لسه مخلصتش
+        else if (!gameOverMessage.isEmpty()) {
             Rectangle2D bounds = timeRenderer.getBounds(gameOverMessage);
-            double textWidth = bounds.getWidth();
-            double textHeight = bounds.getHeight();
-
-            int msgX = (int) ((width / 2.0) - (textWidth / 2.0));
-            int msgY = (int) ((height / 2.0) - (textHeight / 2.0));
+            int msgX = (int) ((width / 2.0) - (bounds.getWidth() / 2.0));
+            int msgY = (int) ((height / 2.0) - (bounds.getHeight() / 2.0));
 
             timeRenderer.beginRendering(width, height);
-
-            // الظل
             timeRenderer.setColor(new Color(0, 0, 0, 180));
             timeRenderer.draw(gameOverMessage, msgX + 4, msgY - 4);
-
-            // النص
             timeRenderer.setColor(Color.YELLOW);
             timeRenderer.draw(gameOverMessage, msgX, msgY);
-
             timeRenderer.endRendering();
         }
     }
 
-    // === باقي الدوال كما هي ===
+    // ... (باقي الدوال initUI, drawHealthBar, drawUI, mouseClicked كما هي تماماً) ...
+
     public void initUI(GL gl) {
         try {
             pauseID = loadOneTexture(gl, "Assets/pause.png");
@@ -198,6 +202,9 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
     public void mouseClicked(MouseEvent e) {
         int mx = e.getX();
         int my = height - e.getY();
+        // منع الضغط على أزرار التحكم لو اللعبة خلصانة
+        if (isGameOver) return;
+
         if (mx >= btn1X && mx <= btn1X + btnSize && my >= btn1Y && my <= btn1Y + btnSize) {
             isPaused = !isPaused;
             if (pausePanel != null) pausePanel.setVisible(isPaused);

@@ -9,21 +9,21 @@ public class CharacterSelectionMenu extends JFrame {
     private boolean isMultiplayer;
     private AudioPlayer menuMusic;
 
-    // متغيرات الأسماء
+    // متغيرات لحفظ الأسماء
     private String p1Name;
     private String p2Name;
 
-    // متغير الصعوبة
+    // متغير لحفظ الصعوبة
     private String selectedDifficulty;
 
-    // اختيارات الشخصيات
+    // اختيارات الشخصيات (القيم الافتراضية)
     private int p1Choice = 0;
     private int p2Choice = 2;
 
     private JButton[] p1Buttons = new JButton[3];
     private JButton[] p2Buttons = new JButton[3];
 
-    // مسارات صور الأيقونات
+    // مسارات الصور
     String[] iconPaths = {
             "Assets/ShinobiIcon.png",
             "Assets/FighterIcon.png",
@@ -44,7 +44,7 @@ public class CharacterSelectionMenu extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // الخلفية
+        // إعداد الخلفية
         setContentPane(new JPanel() {
             Image bg = new ImageIcon("Background.png").getImage();
             @Override
@@ -57,7 +57,7 @@ public class CharacterSelectionMenu extends JFrame {
         });
         setLayout(new BorderLayout());
 
-        // العنوان
+        // العنوان الرئيسي
         JLabel title = new JLabel("CHOOSE YOUR FIGHTERS", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 40));
         title.setForeground(Color.WHITE);
@@ -69,7 +69,6 @@ public class CharacterSelectionMenu extends JFrame {
         mainPanel.setOpaque(false);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
 
-        // تمرير الأسماء للبانل عشان تظهر فوق الشخصيات
         JPanel p1Panel = createPlayerSection(p1Name, 1);
         JPanel p2Panel = createPlayerSection(p2Name, 2);
 
@@ -77,18 +76,19 @@ public class CharacterSelectionMenu extends JFrame {
         mainPanel.add(p2Panel);
         add(mainPanel, BorderLayout.CENTER);
 
-        // زر FIGHT
+        // زر البدء (FIGHT)
         JButton startBtn = new JButton("FIGHT!");
         styleButtonWithImage(startBtn, "Assets/btn.png", "Assets/btn2.png");
 
         startBtn.addActionListener(e -> {
+            // 1. تحديد حالة الصوت الحالية قبل ما نقفل
+            boolean startMuted = (menuMusic != null && menuMusic.isMuted());
+
             if (menuMusic != null) menuMusic.stop();
             dispose();
 
-            // =================================================================
-            // التعديل الهام جداً: تمرير الأسماء للكونستركتور الجديد لـ Anim
-            // =================================================================
-            new Anim(isMultiplayer, p1Choice, p2Choice, selectedDifficulty, p1Name, p2Name);
+            // 2. تمرير startMuted كـ Argument أخير (رقم 7)
+            new Anim(isMultiplayer, p1Choice, p2Choice, selectedDifficulty, p1Name, p2Name, startMuted);
         });
 
         JPanel bottomPanel = new JPanel();
