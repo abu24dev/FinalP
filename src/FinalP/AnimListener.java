@@ -87,7 +87,6 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
 
 
         if (isGameOver) {
-            // لو القائمة موجودة ومش ظاهرة، أظهرها وحدث النص
             if (gameOverPanel != null && !gameOverPanel.isVisible()) {
                 if (gameOverLabel != null) gameOverLabel.setText("<html><center>" + gameOverMessage + "</center></html>");
                 gameOverPanel.setVisible(true);

@@ -224,7 +224,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
             levelOverStartTime = System.currentTimeMillis();
 
             if (currentLevel < MAX_LEVELS) {
-                // +++ التعديل هنا: LEVEL بدل ROUND +++
+
                 setGameOverMessage("LEVEL " + currentLevel + " CLEARED!");
             } else {
                 isGameOver = true;
