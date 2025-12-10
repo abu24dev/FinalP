@@ -25,10 +25,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     int enemyCharIndex = 1;
 
 
-    int currentRound = 1;
-    final int MAX_ROUNDS = 3;
-    boolean isRoundOver = false;
-    long roundOverStartTime = 0;
+    int currentLevel = 1;
+    final int MAX_LEVELS = 3;
+    boolean isLevelOver = false;
+    long levelOverStartTime = 0;
 
 
     float totalTimeTaken = 0;
@@ -39,12 +39,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
     String enemyNameDisplay = "CPU";
     TextRenderer nameRenderer;
 
-
     public void setCharacters(int p1, int p2) {
         this.myCharIndex = p1;
         this.enemyCharIndex = p2;
     }
-
 
     public void setDifficulty(String diff) {
         if (diff == null) return;
@@ -56,13 +54,11 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         System.out.println("Difficulty set to: " + currentDifficulty);
     }
 
-
     public void setPlayerNames(String n1, String n2_ignored) {
         this.player1Name = n1;
-
     }
 
-    // --- Texture Arrays ---
+
     String[] shinobiTextures = {
             "Assets/Shinobi/Walk1.png", "Assets/Shinobi/Walk2.png", "Assets/Shinobi/Walk3.png", "Assets/Shinobi/Walk4.png", "Assets/Shinobi/Walk5.png", "Assets/Shinobi/Walk6.png", "Assets/Shinobi/Walk7.png", "Assets/Shinobi/Walk8.png",
             "Assets/Shinobi/Idle1.png", "Assets/Shinobi/Idle2.png", "Assets/Shinobi/Idle3.png", "Assets/Shinobi/Idle4.png", "Assets/Shinobi/Idle5.png", "Assets/Shinobi/Idle6.png",
@@ -150,7 +146,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         enemy = new Player(40, 20, enemyTextures, enemyCharIndex, true, true);
 
         updateEnemyName();
-        System.out.println("Started Round " + currentRound + " Difficulty: " + currentDifficulty);
+        System.out.println("Started Level " + currentLevel + " Difficulty: " + currentDifficulty);
     }
 
     private void updateEnemyName() {
@@ -210,7 +206,7 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         gl.glColor3f(1f, 1f, 1f);
         DrawBackground(gl, bgIDs[0]);
 
-        if (!isPaused && !isTimeOver && !isGameOver && !isRoundOver) {
+        if (!isPaused && !isTimeOver && !isGameOver && !isLevelOver) {
             player1.update(enemy);
             enemy.update(player1);
         } else {
@@ -219,34 +215,29 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
 
-
         if (player1.state == 8 && !isGameOver) {
             isGameOver = true;
             setGameOverMessage("GAME OVER - YOU LOSE!");
         }
-        else if (enemy.state == 8 && !isRoundOver && !isGameOver) {
-            isRoundOver = true;
-            roundOverStartTime = System.currentTimeMillis();
+        else if (enemy.state == 8 && !isLevelOver && !isGameOver) {
+            isLevelOver = true;
+            levelOverStartTime = System.currentTimeMillis();
 
-            if (currentRound < MAX_ROUNDS) {
-                setGameOverMessage("ROUND " + currentRound + " CLEARED!");
+            if (currentLevel < MAX_LEVELS) {
+                // +++ التعديل هنا: LEVEL بدل ROUND +++
+                setGameOverMessage("LEVEL " + currentLevel + " CLEARED!");
             } else {
                 isGameOver = true;
                 setGameOverMessage("YOU ARE THE CHAMPION!");
 
-
                 if (!scoreSaved) {
-
-                    float timeSpentInLastRound = 120.0f - timeRemaining;
-
-                    totalTimeTaken += timeSpentInLastRound;
-
+                    float timeSpentInLastLevel = 120.0f - timeRemaining;
+                    totalTimeTaken += timeSpentInLastLevel;
 
                     HighScoreManager.saveScore(player1Name, (int)totalTimeTaken, currentDifficulty.toString());
-                    System.out.println("New Score Saved: " + (int)totalTimeTaken + " seconds");
+                    System.out.println("Score Saved: " + (int)totalTimeTaken + " seconds");
                     scoreSaved = true;
                 }
-
             }
         }
         else if (isTimeOver && !isGameOver) {
@@ -256,10 +247,10 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         }
 
 
-        if (isRoundOver && !isGameOver) {
+        if (isLevelOver && !isGameOver) {
             long now = System.currentTimeMillis();
-            if (now - roundOverStartTime > 3000) {
-                startNextRound();
+            if (now - levelOverStartTime > 3000) {
+                startNextLevel();
             }
         }
 
@@ -275,7 +266,6 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         drawHealthBar(gl, player1.health, 20, drawable.getHeight() - 60);
         drawHealthBar(gl, enemy.health, drawable.getWidth() - 220, drawable.getHeight() - 60);
 
-
         updateEnemyName();
         drawPlayerNames(drawable.getWidth(), drawable.getHeight());
 
@@ -286,33 +276,26 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
 
     private void drawPlayerNames(int width, int height) {
         nameRenderer.beginRendering(width, height);
-
-
         nameRenderer.setColor(Color.CYAN);
-        nameRenderer.draw(player1Name, 20, height - 80); // نفس الإحداثي المضبوط
-
-
+        nameRenderer.draw(player1Name, 20, height - 80);
         nameRenderer.setColor(Color.RED);
         nameRenderer.draw(enemyNameDisplay, width - 250, height - 80);
-
         nameRenderer.endRendering();
     }
 
-    private void startNextRound() {
-
+    private void startNextLevel() {
         float timeSpent = 120.0f - timeRemaining;
         totalTimeTaken += timeSpent;
 
-        currentRound++;
-        isRoundOver = false;
+        currentLevel++;
+        isLevelOver = false;
         setGameOverMessage("");
         timeRemaining = 120.0f;
-
 
         enemyCharIndex = (enemyCharIndex + 1) % 3;
         updateEnemyName();
 
-        System.out.println("Starting Round " + currentRound + " vs Enemy " + enemyCharIndex);
+        System.out.println("Starting Level " + currentLevel + " vs Enemy " + enemyCharIndex);
 
         player1.reset(15, 20, false);
 
@@ -350,10 +333,9 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
         setGameOverMessage("");
         isGameOver = false;
         isTimeOver = false;
-        isRoundOver = false;
+        isLevelOver = false;
         timeRemaining = 120.0f;
-        currentRound = 1;
-
+        currentLevel = 1;
 
         totalTimeTaken = 0;
         scoreSaved = false;
@@ -604,7 +586,9 @@ public class AnimGLEventListener3 extends AnimListener implements KeyListener {
                 target.health -= damage;
                 if (target.health <= 0) {
                     target.health = 0;
-                    target.state = 8; target.animIndex = 0; target.frameDelay = 0;
+                    target.state = 8;
+                    target.animIndex = 0;
+                    target.frameDelay = 0;
                 } else {
                     target.state = 7; target.animIndex = 0; target.frameDelay = 0; target.wasHit = true;
                 }

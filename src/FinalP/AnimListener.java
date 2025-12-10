@@ -16,23 +16,23 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
     protected AudioPlayer audioPlayer;
     public boolean isPaused = false;
 
-    // === متغيرات التايمر ونهاية اللعبة ===
+
     TextRenderer timeRenderer;
     float timeRemaining = 120.0f;
     boolean isTimeOver = false;
     public boolean isGameOver = false;
     protected String gameOverMessage = "";
 
-    // === متغيرات UI والقوائم ===
+
     int pauseID, playID, soundOnID, soundOffID;
     int[] healthTexIDs = new int[11];
     int width, height;
     JPanel pausePanel;
 
-    // +++ متغيرات قائمة النهاية الجديدة +++
+
     JPanel gameOverPanel;
     JLabel gameOverLabel;
-    // +++++++++++++++++++++++++++++++++++
+
 
     int btnSize = 60;
     int margin = 30;
@@ -47,7 +47,7 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         this.pausePanel = panel;
     }
 
-    // +++ دالة ربط قائمة النهاية +++
+
     public void setGameOverPanel(JPanel panel, JLabel label) {
         this.gameOverPanel = panel;
         this.gameOverLabel = label;
@@ -85,9 +85,7 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         timeRenderer.draw(timeString, x, y);
         timeRenderer.endRendering();
 
-        // ---------------------------------------------------------
-        // التعديل: إظهار قائمة النهاية عند انتهاء اللعبة
-        // ---------------------------------------------------------
+
         if (isGameOver) {
             // لو القائمة موجودة ومش ظاهرة، أظهرها وحدث النص
             if (gameOverPanel != null && !gameOverPanel.isVisible()) {
@@ -95,9 +93,7 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
                 gameOverPanel.setVisible(true);
             }
         }
-        // ---------------------------------------------------------
 
-        // رسم الرسائل العادية (مثل Round Cleared) لو اللعبة لسه مخلصتش
         else if (!gameOverMessage.isEmpty()) {
             Rectangle2D bounds = timeRenderer.getBounds(gameOverMessage);
             int msgX = (int) ((width / 2.0) - (bounds.getWidth() / 2.0));
@@ -112,7 +108,6 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
         }
     }
 
-    // ... (باقي الدوال initUI, drawHealthBar, drawUI, mouseClicked كما هي تماماً) ...
 
     public void initUI(GL gl) {
         try {
@@ -202,7 +197,7 @@ public abstract class AnimListener implements GLEventListener, KeyListener, Mous
     public void mouseClicked(MouseEvent e) {
         int mx = e.getX();
         int my = height - e.getY();
-        // منع الضغط على أزرار التحكم لو اللعبة خلصانة
+
         if (isGameOver) return;
 
         if (mx >= btn1X && mx <= btn1X + btnSize && my >= btn1Y && my <= btn1Y + btnSize) {
